@@ -24,7 +24,6 @@
 #include <linux/file.h>
 #include <linux/string.h>
 #include <linux/mm.h>
-#include <linux/file.h>
 #include <linux/fdtable.h>
 #include <linux/fsnotify.h>
 #include <linux/module.h>
@@ -38,7 +37,6 @@
 #include <linux/fcntl.h>
 #include <linux/slab.h>
 #include <linux/uaccess.h>
-#include <linux/fs.h>
 #include <linux/personality.h>
 #include <linux/pagemap.h>
 #include <linux/syscalls.h>
@@ -49,7 +47,9 @@
 #include <linux/ima.h>
 #include <linux/dnotify.h>
 #include <linux/compat.h>
-#include <linux/fcntl.h>
+#include <linux/gfp.h>
+#include <linux/utsname.h>
+#include <linux/sched/task.h>
 
 
 ssize_t ukl_write(int fds, const void* buff, size_t n);
@@ -57,3 +57,11 @@ ssize_t ukl_write(int fds, const void* buff, size_t n);
 long ukl_open(char *filename);
 
 long ukl_close(int fd);
+
+//write all malloc interfaces
+
+void * ukl_malloc(size_t size); // use kmalloc here;
+
+int ukl_name(struct new_utsname *name); // one more wrapper, not very important right now
+
+int ukl_exit_group(int error_code); // should not exit, machine should idle

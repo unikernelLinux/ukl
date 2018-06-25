@@ -41,8 +41,27 @@ long ukl_open(char *filename){
 	return fd;
 }
 
-
 long ukl_close(int fd){
 	int retval = __close_fd(current->files, fd);
 	return retval;
+}
+
+void * ukl_malloc(size_t size){
+	// taken form slab.h kmalloc implementation
+	return __kmalloc(size, GFP_KERNEL);
+
+}
+
+int ukl_name(struct new_utsname *name){
+	int errno = 0;
+	
+	struct new_utsname kname;
+	kname = utsname();
+	name = &kname;
+
+	return errno;
+}
+
+int ukl_exit_group(int error_code){
+	do_group_exit((error_code & 0xff) << 8);
 }
