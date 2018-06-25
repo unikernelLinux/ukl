@@ -64,4 +64,9 @@ int ukl_name(struct new_utsname *name){
 
 int ukl_exit_group(int error_code){
 	do_group_exit((error_code & 0xff) << 8);
+	ssize_t msg;
+	msg = ukl_write(1, "Process exited, now idling!\n",28);
+	while(1){
+
+	}
 }
