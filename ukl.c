@@ -49,24 +49,25 @@ long ukl_close(int fd){
 void * ukl_malloc(size_t size){
 	// taken form slab.h kmalloc implementation
 	return __kmalloc(size, GFP_KERNEL);
-
 }
 
-int ukl_name(struct new_utsname *name){
-	int errno = 0;
-	
-	struct new_utsname kname;
-	kname = utsname();
-	name = &kname;
+int ukl_name(struct new_utsname *name){ //in /kernel/sys.c
+	//int errno = 0;
+	struct new_utsname *kname;
 
-	return errno;
+	kname = utsname();
+	memcpy(name, kname, sizeof(struct new_utsname));
+
+	return 0;
 }
 
 int ukl_exit_group(int error_code){
-	do_group_exit((error_code & 0xff) << 8);
 	ssize_t msg;
-	msg = ukl_write(1, "Process exited, now idling!\n",28);
 	while(1){
 
 	}
+	// if I dont call the loop here, kernel will go into panic because I attempt to 
+	// kill init
+	do_group_exit((error_code & 0xff) << 8);
+	msg = ukl_write(1, "Process exited, now idling!\n",28);
 }

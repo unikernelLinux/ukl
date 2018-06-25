@@ -51,7 +51,6 @@
 #include <linux/utsname.h>
 #include <linux/sched/task.h>
 
-
 ssize_t ukl_write(int fds, const void* buff, size_t n);
 
 long ukl_open(char *filename);
