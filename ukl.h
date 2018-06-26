@@ -51,7 +51,7 @@
 #include <linux/utsname.h>
 #include <linux/sched/task.h>
 
-ssize_t ukl_write(int fds, const void* buff, size_t n);
+ssize_t ukl_write(int fds, const void* buf);
 
 long ukl_open(char *filename);
 
@@ -61,6 +61,6 @@ long ukl_close(int fd);
 
 void * ukl_malloc(size_t size); // use kmalloc here;
 
-int ukl_name(struct new_utsname *name); // one more wrapper, not very important right now
+int ukl_utsname(struct new_utsname *name); // one more wrapper, not very important right now
 
 int ukl_exit_group(int error_code); // should not exit, machine should idle

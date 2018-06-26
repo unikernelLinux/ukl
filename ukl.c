@@ -18,20 +18,17 @@
  */
  #include <linux/ukl.h>
 
-ssize_t ukl_write(int fds, const void* buff, size_t n) {
-	//ssize_t n = -1;
-	struct fd f = fdget_pos(fds);
-	char *c = buff;
-	int count = 0;
-	while (*c++ != '\0') {
-		count++;
-	} 
-	//if (fds == 1) {
-    	n = vfs_write(f.file, buff, count, &f.file->f_pos);
-    //} else {
-    //	n = printk(buff);
-	//}
-	return n;
+ssize_t ukl_write(int fd, const void* buf) {
+	struct fd f = fdget_pos(fd);
+	int count = strlen(buf);
+	ssize_t ret = -EBADF;
+	loff_t *pos = &f.file->f_pos;
+	if (fd != 1) {
+		ret = vfs_write(f.file, buf, count, pos);
+    } else {
+    	ret = printk(buf);
+	}	
+	return ret;
 }
 
 long ukl_open(char *filename){
@@ -51,7 +48,7 @@ void * ukl_malloc(size_t size){
 	return __kmalloc(size, GFP_KERNEL);
 }
 
-int ukl_name(struct new_utsname *name){ //in /kernel/sys.c
+int ukl_utsname(struct new_utsname *name){ //in /kernel/sys.c
 	//int errno = 0;
 	struct new_utsname *kname;
 
@@ -63,11 +60,11 @@ int ukl_name(struct new_utsname *name){ //in /kernel/sys.c
 
 int ukl_exit_group(int error_code){
 	ssize_t msg;
+	msg = ukl_write(1, "Process exited, now idling!\n");
 	while(1){
 
 	}
 	// if I dont call the loop here, kernel will go into panic because I attempt to 
 	// kill init
 	do_group_exit((error_code & 0xff) << 8);
-	msg = ukl_write(1, "Process exited, now idling!\n",28);
 }
