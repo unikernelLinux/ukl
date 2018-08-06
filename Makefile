@@ -1,11 +1,12 @@
 # Archiving UKL.o into UKL.a
 #
 #
-obj-y += ukl.o kmain.o
+obj-y += ukl.o server.o 
 
 all: 
 	make -C ../linux M=$(PWD)
-	ar cr UKL.a ukl.o kmain.o
+	rm UKL.a
+	ar cr UKL.a ukl.o server.o
 
 clean: 
 	make -C ../linux M=$(PWD) clean

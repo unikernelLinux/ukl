@@ -18,17 +18,39 @@
  */
  #include <linux/ukl.h>
 
-ssize_t ukl_write(int fd, const void* buf) {
-	struct fd f = fdget_pos(fd);
-	int count = strlen(buf);
+ssize_t ukl_write(int fd, const void* buf, size_t count) {
+	if(count == -1)
+		count = strlen(buf);
+	return ksys_write(fd, buf, count);
+	/*struct fd f = fdget_pos(fd);
+	if(count == -1)
+		count = strlen(buf);
 	ssize_t ret = -EBADF;
 	loff_t *pos = &f.file->f_pos;
 	if (fd != 1) {
 		ret = vfs_write(f.file, buf, count, pos);
+		if (ret >= 0)
+			&f.file->f_pos = pos
+		fdput_pos(f);
     } else {
     	ret = printk(buf);
 	}	
-	return ret;
+	return ret;*/
+}
+
+ssize_t ukl_read(int fd, const void* buf, size_t count){
+	return ksys_read(fd, buf, count);
+	/*struct fd f = fdget_pos(fd);
+	ssize_t ret = -EBADF;
+
+	if (f.file) {
+		loff_t pos = &f.file->f_pos;
+		ret = vfs_read(f.file, buf, count, &pos);
+		if (ret >= 0)
+			&f.file->f_pos = pos
+		fdput_pos(f);
+	}
+	return ret;*/
 }
 
 long ukl_open(char *filename){
@@ -60,11 +82,35 @@ int ukl_utsname(struct new_utsname *name){ //in /kernel/sys.c
 
 int ukl_exit_group(int error_code){
 	ssize_t msg;
-	msg = ukl_write(1, "Process exited, now idling!\n");
+	msg = ukl_write(1, "Process exited, now idling!\n", -1);
 	while(1){
 
 	}
 	// if I dont call the loop here, kernel will go into panic because I attempt to 
 	// kill init
 	do_group_exit((error_code & 0xff) << 8);
+}
+
+int ukl_socket(int family, int type, int protocol){
+	return __sys_socket(family, type, protocol);
+}
+
+int ukl_bind(int fd, struct sockaddr __user *umyaddr, int addrlen){
+	return __sys_bind(fd, umyaddr, addrlen);
+}
+
+int ukl_connect(int fd, struct sockaddr __user *uservaddr, int addrlen){
+	return __sys_connect(fd, uservaddr, addrlen);
+}
+
+int ukl_listen(int fd, int backlog){
+	return __sys_listen(fd, backlog);
+}
+
+int ukl_accept(int fd, struct sockaddr *upeer_sockaddr, int *upeer_addrlen){
+	return __sys_accept4(fd, upeer_sockaddr, upeer_addrlen, 0);
+}
+
+int ukl_ioctl(int fd, int cmd, long arg){
+	return ksys_ioctl(fd, cmd, arg);
 }

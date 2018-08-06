@@ -50,7 +50,21 @@
 #include <linux/utsname.h>
 #include <linux/sched/task.h>
 
-ssize_t ukl_write(int fds, const void* buf);
+#include <linux/socket.h>
+#include <uapi/linux/in.h>
+
+#include <asm/socket.h>			/* arch-dependent defines	*/
+#include <linux/sockios.h>		/* the SIOCxxx I/O controls	*/
+#include <linux/uio.h>			/* iovec support		*/
+#include <linux/types.h>		/* pid_t			*/
+#include <linux/compiler.h>		/* __user			*/
+#include <uapi/linux/socket.h>
+
+#include <net/sock.h>
+
+ssize_t ukl_write(int fds, const void* buf, size_t count);
+
+ssize_t ukl_read(int fd, const void* buf, size_t count);
 
 long ukl_open(char *filename);
 
@@ -63,3 +77,16 @@ void * ukl_malloc(size_t size); // use kmalloc here;
 int ukl_utsname(struct new_utsname *name); // one more wrapper, not very important right now
 
 int ukl_exit_group(int error_code); // should not exit, machine should idle
+
+int ukl_socket(int family, int type, int protocol);
+
+int ukl_bind(int fd, struct sockaddr __user *umyaddr, int addrlen);
+
+int ukl_connect(int fd, struct sockaddr __user *uservaddr, int addrlen);
+
+int ukl_listen(int fd, int backlog);
+
+int ukl_accept(int fd, struct sockaddr *upeer_sockaddr, int *upeer_addrlen);
+
+
+int ukl_ioctl(int fd, int cmd, long arg);
