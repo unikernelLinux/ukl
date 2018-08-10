@@ -20,9 +20,9 @@ int main(void)
     bzero(&servaddr,sizeof servaddr);
  
     servaddr.sin_family=AF_INET;
-    servaddr.sin_port=htons(5556);
+    servaddr.sin_port=htons(5555);
  
-    inet_pton(AF_INET,"169.254.0.15",&(servaddr.sin_addr));
+    inet_pton(AF_INET,"127.0.0.1",&(servaddr.sin_addr));
 
     printf("before connect\n");
     connect(sockfd,(struct sockaddr *)&servaddr,sizeof(servaddr));
