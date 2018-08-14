@@ -9,6 +9,9 @@
 #include <uapi/linux/in.h>
 #include <linux/if.h>
 #include <linux/inet.h>
+#include <linux/delay.h>
+//#include <uapi/linux/socket.h>
+//#include <linux/fs.h>
 
 unsigned int inet_addr(char* ip)
 {
@@ -145,6 +148,58 @@ ssize_t ksend(struct socket * socket, const void *buffer, size_t length, int fla
 
 int kmain(void)
 {
+
+    int fd = -1;
+    int retioctl = -1;
+
+    struct sockaddr_in sin;
+    struct ifreq ifr;
+
+    fd = ukl_socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
+
+    if(fd < 0){
+        printk("Problem with socket\n");
+        return  -1;
+    }
+
+    strncpy(ifr.ifr_name, "eth0\0", 5);
+    memset(&sin, 0, sizeof(struct sockaddr));
+    sin.sin_family = AF_INET;
+    sin.sin_port=htons(0);
+    sin.sin_addr.s_addr = inet_addr("10.0.2.15");
+    memcpy(&ifr.ifr_addr, &sin, sizeof(struct sockaddr));
+
+    retioctl = ukl_ioctl(fd, SIOCSIFADDR, &ifr);
+    if(retioctl < 0){
+        printk("1st Ioctl failed\n");
+        return  -1;
+    }
+
+    /*strncpy(ifr.ifr_name, "eth0", 4);*/
+    ifr.ifr_flags |= IFF_BROADCAST;
+    ifr.ifr_flags |= IFF_MULTICAST;
+
+    retioctl = ukl_ioctl(fd, SIOCGIFFLAGS, &ifr);
+    if(retioctl < 0){
+        printk("2nd Ioctl failed\n");
+        return  -1;
+    }
+
+    /*strncpy(ifr.ifr_name, "eth0", 4);*/
+    ifr.ifr_flags |= IFF_UP;
+    /*ifr.ifr_flags |= IFF_BROADCAST;*/
+    ifr.ifr_flags |= IFF_RUNNING;
+    /*ifr.ifr_flags |= IFF_MULTICAST;*/
+
+    retioctl = ukl_ioctl(fd, SIOCSIFFLAGS, &ifr);
+    if(retioctl < 0){
+        printk("3rd Ioctl failed\n");
+        return  -1;
+    }
+
+    msleep(3000);
+
+
     int server_err, addr_len, len;
     struct socket *listen_socket, *new_socket;
     struct sockaddr_in server, addr_cli;
@@ -216,7 +271,7 @@ int kmain(void)
             printk("got message : %s\n", buf);
             /*ksend(sockfd_cli, buf, len, 0);
             if (memcmp(buf, "quit", 4) == 0)*/
-                break;
+                //break;
         }
     }
 
