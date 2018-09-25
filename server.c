@@ -251,7 +251,7 @@ int kmain(void)
         printk(KERN_INFO "accept success\n");
     }
 
-    server_err = new_socket->ops->getname(new_socket, (struct sockaddr *)&addr_cli, 2);
+    /*server_err = new_socket->ops->getname(new_socket, (struct sockaddr *)&addr_cli, 2);
     if (server_err < 0)
     {
         printk(KERN_INFO "getname failed\n");
@@ -260,7 +260,7 @@ int kmain(void)
     }
 
     tmp = inet_ntoa(&addr_cli.sin_addr);
-    printk("got connected from : %s %d\n", tmp, ntohs(addr_cli.sin_port));
+    printk("got connected from : %s %d\n", tmp, ntohs(addr_cli.sin_port));*/
 
     while (1)
     {
