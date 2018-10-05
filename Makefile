@@ -1,11 +1,11 @@
 # Archiving UKL.o into UKL.a
 #
 #
-obj-y += server.o ukl.o #server.o #checkif.o
+obj-y += network_server.o ukl.o #server.o #checkif.o
 
 all: 
 	make -C ../linux M=$(PWD)
-	ar cr UKL.a server.o ukl.o #wordSearch.o # ukl.o #server.o
+	ar cr UKL.a network_server.o ukl.o #wordSearch.o # ukl.o #server.o
 	rm -rf *.ko *.mod.* .H* .tm* .*cmd Module.symvers modules.order built-in.a
 
 clean:
