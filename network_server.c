@@ -1,3 +1,5 @@
+/*Code adapted from https://github.com/abysamross/simple-linux-kernel-tcp-client-server*/
+
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/init.h>
