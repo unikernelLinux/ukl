@@ -13,8 +13,6 @@ network_server: clean
 	rm multithread.o
 	ar cr UKL.a network_server.o ukl.o 
 	rm -rf *.ko *.mod.* .H* .tm* .*cmd Module.symvers modules.order built-in.a
-	kernelupdate
-	runUKL
 
 clean:
 	rm -rf *.ko *.o *.mod.* .H* .tm* .*cmd Module.symvers modules.order *.a
