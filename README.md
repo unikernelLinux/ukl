@@ -1,19 +1,12 @@
 # UKL
 
-Currently added the following functions.
-
-* ukl_open
-* ukl_close
-* ukl_malloc
-* ukl_name
-* ukl_exit_group
+A unikernel based on Linux.
+https://next.redhat.com/2018/11/14/ukl-a-unikernel-based-on-linux/
 
 ## To Run
 
-Comment out the execve call in init/main.c and add your own code containing the above functions.
+1. You need the following packages
+	a. QEMU
+	b. supermin
 
-Add any new files you created to the Makefile in init folder
-
-Compile and run the kernel
-
-
+This Makefile assumes that you have a main directory in which you have three further sub directories.
