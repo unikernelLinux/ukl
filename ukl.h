@@ -88,5 +88,4 @@ int ukl_listen(int fd, int backlog);
 
 int ukl_accept(int fd, struct sockaddr *upeer_sockaddr, int *upeer_addrlen);
 
-
 int ukl_ioctl(int fd, int cmd, long arg);

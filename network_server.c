@@ -32,6 +32,10 @@
 #include <linux/delay.h>
 
 #include <linux/sched.h>
+#include <linux/smp.h>
+#include <linux/cpumask.h>
+#include <linux/fs.h>
+#include <linux/syslog.h>
 
 #define DEFAULT_PORT 5555
 #define MODULE_NAME "tmem_tcp_server"
@@ -109,6 +113,8 @@ char *inet_ntoa(struct in_addr *in)
 int tcp_server_send(struct socket *sock, int id, const char *buf,\
                 const size_t length, unsigned long flags)
 {
+        //printk("\n******* tcp_server_send running on CPU no. %d. *******\n", smp_processor_id());
+       
         struct msghdr msg;
         struct kvec vec;
         int len, written = 0, left =length;
@@ -148,6 +154,8 @@ repeat_send:
 int tcp_server_receive(struct socket *sock, int id,struct sockaddr_in *address,\
                 unsigned char *buf,int size, unsigned long flags)
 {
+        //printk("\n******* tcp_server_receive running on CPU no. %d. *******\n", smp_processor_id());
+       
         struct msghdr msg;
         struct kvec vec;
         int len;
@@ -184,8 +192,8 @@ read_again:
         */
 
         if(!skb_queue_empty(&sock->sk->sk_receive_queue))
-                pr_info("recv queue empty ? %s \n",
-                skb_queue_empty(&sock->sk->sk_receive_queue)?"yes":"no");
+                //pr_info("recv queue empty ? %s \n",
+                //skb_queue_empty(&sock->sk->sk_receive_queue)?"yes":"no");
 
         len = kernel_recvmsg(sock, &msg, &vec, size, size, flags);
 
@@ -194,7 +202,7 @@ read_again:
         
         tmp = inet_ntoa(&(address->sin_addr));
 
-        pr_info("client-> %s:%d, says: %s\n", tmp, ntohs(address->sin_port), buf);
+        //pr_info("client-> %s:%d, says: %s\n", tmp, ntohs(address->sin_port), buf);
 
         kfree(tmp);
         //len = msg.msg_iter.kvec->iov_len;
@@ -203,6 +211,7 @@ read_again:
 
 int connection_handler(void *data)
 {
+       //printk("\n******* connection_handler running on CPU no. %d. *******\n", smp_processor_id());
        struct tcp_conn_handler_data *conn_data = 
                (struct tcp_conn_handler_data *)data;
 
@@ -284,14 +293,17 @@ int connection_handler(void *data)
               __set_current_state(TASK_RUNNING);
               remove_wait_queue(&accept_socket->sk->sk_wq->wait, &recv_wait);
 
+              // int retsyslog;
+              // retsyslog = do_syslog(SYSLOG_ACTION_CONSOLE_ON, NULL, 4, SYSLOG_FROM_READER);
 
-              pr_info("receiving message\n");
+
+              // pr_info("receiving message: ");
               memset(in_buf, 0, len+1);
               ret = tcp_server_receive(accept_socket, id, address, in_buf, len,\
                                        MSG_DONTWAIT);
               if(ret > 0)
               {
-                  printk("the message is : %s\n",in_buf);
+                  printk("receiving message: %s\n",in_buf);
                       // if(memcmp(in_buf, "HOLA", 4) == 0)
                       // {
                       //         memset(out_buf, 0, len+1);
@@ -360,6 +372,8 @@ int tcp_server_accept(void)
         socket = tcp_server->listen_socket;
         pr_info(" *** mtp | creating the accept socket | tcp_server_accept "
                 "*** \n");
+        //printk("\n******* tcp_server_accept running on CPU no. %d. *******\n", smp_processor_id());
+
         /*
         accept_socket = 
         (struct socket*)kmalloc(sizeof(struct socket), GFP_KERNEL);
@@ -441,10 +455,15 @@ int tcp_server_accept(void)
                __set_current_state(TASK_RUNNING);
                remove_wait_queue(&socket->sk->sk_wq->wait, &accept_wait);
 
-               pr_info("accept connection\n");
+               // pr_info("accept connection\n");
+
+               int retsyslog;
+               retsyslog = do_syslog(SYSLOG_ACTION_CONSOLE_OFF, NULL, 3, SYSLOG_FROM_READER);
 
                accept_err = 
                        socket->ops->accept(socket, accept_socket, O_NONBLOCK, 1);
+               
+               retsyslog = do_syslog(SYSLOG_ACTION_CONSOLE_ON, NULL, 3, SYSLOG_FROM_READER);
 
                if(accept_err < 0)
                {
@@ -475,7 +494,7 @@ int tcp_server_accept(void)
 
                tmp = inet_ntoa(&(client->sin_addr));
 
-               pr_info("connection from: %s %d \n",
+               pr_info("connection from: %s %d \n\n",
                        tmp, ntohs(client->sin_port));
 
                kfree(tmp);
@@ -484,7 +503,7 @@ int tcp_server_accept(void)
                memset(in_buf, 0, len+1);
                pr_info("receive the package\n");
                */
-               pr_info("handle connection\n");
+               //pr_info("handle connection\n");
 
                /*
                while((accept_err = tcp_server_receive(accept_socket, in_buf,\
@@ -519,8 +538,12 @@ int tcp_server_accept(void)
                         //spin_unlock(&tcp_server_lock);
                }
 
-               pr_info("gave free id: %d\n", id);
-
+               //pr_info("gave free id: %d\n", id);
+               // int scl;
+               //  for(scl = 0; scl < 20; scl++){
+               //    ukl_write(1, "\n", -1);
+               //  }
+               
                if(id == MAX_CONNS)
                        goto release;
 
@@ -591,6 +614,8 @@ int tcp_server_listen(void)
         //tcp_server->running = 1;
         allow_signal(SIGKILL|SIGTERM);         
         //spin_unlock(&tcp_server_lock);
+
+        //printk("\n******* tcp_server_listen running on CPU no. %d. *******\n", smp_processor_id());
 
         server_err = sock_create(PF_INET, SOCK_STREAM, IPPROTO_TCP,\
                                 &tcp_server->listen_socket);
@@ -671,6 +696,7 @@ err:
 
 int tcp_server_start(void)
 {
+        //printk("\n******* tcp_server_start running on CPU no. %d. *******\n", smp_processor_id());
         tcp_server->running = 1;
         tcp_server->thread = kthread_run((void *)tcp_server_listen, NULL,\
                                         MODULE_NAME);
@@ -681,6 +707,8 @@ static int network_server_init(void)
 {
         pr_info(" *** mtp | network_server initiated | "
                 "network_server_init ***\n");
+        //printk("\n******* Network_server_init running on CPU no. %d. *******\n", smp_processor_id());
+
         tcp_server = kmalloc(sizeof(struct tcp_server_service), GFP_KERNEL);
         memset(tcp_server, 0, sizeof(struct tcp_server_service));
 
@@ -760,6 +788,10 @@ static void network_server_exit(void)
 // module_exit(network_server_exit)
 int kmain(void)
 {
+  volatile int wfd = -1, rett;
+
+    //printk("This system has %d processors available.\n", nr_cpu_ids);
+    //printk("\n******* Kmain running on CPU no. %d. *******\n", smp_processor_id());
 
     int fd = -1;
     int retioctl = -1;
@@ -809,7 +841,34 @@ int kmain(void)
         return  -1;
     }
 
-    msleep(3000);
+    // int retsyslog;
+    // retsyslog = do_syslog(SYSLOG_ACTION_CONSOLE_OFF, NULL, 3, SYSLOG_FROM_READER);
+
+    // wfd = do_sys_open(AT_FDCWD, "/proc/sys/kernel/printk", O_WRONLY|O_CREAT, 0666);
+    // int errsv = wfd;
+    // if(wfd < 0){
+    //   printk("Cant open /proc/sys/kernel/printk. Error %d\n", errsv);
+    // }
+    
+    // if(wfd = ukl_write(wfd, "3\n", 2) < 0){
+    //   errsv = wfd;
+    //   printk("Error %d while writing\n", errsv);
+    // }
+
+    // wfd = ukl_open("/proc/sys/kernel/printk");
+    // errsv = wfd;
+    // if(wfd < 0){
+    //   printk("Cant open /proc/sys/kernel/printk. Error %d\n", errsv);
+    // }
+
+    // char *buf[10];
+
+    // wfd = ukl_read(wfd, buf, 10);
+    // ukl_write(1, buf, -1);
+    // printk("\n printed \n");
+
+
+    //msleep(3000);
 
     network_server_init();
   }
