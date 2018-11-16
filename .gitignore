@@ -1,0 +1,11 @@
+Module.symvers
+modules.order
+*.o.d
+*.o.cmd
+err
+out
+*.o
+*.a.cmd
+*.a
+
+random/
