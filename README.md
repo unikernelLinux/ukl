@@ -37,9 +37,9 @@ Assuming you are running Fedora.
      telnet 127.0.0.1 5555
 ```
 
-4. To run unikernel with TLS support
+4. To run unikernel with TLS support (errors may occur!)
+
 ```
     make multithread
     make all
 ```
-     (errors may occur!)
