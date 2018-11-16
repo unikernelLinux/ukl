@@ -34,7 +34,7 @@ Assuming you are running Fedora.
 ```
     You can telnet from another terminal into the unikernel on 127.0.0.1 and 5555 port
 ```
-    telnet 127.0.0.1 5555
+     telnet 127.0.0.1 5555
 ```
 
 4. To run unikernel with TLS support
@@ -42,4 +42,4 @@ Assuming you are running Fedora.
     make multithread
     make all
 ```
-    (errors may occur!)
+     (errors may occur!)
