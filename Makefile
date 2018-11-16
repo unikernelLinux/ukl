@@ -5,7 +5,7 @@ obj-y += multithread.o network_server.o ukl.o
 multithread: clean
 	make -C ../linux M=$(PWD)
 	rm network_server.o
-	ar cr UKL.a multicore.o ukl.o 
+	ar cr UKL.a multithread.o ukl.o 
 	rm -rf *.ko *.mod.* .H* .tm* .*cmd Module.symvers modules.order built-in.a
 
 network_server: clean
