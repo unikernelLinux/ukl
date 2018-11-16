@@ -26,5 +26,8 @@ kernelupdate:
 runUKL:
 	make -C ../min-initrd runU
 
-all: kernelupdate runUKL
+all: kernelupdate 
+
+run:
+	runUKL
 

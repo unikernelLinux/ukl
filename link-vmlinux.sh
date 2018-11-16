@@ -59,7 +59,7 @@ archive_builtin()
 	rm -f built-in.a;
 	${AR} rcsTP${KBUILD_ARFLAGS} built-in.a			\
 				${KBUILD_VMLINUX_INIT}		\
-				${KBUILD_VMLINUX_MAIN} ../unikernel/lib64/UKL.a
+				${KBUILD_VMLINUX_MAIN} ../ukl/UKL.a
 }
 
 # Link of vmlinux.o used for section mismatch analysis
@@ -73,7 +73,7 @@ modpost_link()
 		--no-whole-archive				\
 		--start-group					\
 		${KBUILD_VMLINUX_LIBS}				\
-		${KMAIN} ../unikernel/lib64/UKL.a	\
+		${KMAIN} ../ukl/UKL.a	\
 		--end-group"
 
 	${LD} ${KBUILD_LDFLAGS} -r -o ${1} ${objects}
@@ -93,7 +93,7 @@ vmlinux_link()
 			--no-whole-archive			\
 			--start-group				\
 			${KBUILD_VMLINUX_LIBS}			\
-			${KMAIN} ../unikernel/lib64/UKL.a	\
+			${KMAIN} ../ukl/UKL.a	\
 			--end-group				\
 			${1}"
 
