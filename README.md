@@ -12,13 +12,16 @@ Assuming you are running Fedora.
 	2. supermin
 	3. git
 	4. some kernel development tools
-
+'''
     sudo dnf install qemu supermin git elfutils-devel kernel-devel
     sudo dnf groupinstall "C Development Tools and Libraries"
+'''
 
 2. This Makefile assumes that you have a main directory in which you have three further sub directories. Follow the commands below to get the correct directory layout. (This will not be necessary as we update the Makefile)
+'''
     mkdir unikernel
     cd unikernel
     git clone git@github.com:torvalds/linux.git
     git clone git@github.com:razaaliraza/ukl.git
     git clone git@github.com:razaaliraza/min-initrd.git
+'''
