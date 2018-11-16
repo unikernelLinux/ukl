@@ -24,4 +24,22 @@ Assuming you are running Fedora.
     git clone git@github.com:torvalds/linux.git
     git clone git@github.com:razaaliraza/ukl.git
     git clone git@github.com:razaaliraza/min-initrd.git
+    cd ukl
 ```
+
+3. Now just run a few make commands
+```
+    make network_server
+    make all
+```
+You can telnet from another terminal into the unikernel on 127.0.0.1 and 5555 port
+```
+    telnet 127.0.0.1 5555
+```
+
+4. To run unikernel with TLS support
+```
+    make multithread
+    make all
+```
+(errors may occur!)
