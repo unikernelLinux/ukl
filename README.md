@@ -32,7 +32,7 @@ Assuming you are running Fedora.
     make network_server
     make all
 ```
-You can telnet from another terminal into the unikernel on 127.0.0.1 and 5555 port
+	You can telnet from another terminal into the unikernel on 127.0.0.1 and 5555 port
 ```
     telnet 127.0.0.1 5555
 ```
@@ -42,4 +42,4 @@ You can telnet from another terminal into the unikernel on 127.0.0.1 and 5555 po
     make multithread
     make all
 ```
-(errors may occur!)
+	(errors may occur!)
