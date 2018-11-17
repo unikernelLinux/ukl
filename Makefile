@@ -21,13 +21,11 @@ kernelupdate:
 	./update_kernel.sh
 	rm ../linux/vmlinux || true
 	make -C ../linux olddefconfig
-	make -C ../linux all -j$(nproc)
+	make -C ../linux -j$(nproc)
 
 runUKL:
 	make -C ../min-initrd runU
 
 all: kernelupdate 
 
-run:
-	runUKL
-
+run: runUKL
