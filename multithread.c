@@ -37,15 +37,15 @@
 
 struct task_struct *thread[MAX_THREADS];
 
-__thread int counter __attribute__ ((aligned (4096))) = 0;
-//__thread int counter[1024] = {0};
+__thread int myCounter __attribute__ ((aligned (4096))) = 0;
+//__thread int myCounter[1024] = {0};
 
 void cpuprint(int a){
 	int i = 0, j = 0, k = 0;
 	while(1){
 		// printk("Thread %d running on CPU no. %d.\n", a, smp_processor_id());
-		counter = counter - a;
-		printk("Thread %d: New value of counter = %d", a, counter);
+		myCounter = myCounter - a;
+		printk("Thread %d: New value of myCounter = %d", a, myCounter);
 		while(i < 100000000){
 			i++;
 			while(j < 100000000){
