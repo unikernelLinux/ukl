@@ -33,18 +33,19 @@
 #include <linux/smp.h>
 #include <linux/cpumask.h>
 
-#define MAX_THREADS 23
+#define MAX_THREADS 2
 
 struct task_struct *thread[MAX_THREADS];
 
-__thread int counter[1024] = {0};
+__thread int counter __attribute__ ((aligned (4096))) = 0;
+//__thread int counter[1024] = {0};
 
 void cpuprint(int a){
 	int i = 0, j = 0, k = 0;
 	while(1){
 		// printk("Thread %d running on CPU no. %d.\n", a, smp_processor_id());
-		counter[0] = counter[0] - a;
-		printk("Thread %d: New value of counter = %d", a, counter[0]);
+		counter = counter - a;
+		printk("Thread %d: New value of counter = %d", a, counter);
 		while(i < 100000000){
 			i++;
 			while(j < 100000000){
