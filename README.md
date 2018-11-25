@@ -24,6 +24,7 @@ Assuming you are running Fedora.
     git clone git@github.com:torvalds/linux.git
     git clone git@github.com:razaaliraza/ukl.git
     git clone git@github.com:razaaliraza/min-initrd.git
+    ln -s ../../../ukl/ukl.h linux/include/linux/
     cd ukl
 ```
 
