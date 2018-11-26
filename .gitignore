@@ -1,3 +1,4 @@
+.gitignore
 Module.symvers
 modules.order
 *.o.d
@@ -10,3 +11,4 @@ out
 
 random/
 bootup
+user/
