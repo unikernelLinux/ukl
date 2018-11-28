@@ -65,6 +65,9 @@ void cpuprint(int a){
 int kmain(void)
 {
 	printk("Main Thread running on CPU no. %d.\n", smp_processor_id());
+
+	myCounter = myCounter - 1;
+	printk("Main Thread: New value of myCounter = %d", myCounter);
 	int i = 0;
 	for(; i < MAX_THREADS; i++){
 		thread[i] = kthread_run((void *)cpuprint, i, "Thread %d", i);
