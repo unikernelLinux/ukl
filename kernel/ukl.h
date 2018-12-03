@@ -62,6 +62,9 @@
 
 #include <net/sock.h>
 
+#include <asm/proto.h>
+#include <asm/prctl.h>
+
 ssize_t ukl_write(int fds, const void* buf, size_t count);
 
 ssize_t ukl_read(int fd, const void* buf, size_t count);
@@ -89,3 +92,5 @@ int ukl_listen(int fd, int backlog);
 int ukl_accept(int fd, struct sockaddr *upeer_sockaddr, int *upeer_addrlen);
 
 int ukl_ioctl(int fd, int cmd, long arg);
+
+long ukl_arch_prctl(int option, unsigned long arg2);

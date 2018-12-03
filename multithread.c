@@ -33,6 +33,9 @@
 #include <linux/smp.h>
 #include <linux/cpumask.h>
 
+#include <asm/sections.h>
+#include <asm/prctl.h>
+
 #define MAX_THREADS 2
 
 struct task_struct *thread[MAX_THREADS];
@@ -64,6 +67,13 @@ void cpuprint(int a){
 
 int kmain(void)
 {
+	volatile long ret = 10;
+	ret = ukl_arch_prctl(ARCH_SET_FS, &__tls_start);
+
+	if(ret < 0){
+		printk("Can't set value of fs register\n");
+	}
+
 	printk("Main Thread running on CPU no. %d.\n", smp_processor_id());
 
 	myCounter = myCounter - 1;

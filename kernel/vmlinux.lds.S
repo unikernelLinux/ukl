@@ -381,12 +381,14 @@ SECTIONS
 	/* Thread Local Storage sections  */
 	. = ALIGN(PAGE_SIZE);
 	.tdata	  :{
+		__tls_start = .;
 		*(.tdata .tdata.* .gnu.linkonce.td.*)
    	} :tls
    	
    	. = ALIGN(PAGE_SIZE);
    	.tbss		  : { 
    		*(.tbss .tbss.* .gnu.linkonce.tb.*) *(.tcommon) 
+   		__tls_end = .;
    	} :tls
 
 	. = ALIGN(PAGE_SIZE);		/* keep VO_INIT_SIZE page aligned */

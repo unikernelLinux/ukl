@@ -114,3 +114,13 @@ int ukl_accept(int fd, struct sockaddr *upeer_sockaddr, int *upeer_addrlen){
 int ukl_ioctl(int fd, int cmd, long arg){
 	return ksys_ioctl(fd, cmd, arg);
 }
+
+long ukl_arch_prctl(int option, unsigned long arg2){
+	long ret;
+
+	ret = do_arch_prctl_64(current, option, arg2);
+	if (ret == -EINVAL)
+		ret = do_arch_prctl_common(current, option, arg2);
+
+	return ret;
+}
