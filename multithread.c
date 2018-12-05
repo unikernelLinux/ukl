@@ -44,11 +44,14 @@ __thread int myCounter __attribute__ ((aligned (4096))) = 0;
 //__thread int myCounter[1024] = {0};
 
 void cpuprint(int a){
+
+	loadsegment(fs, 0);
+	wrmsrl(MSR_FS_BASE, __tls_start);
 	int i = 0, j = 0, k = 0;
 	while(1){
 		// printk("Thread %d running on CPU no. %d.\n", a, smp_processor_id());
-		myCounter = myCounter - a;
-		printk("Thread %d: New value of myCounter = %d", a, myCounter);
+		myCounter = myCounter + a;
+		printk("Thread %d: New value of myCounter = %d\n", a, myCounter);
 		while(i < 100000000){
 			i++;
 			while(j < 100000000){
@@ -62,6 +65,8 @@ void cpuprint(int a){
 		}
 		i = 0;
 		cond_resched();
+		loadsegment(fs, 0);
+		wrmsrl(MSR_FS_BASE, __tls_start);	
 	}
 }
 
@@ -78,41 +83,39 @@ static int get_free_idx(void)
 
 int kmain(void)
 {
-	int ret = -10;
-	int idx;
-	struct user_desc __user *u_info = ukl_malloc(sizeof(struct user_desc));
+// 	int ret = -10;
+// 	int idx;
+// 	struct user_desc __user *u_info = ukl_malloc(sizeof(struct user_desc));
+	int i = 0;
 
-	idx = get_free_idx();
-	printk("Entry number = %d\n", idx);
+// 	idx = get_free_idx();
+// 	printk("Entry number = %d\n", idx);
 	
-	u_info->entry_number = idx;
-	u_info->base_addr = __tls_start;
+// 	u_info->entry_number = idx;
+// 	u_info->base_addr = __tls_start;
 
-	ret = ukl_set_thread_area(u_info);
-	if(ret < 0){
-		printk("Can't set thread area\n");
-	}
+// 	// msleep(1000);
+// 	ret = ukl_set_thread_area(u_info);
+// 	if(ret < 0){
+// 		printk("Can't set thread area\n");
+// 	}
 
-	printk("Entry number = %d\n", u_info->entry_number);
-
-	// for(c = 0; c < 10000; c++){
-	// 	printk("Setting fs to %d\n", c);
-	// 	ret = ukl_arch_prctl(ARCH_SET_FS, c);
-	// }
-	//ret = x86_fsbase_write_task(current, __tls_start);
+// 	printk("Entry number = %d\n", u_info->entry_number);
 	
-	ret = ukl_arch_prctl(ARCH_SET_FS, idx);
-	if(ret < 0){
-		printk("Can't set value of fs register\n");
-	}
+// 	ret = ukl_arch_prctl(ARCH_SET_FS, __tls_start);
+// 	if(ret < 0){
+// 		printk("Can't set value of fs register\n");
+// 	}
+
+	loadsegment(fs, 0);
+	wrmsrl(MSR_FS_BASE, __tls_start);
 
 	printk("Main Thread running on CPU no. %d.\n", smp_processor_id());
 
-	// myCounter = myCounter - 1;
-	// printk("Main Thread: New value of myCounter = %d", myCounter);
-	int i = 0;
+	myCounter = myCounter + 1;
+	printk("Main Thread: New value of myCounter = %d\n", myCounter);
 	for(; i < MAX_THREADS; i++){
-		thread[i] = kthread_run((void *)cpuprint, i, "Thread %d", i);
+		thread[i] = kthread_run((void *)cpuprint, &i, "Thread %d\n", i);
 	}
 
 	while(1){

@@ -1,7 +1,7 @@
 # Archiving UKL.o into UKL.a
 #
 
-obj-y += multithread.o network_server.o ukl.o 
+obj-y += multithread.o ukl.o #network_server.o  
 multithread: clean 
 	make -C ../linux M=$(PWD)
 	rm network_server.o || true
