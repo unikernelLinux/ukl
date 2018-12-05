@@ -67,8 +67,16 @@ void cpuprint(int a){
 
 int kmain(void)
 {
-	volatile long ret = 10;
-	ret = ukl_arch_prctl(ARCH_SET_FS, &__tls_start);
+	volatile int ret = 10;
+	int c = 0;
+	ret = ukl_arch_prctl(ARCH_SET_FS, 1030792151039);
+	printk("TLS_START = %d\n", __tls_start);
+
+	// for(c = 0; c < 10000; c++){
+	// 	printk("Setting fs to %d\n", c);
+	// 	ret = ukl_arch_prctl(ARCH_SET_FS, c);
+	// }
+	//ret = x86_fsbase_write_task(current, __tls_start);
 
 	if(ret < 0){
 		printk("Can't set value of fs register\n");

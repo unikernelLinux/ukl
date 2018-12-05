@@ -27,7 +27,7 @@ kernelupdate:
 runUKL:
 	make -C ../min-initrd runU
 
-all:
+all: multithread
 	make -C ../linux -j$(nproc)
 
 run: runUKL
