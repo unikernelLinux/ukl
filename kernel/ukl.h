@@ -94,3 +94,7 @@ int ukl_accept(int fd, struct sockaddr *upeer_sockaddr, int *upeer_addrlen);
 int ukl_ioctl(int fd, int cmd, long arg);
 
 long ukl_arch_prctl(int option, unsigned long arg2);
+
+int ukl_get_thread_area(struct user_desc __user *u_info);
+
+int ukl_set_thread_area(struct user_desc __user *u_info);

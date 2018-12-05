@@ -124,3 +124,12 @@ long ukl_arch_prctl(int option, unsigned long arg2){
 
 	return ret;
 }
+
+int ukl_get_thread_area(struct user_desc __user *u_info){
+	return do_get_thread_area(current, -1, u_info);
+}
+
+int ukl_set_thread_area(struct user_desc __user *u_info){
+	return do_set_thread_area(current, -1, u_info, 1);
+}
+
