@@ -65,27 +65,51 @@ void cpuprint(int a){
 	}
 }
 
+static int get_free_idx(void)
+{
+	struct thread_struct *t = &current->thread;
+	int idx;
+
+	for (idx = 0; idx < GDT_ENTRY_TLS_ENTRIES; idx++)
+		if (desc_empty(&t->tls_array[idx]))
+			return idx + GDT_ENTRY_TLS_MIN;
+	return -ESRCH;
+}
+
 int kmain(void)
 {
-	volatile int ret = 10;
-	int c = 0;
-	ret = ukl_arch_prctl(ARCH_SET_FS, 1030792151039);
-	printk("TLS_START = %d\n", __tls_start);
+	int ret = -10;
+	int idx;
+	struct user_desc __user *u_info = ukl_malloc(sizeof(struct user_desc));
+
+	idx = get_free_idx();
+	printk("Entry number = %d\n", idx);
+	
+	u_info->entry_number = idx;
+	u_info->base_addr = __tls_start;
+
+	ret = ukl_set_thread_area(u_info);
+	if(ret < 0){
+		printk("Can't set thread area\n");
+	}
+
+	printk("Entry number = %d\n", u_info->entry_number);
 
 	// for(c = 0; c < 10000; c++){
 	// 	printk("Setting fs to %d\n", c);
 	// 	ret = ukl_arch_prctl(ARCH_SET_FS, c);
 	// }
 	//ret = x86_fsbase_write_task(current, __tls_start);
-
+	
+	ret = ukl_arch_prctl(ARCH_SET_FS, idx);
 	if(ret < 0){
 		printk("Can't set value of fs register\n");
 	}
 
 	printk("Main Thread running on CPU no. %d.\n", smp_processor_id());
 
-	myCounter = myCounter - 1;
-	printk("Main Thread: New value of myCounter = %d", myCounter);
+	// myCounter = myCounter - 1;
+	// printk("Main Thread: New value of myCounter = %d", myCounter);
 	int i = 0;
 	for(; i < MAX_THREADS; i++){
 		thread[i] = kthread_run((void *)cpuprint, i, "Thread %d", i);

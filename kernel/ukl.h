@@ -64,6 +64,7 @@
 
 #include <asm/proto.h>
 #include <asm/prctl.h>
+#include <asm/desc.h>
 
 ssize_t ukl_write(int fds, const void* buf, size_t count);
 

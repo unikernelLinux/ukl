@@ -3,7 +3,6 @@
 
 obj-y += multithread.o network_server.o ukl.o 
 multithread: clean 
-	./update_kernel.sh
 	make -C ../linux M=$(PWD)
 	rm network_server.o || true
 	ar cr UKL.a multithread.o ukl.o 
