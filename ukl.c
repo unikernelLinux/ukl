@@ -22,35 +22,10 @@ ssize_t ukl_write(int fd, const void* buf, size_t count) {
 	if(count == -1)
 		count = strlen(buf);
 	return ksys_write(fd, buf, count);
-	/*struct fd f = fdget_pos(fd);
-	if(count == -1)
-		count = strlen(buf);
-	ssize_t ret = -EBADF;
-	loff_t *pos = &f.file->f_pos;
-	if (fd != 1) {
-		ret = vfs_write(f.file, buf, count, pos);
-		if (ret >= 0)
-			&f.file->f_pos = pos
-		fdput_pos(f);
-    } else {
-    	ret = printk(buf);
-	}	
-	return ret;*/
 }
 
 ssize_t ukl_read(int fd, const void* buf, size_t count){
 	return ksys_read(fd, buf, count);
-	/*struct fd f = fdget_pos(fd);
-	ssize_t ret = -EBADF;
-
-	if (f.file) {
-		loff_t pos = &f.file->f_pos;
-		ret = vfs_read(f.file, buf, count, &pos);
-		if (ret >= 0)
-			&f.file->f_pos = pos
-		fdput_pos(f);
-	}
-	return ret;*/
 }
 
 long ukl_open(char *filename){
@@ -133,3 +108,13 @@ int ukl_set_thread_area(struct user_desc __user *u_info){
 	return do_set_thread_area(current, -1, u_info, 1);
 }
 
+long ukl_mmap(unsigned long addr, unsigned long len, unsigned long prot, unsigned long flags, unsigned long fd, unsigned long off){
+	long error;
+	error = -EINVAL;
+	if (off & ~PAGE_MASK)
+		goto out;
+
+	error = ksys_mmap_pgoff(addr, len, prot, flags, fd, off >> PAGE_SHIFT);
+out:
+	return error;
+}

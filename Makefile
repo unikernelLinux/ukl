@@ -1,7 +1,11 @@
 # Archiving UKL.o into UKL.a
 #
 
-obj-y += multithread.o ukl.o #network_server.o  
+obj-y += threadsglibc.o ukl.o #network_server.o  
+
+all: threadsglibc
+	make -C ../linux -j$(nproc)
+
 multithread: clean 
 	make -C ../linux M=$(PWD)
 	rm network_server.o || true
@@ -16,6 +20,13 @@ network_server: clean
 	rm -rf *.ko *.mod.* .H* .tm* .*cmd Module.symvers modules.order built-in.a
 	rm ../linux/vmlinux || true
 
+threadsglibc: clean 
+	# ./update_kernel.sh
+	make -C ../linux M=$(PWD)
+	ar cr UKL.a threadsglibc.o ukl.o 
+	rm -rf *.ko *.mod.* .H* .tm* .*cmd Module.symvers modules.order built-in.a
+	rm ../linux/vmlinux || true
+
 clean:
 	rm -rf *.ko *.o *.mod.* .H* .tm* .*cmd Module.symvers modules.order *.a
 
@@ -25,9 +36,6 @@ kernelupdate:
 
 runUKL:
 	make -C ../min-initrd runU
-
-all: multithread
-	make -C ../linux -j$(nproc)
 
 run: runUKL
 

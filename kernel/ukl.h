@@ -67,6 +67,8 @@
 #include <asm/desc.h>
 #include <asm/segment.h>
 
+#include <linux/mman.h>
+
 ssize_t ukl_write(int fds, const void* buf, size_t count);
 
 ssize_t ukl_read(int fd, const void* buf, size_t count);
@@ -100,3 +102,5 @@ long ukl_arch_prctl(int option, unsigned long arg2);
 int ukl_get_thread_area(struct user_desc __user *u_info);
 
 int ukl_set_thread_area(struct user_desc __user *u_info);
+
+long ukl_mmap(unsigned long addr, unsigned long len, unsigned long prot, unsigned long flags, unsigned long fd, unsigned long off);
