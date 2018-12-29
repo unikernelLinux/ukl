@@ -36,7 +36,7 @@
 #include <asm/sections.h>
 #include <asm/prctl.h>
 
-#define MAX_THREADS 2
+#define MAX_THREADS 3
 
 struct task_struct *thread[MAX_THREADS];
 void * my_tls[MAX_THREADS];
@@ -50,11 +50,15 @@ void cpuprint(int a){
 	// wrmsrl(MSR_FS_BASE, __tls_start + a*sizeof(int));
 	// thread[a]->thread.fsbase = __tls_start + a*sizeof(int);
 
+	struct task_struct *me = current;
+	printk("TLS address for thread %d is %lx\n", a, me->thread.fsbase);
+
+
 	int i = 0, j = 0, k = 0;
 	while(1){
-		// printk("Thread %d running on CPU no. %d.\n", a, smp_processor_id());
-		myCounter = myCounter + a + 1;
-		printk("Thread %d: New value of myCounter = %d\n", a + 1, myCounter);
+		myCounter = myCounter + a;
+		printk("Thread %d: New value of myCounter = %d\n", a, myCounter);
+		// printk("In kthread %d\n", a);
 		while(i < 100000000){
 			i++;
 			while(j < 100000000){
@@ -73,17 +77,32 @@ void cpuprint(int a){
 
 int kmain(void)
 {
-	loadsegment(fs, 0);
-	wrmsrl(MSR_FS_BASE, __tls_start);
-
+	// loadsegment(fs, 0);
+	// wrmsrl(MSR_FS_BASE, __tls_start);
+	volatile int ret;
 	int i = 0;
+	void *tls;
+
+	printk("__tls_start is %lx\n", __tls_start);
+	printk("__tls_end %lx\n", __tls_end);
+
+	tls = vmalloc(4096);
+	memcpy(tls, __tls_start, 4096);
+	tls = tls - 0x1000;
+	printk("TLS address for main thread is %lx\n", tls);
+
+	ret = do_arch_prctl_64(current, ARCH_SET_FS, tls);
+
+	myCounter = myCounter -10;
+
+	printk("Thread main: New value of myCounter = %d\n", myCounter);
 
 	for(i = 0; i < MAX_THREADS; i++){
 
 		// my_tls[i] = vmalloc(4096);
 		// memcpy(my_tls[i], __tls_start, 4096);
 
-		thread[i] = ukl_kthread_run((void *)cpuprint, i, "Thread %d\n", i+1);
+		thread[i] = ukl_kthread_run((void *)cpuprint, i, "Thread %d\n", i);
 	}
 
 	while(1){
