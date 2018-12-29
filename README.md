@@ -30,7 +30,6 @@ Assuming you are running Fedora.
 3. Now just run a few make commands
 ```
     make network_server
-    make all
     make run
 ```
 You can telnet from another terminal into the unikernel on 127.0.0.1 and 5555 port
@@ -38,10 +37,9 @@ You can telnet from another terminal into the unikernel on 127.0.0.1 and 5555 po
      telnet 127.0.0.1 5555
 ```
 
-4. To run unikernel with TLS support (errors may occur!)
+4. To run unikernel with TLS support 
 
 ```
-    make multithread
     make all
     make run
 ```

@@ -1,7 +1,7 @@
 # Archiving UKL.o into UKL.a
 #
 
-obj-y += threadsglibc.o ukl.o multithread.o #network_server.o  
+obj-y += threadsglibc.o ukl.o multithread.o network_server.o  
 
 all: threadsglibc
 	make -C ../linux -j$(nproc)
@@ -20,6 +20,7 @@ network_server: clean
 	ar cr UKL.a network_server.o ukl.o 
 	rm -rf *.ko *.mod.* .H* .tm* .*cmd Module.symvers modules.order built-in.a
 	rm ../linux/vmlinux || true
+	make -C ../linux -j$(nproc)
 
 threadsglibc: clean 
 	# ./update_kernel.sh
