@@ -12,3 +12,6 @@ glibc
 notes
 oldthreadsglibc.c
 differentFuncCalls
+allos/
+mykmemcached/
+server.c

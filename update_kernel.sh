@@ -5,7 +5,7 @@ if cmp -s "../linux/include/linux/ukl.h" "kernel/ukl.h"; then
 else
 	set -x
 	cp kernel/ukl.h ../linux/include/linux/ukl.h
-	rm ../linux/vmlinux || true
+	# rm ../linux/vmlinux || true
 	set +x
 fi
 

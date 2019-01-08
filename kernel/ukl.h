@@ -68,6 +68,8 @@
 #include <asm/segment.h>
 
 #include <linux/mman.h>
+#include <linux/sys.h>
+#include <linux/futex.h>
 
 ssize_t ukl_write(int fds, const void* buf, size_t count);
 
@@ -104,3 +106,25 @@ int ukl_get_thread_area(struct user_desc __user *u_info);
 int ukl_set_thread_area(struct user_desc __user *u_info);
 
 long ukl_mmap(unsigned long addr, unsigned long len, unsigned long prot, unsigned long flags, unsigned long fd, unsigned long off);
+
+// int ukl_uname(struct old_utsname * name);
+
+pid_t ukl_set_tid_address(int * tidptr);
+
+int ukl_set_robust_list(struct robust_list_head * head, size_t len);
+
+int ukl_rt_sigaction(int sig, const struct sigaction * act,	struct sigaction * oact, size_t sigsetsize);
+
+int ukl_rt_sigprocmask(int how, sigset_t * nset, sigset_t * oset, size_t sigsetsize);
+
+int ukl_prlimit64(pid_t pid, unsigned int resource,	const struct rlimit64 * new_rlim, struct rlimit64 * old_rlim);
+
+int ukl_brk(unsigned long brk);
+
+int ukl_fstat(unsigned int fd, struct __old_kernel_stat * statbuf);
+
+int ukl_mprotect(unsigned long start, size_t len, unsigned long prot);
+
+long ukl_clone(unsigned long clone_flags, unsigned long newsp, int * parent_tidptr, unsigned long tls, int * child_tidptr);
+
+int munmap(unsigned long addr, size_t len);
