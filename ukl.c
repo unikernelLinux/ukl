@@ -90,6 +90,17 @@ int ukl_ioctl(int fd, int cmd, long arg){
 	return ksys_ioctl(fd, cmd, arg);
 }
 
+int ukl_recvfrom(int fd, void __user *ubuf, size_t size, unsigned int flags, struct sockaddr __user *addr, int __user *addr_len){
+	return __sys_recvfrom(fd, ubuf, size, flags, addr, addr_len);
+}
+int ukl_sendto(int fd, void *buff, size_t len, unsigned int flags, struct sockaddr *addr, int addr_len){
+	return __sys_sendto(fd, buff, len, flags, addr, addr_len);
+}
+
+int ukl_setsockopt(int fd, int level, int optname, char *optval, int optlen){
+	return __sys_setsockopt(fd, level, optname, optval, optlen);
+}
+
 long ukl_arch_prctl(int option, unsigned long arg2){
 	long ret;
 

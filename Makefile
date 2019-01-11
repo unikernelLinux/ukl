@@ -1,10 +1,10 @@
 # Archiving UKL.o into UKL.a
 #
 
-obj-y += threadsglibc.o ukl.o multithread.o network_server.o server.o
+obj-y += threadsglibc.o ukl.o multithread.o network_server.o server.o interface.o
 
 ukl: kernelupdate
-	rm ukl.o || true
+	rm -rf ukl.o 
 	make -C ../linux M=$(PWD)
 
 all:
@@ -12,18 +12,18 @@ all:
 
 multithread: clean 
 	make -C ../linux M=$(PWD)
-	rm network_server.o || true
+	rm -rf network_server.o 
 	ar cr UKL.a multithread.o ukl.o 
 	rm -rf *.ko *.mod.* .H* .tm* .*cmd Module.symvers modules.order built-in.a
-	rm ../linux/vmlinux || true
+	rm -rf ../linux/vmlinux 
 	make -C ../linux -j$(nproc)
 
 network_server: clean
 	make -C ../linux M=$(PWD)
-	rm multithread.o || true
+	rm -rf multithread.o 
 	ar cr UKL.a network_server.o ukl.o 
 	rm -rf *.ko *.mod.* .H* .tm* .*cmd Module.symvers modules.order built-in.a
-	rm ../linux/vmlinux || true
+	rm -rf ../linux/vmlinux 
 	make -C ../linux -j$(nproc)
 
 threadsglibc: clean 
@@ -31,7 +31,7 @@ threadsglibc: clean
 	make -C ../linux M=$(PWD)
 	ar cr UKL.a threadsglibc.o ukl.o 
 	rm -rf *.ko *.mod.* .H* .tm* .*cmd Module.symvers modules.order built-in.a
-	rm ../linux/vmlinux || true
+	rm -rf ../linux/vmlinux 
 
 clean:
 	rm -rf *.ko *.o *.mod.* .H* .tm* .*cmd Module.symvers modules.order *.a
@@ -49,19 +49,20 @@ debug:
 	make -C ../min-initrd debugU
 
 try:
-	rm UKL.a || true
+	rm -rf UKL.a 
 	ar cr UKL.a ../userthreads/threadsnew.o ukl.o allo/*
 
-server: clean 
-	cp kmemcached/server.c .
+newserver: clean 
+	gcc newserver.c -c -o newserver.o -ggdb
 	make -C ../linux M=$(PWD)
-	ar cr UKL.a server.o ukl.o 
+	ar cr UKL.a newserver.o ukl.o interface.o
 	rm -rf *.ko *.mod.* .H* .tm* .*cmd Module.symvers modules.order built-in.a
-	rm ../linux/vmlinux || true
+	rm -rf ../linux/vmlinux 
+	make -C ../linux -j$(nproc)
 
 kmemcached:
 	make -C ../linux M=$(PWD)
-	rm UKL.a || true
+	rm -rf UKL.a 
 	ar cr UKL.a ../kmemcached/kmemcached.o ukl.o
-	rm ../linux/vmlinux || true
+	rm -rf ../linux/vmlinux 
 	make -C ../linux -j$(nproc)

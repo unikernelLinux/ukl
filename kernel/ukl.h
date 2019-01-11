@@ -99,6 +99,12 @@ int ukl_accept(int fd, struct sockaddr *upeer_sockaddr, int *upeer_addrlen);
 
 int ukl_ioctl(int fd, int cmd, long arg);
 
+int ukl_recvfrom(int fd, void __user *ubuf, size_t size, unsigned int flags, struct sockaddr __user *addr, int __user *addr_len);
+
+int ukl_sendto(int fd, void *buff, size_t len, unsigned int flags, struct sockaddr *addr, int addr_len);
+
+int ukl_setsockopt(int fd, int level, int optname, char *optval, int optlen);
+
 long ukl_arch_prctl(int option, unsigned long arg2);
 
 int ukl_get_thread_area(struct user_desc __user *u_info);
