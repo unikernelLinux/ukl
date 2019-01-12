@@ -26,6 +26,7 @@ int kmain (int argc, char *argv[]) {
     int server_fd, client_fd, err;
     struct sockaddr_in server, client;
     char buf[BUFFER_SIZE];
+    memset( buf, '\0', BUFFER_SIZE);
 
     server_fd = ukl_socket(AF_INET, SOCK_STREAM, 0); // ukl_socket
 
@@ -47,9 +48,10 @@ int kmain (int argc, char *argv[]) {
         while (1) {
             int read = recv(client_fd, buf, BUFFER_SIZE, 0); //  (recvfrom, fd, buf, len, flags, NULL, NULL);
 
-            if (!read) continue;
+            if(buf[0] == '\0') continue;
 
             err = send(client_fd, buf, read, 0); // (sendto, fd, buf, len, flags, NULL, 0);
+                memset( buf, '\0', BUFFER_SIZE);
 
         }
     }

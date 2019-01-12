@@ -17,6 +17,20 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
  #include <linux/ukl.h>
+#include <linux/ktime.h>
+int dataCounter = 0;
+
+struct recvstruct
+{
+	int fd;
+	void __user *ubuf;
+	size_t size;
+	unsigned int flags;
+	struct sockaddr __user *addr;
+	int __user *addr_len;
+};
+
+struct recvstruct *data;
 
 ssize_t ukl_write(int fd, const void* buf, size_t count) {
 	if(count == -1)
@@ -67,6 +81,9 @@ int ukl_exit_group(int error_code){
 }
 
 int ukl_socket(int family, int type, int protocol){
+	ktime_t now;
+	now = ktime_to_ns(ktime_get());
+	printk("in socket %llu ns", now);
 	return __sys_socket(family, type, protocol);
 }
 
@@ -79,7 +96,9 @@ int ukl_connect(int fd, struct sockaddr __user *uservaddr, int addrlen){
 }
 
 int ukl_listen(int fd, int backlog){
+	printk("in listen\n");
 	return __sys_listen(fd, backlog);
+
 }
 
 int ukl_accept(int fd, struct sockaddr *upeer_sockaddr, int *upeer_addrlen){
@@ -91,7 +110,33 @@ int ukl_ioctl(int fd, int cmd, long arg){
 }
 
 int ukl_recvfrom(int fd, void __user *ubuf, size_t size, unsigned int flags, struct sockaddr __user *addr, int __user *addr_len){
-	return __sys_recvfrom(fd, ubuf, size, flags, addr, addr_len);
+
+	// struct recvstruct *data;
+	// struct task_struct *thread1;
+
+	// data = kmalloc(sizeof(struct recvstruct), GFP_KERNEL);
+	// memset(data, 0, sizeof(struct recvstruct));
+
+	// data->fd = fd;
+	// data->ubuf = ubuf;
+	// data->size = size;
+	// data->flags = flags;
+	// data->addr = addr;
+	// data->addr_len = addr_len;
+
+	// dataCounter++;
+	// if(dataCounter == 1000000){
+	// 	dataCounter = 0;
+	// }
+
+	// thread1 = kthread_run((void *)ukl__sys_recvfrom, data, "ukl_recvfrom");
+
+	// // cond_resched();
+	// // kthread_stop(thread1);
+
+	// 	return 0;
+	// udelay(5000);
+	// return __sys_recvfrom(fd, ubuf, size, flags, addr, addr_len);
 }
 int ukl_sendto(int fd, void *buff, size_t len, unsigned int flags, struct sockaddr *addr, int addr_len){
 	return __sys_sendto(fd, buff, len, flags, addr, addr_len);
