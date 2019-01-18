@@ -1,7 +1,7 @@
 # Archiving UKL.o into UKL.a
 #
 
-obj-y += threadsglibc.o ukl.o multithread.o network_server.o server.o interface.o
+obj-y += ukl.o network_server.o #threadsglibc.o ukl.o multithread.o network_server.o server.o interface.o
 
 ukl: kernelupdate
 	rm -rf ukl.o 

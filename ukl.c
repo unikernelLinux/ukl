@@ -16,8 +16,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
- #include <linux/ukl.h>
-#include <linux/ktime.h>
+#include <linux/ukl.h>
+
 int dataCounter = 0;
 
 struct recvstruct
@@ -134,9 +134,9 @@ int ukl_recvfrom(int fd, void __user *ubuf, size_t size, unsigned int flags, str
 	// // cond_resched();
 	// // kthread_stop(thread1);
 
-	// 	return 0;
-	// udelay(5000);
-	// return __sys_recvfrom(fd, ubuf, size, flags, addr, addr_len);
+	// // 	return 0;
+	// udelay(delay);
+	return __sys_recvfrom(fd, ubuf, size, flags, addr, addr_len);
 }
 int ukl_sendto(int fd, void *buff, size_t len, unsigned int flags, struct sockaddr *addr, int addr_len){
 	return __sys_sendto(fd, buff, len, flags, addr, addr_len);

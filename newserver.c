@@ -11,8 +11,8 @@
 
 #define BUFFER_SIZE 1024
 
-ssize_t recv (int fd, void *buf, size_t len, int flags){
-    return ukl_recvfrom(fd, buf, len, flags, NULL, NULL);
+ssize_t rrecv (int fd, void *buf, size_t len, int flags, int delay){
+    return ukl_recvfrom(fd, buf, len, flags, NULL, NULL, delay);
 }
 
 ssize_t send (int fd, const void *buf, size_t len, int flags){
@@ -20,6 +20,8 @@ ssize_t send (int fd, const void *buf, size_t len, int flags){
 }
 
 int kmain (int argc, char *argv[]) {
+
+    int delay = 5000;
 
     int port = 5555;
 
@@ -46,7 +48,10 @@ int kmain (int argc, char *argv[]) {
         client_fd = ukl_accept(server_fd, (struct sockaddr *) &client, &client_len); // ukl_accept
 
         while (1) {
-            int read = recv(client_fd, buf, BUFFER_SIZE, 0); //  (recvfrom, fd, buf, len, flags, NULL, NULL);
+            int read = rrecv(client_fd, buf, BUFFER_SIZE, 0, delay); //  (recvfrom, fd, buf, len, flags, NULL, NULL);
+            if(delay > 2000){
+                delay--;
+            }
 
             if(buf[0] == '\0') continue;
 
