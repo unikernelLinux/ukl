@@ -21,7 +21,7 @@ Assuming you are running Fedora.
 ```
     mkdir unikernel
     cd unikernel
-    git clone git@github.com:torvalds/linux.git
+    git clone git@github.com:razaaliraza/linux.git
     git clone git@github.com:razaaliraza/ukl.git
     git clone git@github.com:razaaliraza/min-initrd.git
     cd ukl
