@@ -1,7 +1,7 @@
 # Archiving UKL.o into UKL.a
 #
 
-obj-y += ukl.o network_server.o #threadsglibc.o ukl.o multithread.o network_server.o server.o interface.o
+obj-y += ukl.o interface.o network_server.o #threadsglibc.o ukl.o multithread.o network_server.o server.o interface.o
 
 ukl: kernelupdate
 	rm -rf ukl.o 
@@ -21,7 +21,7 @@ multithread: clean
 network_server: clean
 	make -C ../linux M=$(PWD)
 	rm -rf multithread.o 
-	ar cr UKL.a network_server.o ukl.o 
+	ar cr UKL.a network_server.o ukl.o interface.o
 	rm -rf *.ko *.mod.* .H* .tm* .*cmd Module.symvers modules.order built-in.a
 	rm -rf ../linux/vmlinux 
 	make -C ../linux -j$(nproc)

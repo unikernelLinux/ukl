@@ -38,7 +38,7 @@
 #include <linux/ukl.h>
 #include <linux/kmain.h>
 
-unsigned int inet_addr(char* ip)
+unsigned int inet_addr2(char* ip)
 {
     int a, b, c, d;
     char addr[4];
@@ -71,7 +71,7 @@ int interface(void)
     memset(&sin, 0, sizeof(struct sockaddr));
     sin.sin_family = AF_INET;
     sin.sin_port=htons(0);
-    sin.sin_addr.s_addr = inet_addr("10.0.2.15");
+    sin.sin_addr.s_addr = inet_addr2("10.0.2.15");
     memcpy(&ifr.ifr_addr, &sin, sizeof(struct sockaddr));
 
     retioctl = ukl_ioctl(fd, SIOCSIFADDR, &ifr);
