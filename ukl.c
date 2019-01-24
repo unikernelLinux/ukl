@@ -18,19 +18,19 @@
  */
 #include <linux/ukl.h>
 
-int dataCounter = 0;
+// int dataCounter = 0;
 
-struct recvstruct
-{
-	int fd;
-	void __user *ubuf;
-	size_t size;
-	unsigned int flags;
-	struct sockaddr __user *addr;
-	int __user *addr_len;
-};
+// struct recvstruct
+// {
+// 	int fd;
+// 	void __user *ubuf;
+// 	size_t size;
+// 	unsigned int flags;
+// 	struct sockaddr __user *addr;
+// 	int __user *addr_len;
+// };
 
-struct recvstruct *data;
+// struct recvstruct *data;
 
 ssize_t ukl_write(int fd, const void* buf, size_t count) {
 	if(count == -1)
