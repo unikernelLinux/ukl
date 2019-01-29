@@ -1,0 +1,3 @@
+all:
+	ar -x libc.a
+
