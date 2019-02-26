@@ -31,7 +31,7 @@ threadsglibc: clean
 	make -C ../linux M=$(PWD)
 	ar cr UKL.a threadsglibc.o ukl.o 
 	rm -rf *.ko *.mod.* .H* .tm* .*cmd Module.symvers modules.order built-in.a
-	rm -rf ../linux/vmlinux 
+	# rm -rf ../linux/vmlinux 
 
 clean:
 	rm -rf *.ko *.o *.mod.* .H* .tm* .*cmd Module.symvers modules.order *.a
@@ -89,4 +89,8 @@ helloworld:
 	ar cr UKL.a helloworld.o ukl.o interface.o glibc/*.o
 	rm -rf *.ko *.mod.* .H* .tm* .*cmd Module.symvers modules.order built-in.a 
 	rm -rf ../linux/vmlinux 
+	make -C ../linux -j$(nproc)
+
+setup:
+	rm -rf ../linux/arch/x86/boot/compressed/head_64.o
 	make -C ../linux -j$(nproc)
