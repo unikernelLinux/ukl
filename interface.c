@@ -38,69 +38,69 @@
 #include <linux/ukl.h>
 #include <linux/kmain.h>
 
-// unsigned int inet_addr2(char* ip)
-// {
-//     int a, b, c, d;
-//     char addr[4];
+unsigned int inet_addr2(char* ip)
+{
+    int a, b, c, d;
+    char addr[4];
     
-//     sscanf(ip, "%d.%d.%d.%d", &a, &b, &c, &d);
-//     addr[0] = a;
-//     addr[1] = b;
-//     addr[2] = c;
-//     addr[3] = d;
+    sscanf(ip, "%d.%d.%d.%d", &a, &b, &c, &d);
+    addr[0] = a;
+    addr[1] = b;
+    addr[2] = c;
+    addr[3] = d;
     
-//     return *(unsigned int *)addr;
-// }
+    return *(unsigned int *)addr;
+}
 
 int interface(void)
 {
-    // int fd = -1;
-    // int retioctl = -1;
+    int fd = -1;
+    int retioctl = -1;
 
-    // struct sockaddr_in sin;
-    // struct ifreq ifr;
+    struct sockaddr_in sin;
+    struct ifreq ifr;
 
-    // fd = ukl_socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
+    fd = ukl_socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
 
-    // if(fd < 0){
-    //     printk("Problem with socket\n");
-    //     return  -1;
-    // }
+    if(fd < 0){
+        printk("Problem with socket\n");
+        return  -1;
+    }
 
-    // strncpy(ifr.ifr_name, "eth0\0", 5);
-    // memset(&sin, 0, sizeof(struct sockaddr));
-    // sin.sin_family = AF_INET;
-    // sin.sin_port=htons(0);
-    // sin.sin_addr.s_addr = inet_addr2("10.0.2.15");
-    // memcpy(&ifr.ifr_addr, &sin, sizeof(struct sockaddr));
+    strncpy(ifr.ifr_name, "eth0\0", 5);
+    memset(&sin, 0, sizeof(struct sockaddr));
+    sin.sin_family = AF_INET;
+    sin.sin_port=htons(0);
+    sin.sin_addr.s_addr = inet_addr2("10.0.2.15");
+    memcpy(&ifr.ifr_addr, &sin, sizeof(struct sockaddr));
 
-    // retioctl = ukl_ioctl(fd, SIOCSIFADDR, &ifr);
-    // if(retioctl < 0){
-    //     printk("1st Ioctl failed\n");
-    //     return  -1;
-    // }
+    retioctl = ukl_ioctl(fd, SIOCSIFADDR, &ifr);
+    if(retioctl < 0){
+        printk("1st Ioctl failed\n");
+        return  -1;
+    }
 
-    // /*strncpy(ifr.ifr_name, "eth0", 4);*/
-    // ifr.ifr_flags |= IFF_BROADCAST;
-    // ifr.ifr_flags |= IFF_MULTICAST;
+    /*strncpy(ifr.ifr_name, "eth0", 4);*/
+    ifr.ifr_flags |= IFF_BROADCAST;
+    ifr.ifr_flags |= IFF_MULTICAST;
 
-    // retioctl = ukl_ioctl(fd, SIOCGIFFLAGS, &ifr);
-    // if(retioctl < 0){
-    //     printk("2nd Ioctl failed\n");
-    //     return  -1;
-    // }
+    retioctl = ukl_ioctl(fd, SIOCGIFFLAGS, &ifr);
+    if(retioctl < 0){
+        printk("2nd Ioctl failed\n");
+        return  -1;
+    }
 
-    // /*strncpy(ifr.ifr_name, "eth0", 4);*/
-    // ifr.ifr_flags |= IFF_UP;
-    // /*ifr.ifr_flags |= IFF_BROADCAST;*/
-    // ifr.ifr_flags |= IFF_RUNNING;
-    // /*ifr.ifr_flags |= IFF_MULTICAST;*/
+    /*strncpy(ifr.ifr_name, "eth0", 4);*/
+    ifr.ifr_flags |= IFF_UP;
+    /*ifr.ifr_flags |= IFF_BROADCAST;*/
+    ifr.ifr_flags |= IFF_RUNNING;
+    /*ifr.ifr_flags |= IFF_MULTICAST;*/
 
-    // retioctl = ukl_ioctl(fd, SIOCSIFFLAGS, &ifr);
-    // if(retioctl < 0){
-    //     printk("3rd Ioctl failed\n");
-    //     return  -1;
-    // }
+    retioctl = ukl_ioctl(fd, SIOCSIFFLAGS, &ifr);
+    if(retioctl < 0){
+        printk("3rd Ioctl failed\n");
+        return  -1;
+    }
     
    
     return 0;
