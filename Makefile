@@ -31,7 +31,7 @@ threadsglibc: clean
 	make -C ../linux M=$(PWD)
 	ar cr UKL.a threadsglibc.o ukl.o 
 	rm -rf *.ko *.mod.* .H* .tm* .*cmd Module.symvers modules.order built-in.a
-	rm -rf ../linux/vmlinux 
+	# rm -rf ../linux/vmlinux 
 
 clean:
 	rm -rf *.ko *.o *.mod.* .H* .tm* .*cmd Module.symvers modules.order *.a
