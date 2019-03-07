@@ -89,7 +89,7 @@ helloworld:
 	ld -r -o mylib.o --unresolved-symbols=ignore-all helloworld.o $(addprefix glibc/,$(glibcobs))
 	# ar cr UKL.a helloworld.o ukl.o interface.o glibc/printf.o glibc/stdio.o glibc/vfprintf-internal.o
 	# glibc/stdio.o glibc/vfprintf-internal.o glibc/stdfiles.o glibc/wctrans.o glibc/towctrans.o glibc/scratch_buffer_set_array_size.o glibc/mempcpy.o glibc/malloc.o glibc/lc-ctype.o glibc/wcrtomb.o glibc/vtables.o glibc/printf-parsemb.o glibc/scratch_buffer_grow_preserve.o glibc/reg-printf.o glibc/libc_fatal.o glibc/alloca_cutoff.o glibc/_itoa.o glibc/genops.o glibc/assert.o glibc/reg-type.o glibc/lc-numeric.o glibc/iopadn.o glibc/errno-loc.o glibc/strnlen.o glibc/printf_fp.o glibc/_strerror.o glibc/wcsrtombs.o glibc/readonly-area.o glibc/reg-modifier.o glibc/funlockfile.o glibc/libc_multiple_threads.o glibc/libc-lowlevellock.o glibc/strchrnul.o glibc/fileops.o glibc/wfileops.o
-	ar cr UKL.a ukl.o interface.o helloworld.o # mylib.o 
+	ar cr UKL.a ukl.o interface.o mylib.o 
 	rm -rf *.ko *.mod.* .H* .tm* .*cmd Module.symvers modules.order built-in.a 
 	rm -rf ../linux/vmlinux 
 	make -C ../linux -j$(nproc)
