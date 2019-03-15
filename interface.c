@@ -54,53 +54,66 @@ unsigned int inet_addr2(char* ip)
 
 int interface(void)
 {
-    int fd = -1;
-    int retioctl = -1;
 
-    struct sockaddr_in sin;
-    struct ifreq ifr;
+    int err;
+    void * tls;
+    int size = __tls_end - __tls_start;
+    printk("TLS size = %d", size);
+    tls = vmalloc(size);
+    memcpy(tls, __tls_start, size);
+    // create->tls = create->tls - 0x1000;
+    // printk("TLS address while setup is %lx\n", create->tls);
+    err = do_arch_prctl_64(current, ARCH_SET_FS, tls);
+    if (err)
+        printk("Error in process_64.c in funtion copy_thread_tls");
+    
+    // int fd = -1;
+    // int retioctl = -1;
 
-    fd = ukl_socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
+    // struct sockaddr_in sin;
+    // struct ifreq ifr;
 
-    if(fd < 0){
-        printk("Problem with socket\n");
-        return  -1;
-    }
+    // fd = ukl_socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
 
-    strncpy(ifr.ifr_name, "eth0\0", 5);
-    memset(&sin, 0, sizeof(struct sockaddr));
-    sin.sin_family = AF_INET;
-    sin.sin_port=htons(0);
-    sin.sin_addr.s_addr = inet_addr2("10.0.2.15");
-    memcpy(&ifr.ifr_addr, &sin, sizeof(struct sockaddr));
+    // if(fd < 0){
+    //     printk("Problem with socket\n");
+    //     return  -1;
+    // }
 
-    retioctl = ukl_ioctl(fd, SIOCSIFADDR, &ifr);
-    if(retioctl < 0){
-        printk("1st Ioctl failed\n");
-        return  -1;
-    }
+    // strncpy(ifr.ifr_name, "eth0\0", 5);
+    // memset(&sin, 0, sizeof(struct sockaddr));
+    // sin.sin_family = AF_INET;
+    // sin.sin_port=htons(0);
+    // sin.sin_addr.s_addr = inet_addr2("10.0.2.15");
+    // memcpy(&ifr.ifr_addr, &sin, sizeof(struct sockaddr));
 
-    /*strncpy(ifr.ifr_name, "eth0", 4);*/
-    ifr.ifr_flags |= IFF_BROADCAST;
-    ifr.ifr_flags |= IFF_MULTICAST;
+    // retioctl = ukl_ioctl(fd, SIOCSIFADDR, &ifr);
+    // if(retioctl < 0){
+    //     printk("1st Ioctl failed\n");
+    //     return  -1;
+    // }
 
-    retioctl = ukl_ioctl(fd, SIOCGIFFLAGS, &ifr);
-    if(retioctl < 0){
-        printk("2nd Ioctl failed\n");
-        return  -1;
-    }
+    // /*strncpy(ifr.ifr_name, "eth0", 4);*/
+    // ifr.ifr_flags |= IFF_BROADCAST;
+    // ifr.ifr_flags |= IFF_MULTICAST;
 
-    /*strncpy(ifr.ifr_name, "eth0", 4);*/
-    ifr.ifr_flags |= IFF_UP;
-    /*ifr.ifr_flags |= IFF_BROADCAST;*/
-    ifr.ifr_flags |= IFF_RUNNING;
-    /*ifr.ifr_flags |= IFF_MULTICAST;*/
+    // retioctl = ukl_ioctl(fd, SIOCGIFFLAGS, &ifr);
+    // if(retioctl < 0){
+    //     printk("2nd Ioctl failed\n");
+    //     return  -1;
+    // }
 
-    retioctl = ukl_ioctl(fd, SIOCSIFFLAGS, &ifr);
-    if(retioctl < 0){
-        printk("3rd Ioctl failed\n");
-        return  -1;
-    }
+    // /*strncpy(ifr.ifr_name, "eth0", 4);*/
+    // ifr.ifr_flags |= IFF_UP;
+    // /*ifr.ifr_flags |= IFF_BROADCAST;*/
+    // ifr.ifr_flags |= IFF_RUNNING;
+    // /*ifr.ifr_flags |= IFF_MULTICAST;*/
+
+    // retioctl = ukl_ioctl(fd, SIOCSIFFLAGS, &ifr);
+    // if(retioctl < 0){
+    //     printk("3rd Ioctl failed\n");
+    //     return  -1;
+    // }
     
    
     return 0;
