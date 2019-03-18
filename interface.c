@@ -37,6 +37,12 @@
 
 #include <linux/ukl.h>
 #include <linux/kmain.h>
+#include <asm/sections.h>
+#include <asm/proto.h>
+
+__thread int myCounter = 2000;
+// int myCounter = 2000;
+// __thread int *myCounter = (int*)malloc(sizeof(myCounter)); 
 
 unsigned int inet_addr2(char* ip)
 {
@@ -57,15 +63,43 @@ int interface(void)
 
     int err;
     void * tls;
+    printk("__tls_start is %lx\n", __tls_start);
+    printk("__tls_end %lx\n", __tls_end);
+
     int size = __tls_end - __tls_start;
     printk("TLS size = %d", size);
     tls = vmalloc(size);
+    printk("TLS address while setup is %lx\n", tls);
+    
     memcpy(tls, __tls_start, size);
-    // create->tls = create->tls - 0x1000;
-    // printk("TLS address while setup is %lx\n", create->tls);
+    // tls = tls - size;
+
     err = do_arch_prctl_64(current, ARCH_SET_FS, tls);
+
     if (err)
         printk("Error in process_64.c in funtion copy_thread_tls");
+
+    struct task_struct *me = current;
+    printk("TLS address for main thread is %lx\n", me->thread.fsbase);
+    int i = 0, j = 0, k = 0;
+    while(1){
+        myCounter = myCounter + 10;
+        printk("New value of myCounter = %d\n", myCounter);
+        // printk("In kthread %d\n", a);
+        while(i < 100000000){
+            i++;
+            while(j < 100000000){
+                j++;
+                while( k < 100000000){
+                    k++;
+                }
+                k = 0;
+            }
+            j = 0;
+        }
+        i = 0;
+    }
+
     
     // int fd = -1;
     // int retioctl = -1;
