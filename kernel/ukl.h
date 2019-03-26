@@ -125,7 +125,7 @@ int ukl_rt_sigprocmask(int how, sigset_t * nset, sigset_t * oset, size_t sigsets
 
 int ukl_prlimit64(pid_t pid, unsigned int resource,	const struct rlimit64 * new_rlim, struct rlimit64 * old_rlim);
 
-int ukl_brk(unsigned long brk);
+unsigned long ukl_brk(unsigned long brk);
 
 int ukl_fstat(unsigned int fd, struct __old_kernel_stat * statbuf);
 

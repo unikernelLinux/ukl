@@ -308,8 +308,8 @@ int ukl_prlimit64(pid_t pid, unsigned int resource,	const struct rlimit64 * new_
 }
 
 
-int ukl_brk(unsigned long brk){
-	return brk;
+unsigned long ukl_brk(unsigned long brk){
+	return mybrk(brk);
 }
 
 int ukl_fstat(unsigned int fd, struct __old_kernel_stat * statbuf){

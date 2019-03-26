@@ -87,8 +87,8 @@ int interface(void)
         i = 0;
     }
 
-    err = do_arch_prctl_64(current, ARCH_SET_FS, tls);me = current;
-    printk("TLS address for main thread is %lx\n", me->thread.fsbase);
+    // err = do_arch_prctl_64(current, ARCH_SET_FS, tls);me = current;
+    // printk("TLS address for main thread is %lx\n", me->thread.fsbase);
     // int fd = -1;
     // int retioctl = -1;
 
