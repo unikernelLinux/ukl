@@ -37,14 +37,14 @@ Note: This will fail at the very end (linking step). Thats ok.
     make olddefconfig
     make -j
 ```
-4. Build usercode
+5. Build usercode
 ```
     cd ../ukl
     make helloworld
 ```
 This will also make linux
 
-4. Run UKL
+6. Run UKL
 Note: A few errors at the end
 ```
     make run
