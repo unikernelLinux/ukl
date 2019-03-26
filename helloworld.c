@@ -1,8 +1,14 @@
 #include <stdio.h>
 
+// __thread int me = 800;
+
 int kmain(){
 
-	// printf("Hello, World!");
+	// me = me + 1;
+	// printf("me = %d", me);
+
+	printf("Hello World\n");
+
 	while(1);
 
 	return 0;

@@ -1,26 +1,3 @@
-/* Kernel Memcached
- * Anthony Chivetta <anthony@chivetta.org>
- *
- * Please see LICENSE for copyright information.  This file is origional to the
- * kmemcached project.  Some inspiration for this file was taken from
- * http://kernelnewbies.org/Simple_UDP_Server and linux's net/ceph/messenger.c.
- *
- * This file is the main routene for kmemcached.  The initialization code
- * creates a listening socket, initializes the protocol parser and storage
- * enginge, and spins off a kthread which is pulling work from a kthread_worker
- * workqueue.  This workqueue design is necessairy as socket callbacks are
- * called in interrupt context and so should be quick and may not sleep.  The
- * listening socket's data_ready callback is set to callback_listen() which will
- * queue up listen_work() to be executed whenever a new connection is received.
- * listen_work() will accept the connection, create and initialize the
- * per-client data structures and set the callbacks on the socket.
- * callback_{write_space,data_ready,state_change}() handle events on the client
- * sockets adding them to the worqueue as necessairy.
- *
- * A LOT of work still needs to be done here.  Please see the TODOs littered
- * throughout the file for an idea.
- */
-
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/init.h>
@@ -40,9 +17,10 @@
 #include <asm/sections.h>
 #include <asm/proto.h>
 
-__thread int myCounter = 2000;
-// int myCounter = 2000;
-// __thread int *myCounter = (int*)malloc(sizeof(myCounter)); 
+__thread int64_t myCounter = 2000;
+// int checkCounter = 2000;
+int64_t checkCounter = 0xfedcba9876543210;
+// __thread int tbssCounter;
 
 unsigned int inet_addr2(char* ip)
 {
@@ -63,6 +41,7 @@ int interface(void)
 
     int err;
     void * tls;
+
     printk("__tls_start is %lx\n", __tls_start);
     printk("__tls_end %lx\n", __tls_end);
 
@@ -71,19 +50,27 @@ int interface(void)
     tls = vmalloc(size);
     printk("TLS address while setup is %lx\n", tls);
     
-    memcpy(tls, __tls_start, size);
+    tls = memcpy(tls, __tls_start, size);
+    // memset(tls, 300, size);
     // tls = tls - size;
 
-    err = do_arch_prctl_64(current, ARCH_SET_FS, tls);
-
-    if (err)
-        printk("Error in process_64.c in funtion copy_thread_tls");
-
-    struct task_struct *me = current;
+    // printk("Address of myCounter = %lx\n", &myCounter);
+    volatile struct task_struct *me = current;
     printk("TLS address for main thread is %lx\n", me->thread.fsbase);
+
+    err = do_arch_prctl_64(current, ARCH_SET_FS, tls+0x200000);
+
+    me = current;
+    printk("TLS address for main thread is %lx\n", me->thread.fsbase);
+
     int i = 0, j = 0, k = 0;
-    while(1){
+    // myCounter = 300;
+    // checkCounter = 3;
+    // tbssCounter = 300;
+    while(myCounter < 2100){
         myCounter = myCounter + 10;
+        checkCounter = checkCounter + 1;
+        // tbssCounter = tbssCounter + 30;
         printk("New value of myCounter = %d\n", myCounter);
         // printk("In kthread %d\n", a);
         while(i < 100000000){
@@ -100,7 +87,8 @@ int interface(void)
         i = 0;
     }
 
-    
+    err = do_arch_prctl_64(current, ARCH_SET_FS, tls);me = current;
+    printk("TLS address for main thread is %lx\n", me->thread.fsbase);
     // int fd = -1;
     // int retioctl = -1;
 

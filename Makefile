@@ -97,9 +97,16 @@ helloworld:
 setup:
 	cd ../linux && ./setup.sh
 
+# CC=gcc
+# LDFLAGS=--verbose
 
+# OBJECTS=helloworld.o
+# userspace: $(OBJECTS)
+# 	$(CC) -static $(OBJECTS) -o client $(LDFLAGS)
 
-
+userspace:
+	gcc -static userspace.c -o userspace
+# 	ld -static -o helloworld helloworld.o --verbose
 
 
 
