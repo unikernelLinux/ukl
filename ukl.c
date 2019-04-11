@@ -56,7 +56,8 @@ long ukl_close(int fd){
 
 void * ukl_malloc(size_t size){
 	// taken form slab.h kmalloc implementation
-	return __kmalloc(size, GFP_KERNEL);
+	// return __kmalloc(size, GFP_KERNEL);
+	return vmalloc(size);
 }
 
 int ukl_utsname(struct new_utsname *name){ //in /kernel/sys.c
@@ -81,9 +82,6 @@ int ukl_exit_group(int error_code){
 }
 
 int ukl_socket(int family, int type, int protocol){
-	ktime_t now;
-	now = ktime_to_ns(ktime_get());
-	printk("in socket %llu ns", now);
 	return __sys_socket(family, type, protocol);
 }
 
@@ -312,12 +310,12 @@ unsigned long ukl_brk(unsigned long brk){
 	return mybrk(brk);
 }
 
-int ukl_fstat(unsigned int fd, struct __old_kernel_stat * statbuf){
+int ukl_fstat(unsigned int fd, struct stat __user * statbuf){
 	struct kstat stat;
 	int error = vfs_fstat(fd, &stat);
 
 	if (!error)
-		error = cp_old_stat(&stat, statbuf);
+		error = cp_new_stat(&stat, statbuf);
 
 	return error;
 }

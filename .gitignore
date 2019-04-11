@@ -33,3 +33,11 @@ userspace
 userspace.c
 vmlinux.bin
 vmlinux.bin.gz
+helloworld
+ifupstrace
+interface.c.hw
+newserver
+newserver.c.old
+temp2
+temp3
+tlssymsmylib

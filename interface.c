@@ -17,11 +17,6 @@
 #include <asm/sections.h>
 #include <asm/proto.h>
 
-__thread int64_t myCounter = 2000;
-// int checkCounter = 2000;
-int64_t checkCounter = 0xfedcba9876543210;
-// __thread int tbssCounter;
-
 unsigned int inet_addr2(char* ip)
 {
     int a, b, c, d;
@@ -56,86 +51,63 @@ int interface(void)
 
     // printk("Address of myCounter = %lx\n", &myCounter);
     volatile struct task_struct *me = current;
+    // current->mm = current->active_mm;
     printk("TLS address for main thread is %lx\n", me->thread.fsbase);
 
-    err = do_arch_prctl_64(current, ARCH_SET_FS, tls+0x200000);
+    err = do_arch_prctl_64(current, ARCH_SET_FS, tls + size);
 
     me = current;
     printk("TLS address for main thread is %lx\n", me->thread.fsbase);
+    // printk("Address of mm struct of current is %lx\n", &me->mm);
 
-    int i = 0, j = 0, k = 0;
-    // myCounter = 300;
-    // checkCounter = 3;
-    // tbssCounter = 300;
-    while(myCounter < 2100){
-        myCounter = myCounter + 10;
-        checkCounter = checkCounter + 1;
-        // tbssCounter = tbssCounter + 30;
-        printk("New value of myCounter = %d\n", myCounter);
-        // printk("In kthread %d\n", a);
-        while(i < 100000000){
-            i++;
-            while(j < 100000000){
-                j++;
-                while( k < 100000000){
-                    k++;
-                }
-                k = 0;
-            }
-            j = 0;
-        }
-        i = 0;
+    // printk("TLS address for main thread is %lx\n", me->thread.fsbase);
+    int fd = -1;
+    int retioctl = -1;
+
+    struct sockaddr_in sin;
+    struct ifreq ifr;
+
+    fd = ukl_socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
+
+    if(fd < 0){
+        printk("Problem with socket\n");
+        return  -1;
     }
 
-    // err = do_arch_prctl_64(current, ARCH_SET_FS, tls);me = current;
-    // printk("TLS address for main thread is %lx\n", me->thread.fsbase);
-    // int fd = -1;
-    // int retioctl = -1;
+    strncpy(ifr.ifr_name, "eth0\0", 5);
+    memset(&sin, 0, sizeof(struct sockaddr));
+    sin.sin_family = AF_INET;
+    sin.sin_port=htons(0);
+    sin.sin_addr.s_addr = inet_addr2("10.0.2.15");
+    memcpy(&ifr.ifr_addr, &sin, sizeof(struct sockaddr));
 
-    // struct sockaddr_in sin;
-    // struct ifreq ifr;
+    retioctl = ukl_ioctl(fd, SIOCSIFADDR, &ifr);
+    if(retioctl < 0){
+        printk("1st Ioctl failed\n");
+        return  -1;
+    }
 
-    // fd = ukl_socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
+    /*strncpy(ifr.ifr_name, "eth0", 4);*/
+    ifr.ifr_flags |= IFF_BROADCAST;
+    ifr.ifr_flags |= IFF_MULTICAST;
 
-    // if(fd < 0){
-    //     printk("Problem with socket\n");
-    //     return  -1;
-    // }
+    retioctl = ukl_ioctl(fd, SIOCGIFFLAGS, &ifr);
+    if(retioctl < 0){
+        printk("2nd Ioctl failed\n");
+        return  -1;
+    }
 
-    // strncpy(ifr.ifr_name, "eth0\0", 5);
-    // memset(&sin, 0, sizeof(struct sockaddr));
-    // sin.sin_family = AF_INET;
-    // sin.sin_port=htons(0);
-    // sin.sin_addr.s_addr = inet_addr2("10.0.2.15");
-    // memcpy(&ifr.ifr_addr, &sin, sizeof(struct sockaddr));
+    /*strncpy(ifr.ifr_name, "eth0", 4);*/
+    ifr.ifr_flags |= IFF_UP;
+    /*ifr.ifr_flags |= IFF_BROADCAST;*/
+    ifr.ifr_flags |= IFF_RUNNING;
+    /*ifr.ifr_flags |= IFF_MULTICAST;*/
 
-    // retioctl = ukl_ioctl(fd, SIOCSIFADDR, &ifr);
-    // if(retioctl < 0){
-    //     printk("1st Ioctl failed\n");
-    //     return  -1;
-    // }
-
-    // /*strncpy(ifr.ifr_name, "eth0", 4);*/
-    // ifr.ifr_flags |= IFF_BROADCAST;
-    // ifr.ifr_flags |= IFF_MULTICAST;
-
-    // retioctl = ukl_ioctl(fd, SIOCGIFFLAGS, &ifr);
-    // if(retioctl < 0){
-    //     printk("2nd Ioctl failed\n");
-    //     return  -1;
-    // }
-
-    // /*strncpy(ifr.ifr_name, "eth0", 4);*/
-    // ifr.ifr_flags |= IFF_UP;
-    // /*ifr.ifr_flags |= IFF_BROADCAST;*/
-    // ifr.ifr_flags |= IFF_RUNNING;
-    // /*ifr.ifr_flags |= IFF_MULTICAST;*/
-
-    // retioctl = ukl_ioctl(fd, SIOCSIFFLAGS, &ifr);
-    // if(retioctl < 0){
-    //     printk("3rd Ioctl failed\n");
-    //     return  -1;
-    // }
+    retioctl = ukl_ioctl(fd, SIOCSIFFLAGS, &ifr);
+    if(retioctl < 0){
+        printk("3rd Ioctl failed\n");
+        return  -1;
+    }
     
    
     return 0;
