@@ -94,7 +94,6 @@ int ukl_connect(int fd, struct sockaddr __user *uservaddr, int addrlen){
 }
 
 int ukl_listen(int fd, int backlog){
-	printk("in listen\n");
 	return __sys_listen(fd, backlog);
 
 }
@@ -108,36 +107,19 @@ int ukl_ioctl(int fd, int cmd, long arg){
 }
 
 int ukl_recvfrom(int fd, void __user *ubuf, size_t size, unsigned int flags, struct sockaddr __user *addr, int __user *addr_len){
-
-	// struct recvstruct *data;
-	// struct task_struct *thread1;
-
-	// data = kmalloc(sizeof(struct recvstruct), GFP_KERNEL);
-	// memset(data, 0, sizeof(struct recvstruct));
-
-	// data->fd = fd;
-	// data->ubuf = ubuf;
-	// data->size = size;
-	// data->flags = flags;
-	// data->addr = addr;
-	// data->addr_len = addr_len;
-
-	// dataCounter++;
-	// if(dataCounter == 1000000){
-	// 	dataCounter = 0;
-	// }
-
-	// thread1 = kthread_run((void *)ukl__sys_recvfrom, data, "ukl_recvfrom");
-
-	// // cond_resched();
-	// // kthread_stop(thread1);
-
-	// // 	return 0;
-	// udelay(delay);
 	return __sys_recvfrom(fd, ubuf, size, flags, addr, addr_len);
 }
+
 int ukl_sendto(int fd, void *buff, size_t len, unsigned int flags, struct sockaddr *addr, int addr_len){
 	return __sys_sendto(fd, buff, len, flags, addr, addr_len);
+}
+
+int ukl_recv(int fd, void __user *ubuf, size_t size, unsigned int flags, struct sockaddr __user *addr, int __user *addr_len){
+	return __sys_recvfrom(fd, ubuf, size, flags, NULL, NULL);
+}
+
+int ukl_send(int fd, void *buff, size_t len, unsigned int flags, struct sockaddr *addr, int addr_len){
+	return __sys_sendto(fd, buff, len, flags, NULL, 0);
 }
 
 int ukl_setsockopt(int fd, int level, int optname, char *optval, int optlen){

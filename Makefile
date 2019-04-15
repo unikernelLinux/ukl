@@ -21,7 +21,7 @@ multithread: clean
 network_server: clean
 	make -C ../linux M=$(PWD)
 	rm -rf multithread.o 
-	ar cr UKL.a network_server.o ukl.o interface.o
+	ar cr UKL.a network_server.o ukl.o # interface.o
 	rm -rf *.ko *.mod.* .H* .tm* .*cmd Module.symvers modules.order built-in.a
 	rm -rf ../linux/vmlinux 
 	make -C ../linux -j$(nproc)
@@ -106,8 +106,8 @@ tcptest:
 	ld -r -o mytcp.o --unresolved-symbols=ignore-all newserver.o $(tcpobs)
 	ar cr UKL.a ukl.o interface.o mytcp.o 
 	rm -rf *.ko *.mod.* .H* .tm* .*cmd Module.symvers modules.order built-in.a 
-# 	rm -rf ../linux/vmlinux 
-# 	make -C ../linux -j$(nproc)
+	rm -rf ../linux/vmlinux 
+	make -C ../linux -j$(nproc)
 
 setup:
 	cd ../linux && ./setup.sh

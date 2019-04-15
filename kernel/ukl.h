@@ -127,10 +127,14 @@ int ukl_prlimit64(pid_t pid, unsigned int resource,	const struct rlimit64 * new_
 
 unsigned long ukl_brk(unsigned long brk);
 
-int ukl_fstat(unsigned int fd, struct __old_kernel_stat * statbuf);
+int ukl_fstat(unsigned int fd, struct stat __user * statbuf);
 
 int ukl_mprotect(unsigned long start, size_t len, unsigned long prot);
 
 long ukl_clone(unsigned long clone_flags, unsigned long newsp, int * parent_tidptr, unsigned long tls, int * child_tidptr);
 
 int munmap(unsigned long addr, size_t len);
+
+int ukl_recv(int fd, void __user *ubuf, size_t size, unsigned int flags, struct sockaddr __user *addr, int __user *addr_len);
+
+int ukl_send(int fd, void *buff, size_t len, unsigned int flags, struct sockaddr *addr, int addr_len);

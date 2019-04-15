@@ -108,7 +108,9 @@ int interface(void)
         printk("3rd Ioctl failed\n");
         return  -1;
     }
-    
+     msleep(3000);
+
+     kmain();
    
     return 0;
 }
