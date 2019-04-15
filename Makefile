@@ -6,7 +6,7 @@ tcptest:
 	gcc newserver.c -c -o newserver.o -mcmodel=kernel -ggdb
 	rm -rf glibc
 	mkdir glibc
-	cp ../glibc/glibc-build/libc.a glibc/
+	cp libc.a glibc/
 	cp libcMakefile glibc/Makefile
 	make -C glibc/
 	make -C ../linux M=$(PWD)
