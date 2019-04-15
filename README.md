@@ -4,10 +4,6 @@ https://next.redhat.com/2018/11/14/ukl-a-unikernel-based-on-linux/
 An example of Linux unikernel: TCP echo server  
 
 Assuming you are running Fedora, you need the following packages. Run the following command to install them.
-    1. QEMU
-    2. supermin
-    3. git
-    4. some kernel development tools
 ```
     sudo dnf install qemu supermin git elfutils-devel kernel-devel
     sudo dnf groupinstall "C Development Tools and Libraries"
