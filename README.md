@@ -3,6 +3,16 @@ https://next.redhat.com/2018/11/14/ukl-a-unikernel-based-on-linux/
 
 An example of Linux unikernel: TCP echo server  
 
+Assuming you are running Fedora, you need the following packages. Run the following command to install them.
+    1. QEMU
+    2. supermin
+    3. git
+    4. some kernel development tools
+```
+    sudo dnf install qemu supermin git elfutils-devel kernel-devel
+    sudo dnf groupinstall "C Development Tools and Libraries"
+```
+
 UKL requires other Git repos as well. Follow the directions below to download and build them.
 
 1. This Makefile assumes that you have a main directory in which you have three further sub directories. Follow the commands below to get the correct directory layout. (This will not be necessary as we update the Makefile)  
@@ -16,7 +26,7 @@ UKL requires other Git repos as well. Follow the directions below to download an
 2. Build Linux  
 Note: This will fail at the very end (linking step). Thats ok.
 ```
-    cd ../linux
+    cd linux
     make olddefconfig
     make -j
 ```
