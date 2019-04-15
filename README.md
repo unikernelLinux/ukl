@@ -1,8 +1,9 @@
-## A unikernel based on Linux
+# A unikernel based on Linux
+https://next.redhat.com/2018/11/14/ukl-a-unikernel-based-on-linux/
 
-TCP echo server running
+An example of Linux unikernel: TCP echo server 
 
-# Download
+### Download
 UKL requires other Git repos as well. Follow the directions below to download and build them.
 
 1. This Makefile assumes that you have a main directory in which you have three further sub directories. Follow the commands below to get the correct directory layout. (This will not be necessary as we update the Makefile)  
