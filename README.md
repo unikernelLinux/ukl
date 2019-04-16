@@ -1,5 +1,7 @@
 # A unikernel based on Linux
-https://next.redhat.com/2018/11/14/ukl-a-unikernel-based-on-linux/
+
+[HotOS paper](https://razaaliraza.github.io/papers/UKL.pdf)   
+[Blog post](https://next.redhat.com/2018/11/14/ukl-a-unikernel-based-on-linux/)
 
 An example of Linux unikernel: TCP echo server  
 
@@ -37,7 +39,9 @@ This step will build tcp code and link everything together in a single bzImage
 ```
     make run
 ```
- If this step fails because you dont have KVM enabled on your machine, go to min-initrd directory and open Makefile. Delete enable-kvm flag from run command.
+ If this step fails because you dont have KVM enabled on your machine, go to min-initrd directory and open Makefile. Delete enable-kvm flag from run command.  
+   
+ If you get messages about module version mismatch when the kernel boots up, you might want to look at this [Supermin](http://libguestfs.org/supermin.1.html#USING-A-CUSTOM-KERNEL-AND-KERNEL-MODULES) page.
 
 5. From a separate terminal, run telnet
 ```
