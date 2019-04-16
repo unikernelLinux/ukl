@@ -33,10 +33,12 @@ Note: This will fail at the very end (linking step). Thats ok.
 ```
 This step will build tcp code and link everything together in a single bzImage
 
-4. Run UKL
+4. Run UKL. This step might take a while because supermin has to create an initrd. 
 ```
     make run
 ```
+ If this step fails because you dont have KVM enabled on your machine, go to min-initrd directory and open Makefile. Delete enable-kvm flag from run command.
+
 5. From a separate terminal, run telnet
 ```
     telnet 127.0.0.1 5555
