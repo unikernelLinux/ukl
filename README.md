@@ -17,9 +17,9 @@ UKL requires other Git repos as well. Follow the directions below to download an
 ```
     mkdir unikernel
     cd unikernel
-    git clone git@github.com:razaaliraza/linux.git
-    git clone git@github.com:razaaliraza/ukl.git
-    git clone git@github.com:razaaliraza/min-initrd.git
+    git clone https://github.com/razaaliraza/linux.git
+    git clone https://github.com/razaaliraza/ukl.git
+    git clone https://github.com/razaaliraza/min-initrd.git
 ```
 2. Build Linux  
 Note: This will fail at the very end (linking step). Thats ok.
