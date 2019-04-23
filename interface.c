@@ -17,6 +17,8 @@
 #include <asm/sections.h>
 #include <asm/proto.h>
 
+void * tls;
+
 unsigned int inet_addr2(char* ip)
 {
     int a, b, c, d;
@@ -35,32 +37,25 @@ int interface(void)
 {
 
     int err;
-    void * tls;
+    // void * tls;
     volatile struct task_struct *me = current;
 
-    // printk("__tls_start is %lx\n", __tls_start);
-    // printk("__tls_end %lx\n", __tls_end);
+    printk("__tls_start is %lx\n", __tls_start);
+    printk("__tls_end %lx\n", __tls_end);
 
     int size = __tls_end - __tls_start;
-    // printk("TLS size = %d", size);
-    tls = vmalloc(size);
-    // printk("TLS address while setup is %lx\n", tls);
+    printk("TLS size = %d", size);
+    tls = vmalloc(size*2);
+    printk("TLS address while setup is %lx\n", tls);
     
     tls = memcpy(tls, __tls_start, size);
-    // memset(tls, 300, size);
-    // tls = tls - size;
 
-    // printk("Address of myCounter = %lx\n", &myCounter);
-    // current->mm = current->active_mm;
-    // printk("TLS address for main thread is %lx\n", me->thread.fsbase);
+    printk("TLS address for main thread is %lx\n", me->thread.fsbase);
 
     err = do_arch_prctl_64(current, ARCH_SET_FS, tls + size);
 
     me = current;
-    // printk("TLS address for main thread is %lx\n", me->thread.fsbase);
-    // printk("Address of mm struct of current is %lx\n", &me->mm);
-
-    // printk("TLS address for main thread is %lx\n", me->thread.fsbase);
+    printk("TLS address for main thread is %lx\n", me->thread.fsbase);
 
     printk("Set up TLS sections, done. \n");
 
