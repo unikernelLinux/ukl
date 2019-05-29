@@ -16,6 +16,7 @@
 #include <linux/kmain.h>
 #include <asm/sections.h>
 #include <asm/proto.h>
+#include <asm/fsgsbase.h>
 
 void * tls;
 
@@ -37,7 +38,7 @@ int interface(void)
 {
 
     int err;
-    // void * tls;
+    unsigned long tlsplussize;
     volatile struct task_struct *me = current;
 
     printk("__tls_start is %lx\n", __tls_start);
@@ -49,15 +50,28 @@ int interface(void)
     printk("TLS address while setup is %lx\n", tls);
     
     tls = memcpy(tls, __tls_start, size);
+    printk("TLS address after memcpy is %lx\n", tls);
+
+    tlsplussize = memset(tls+size, 0, size);
+    printk("tlsplussize address after memset zero is %lx\n", tlsplussize);
 
     printk("TLS address for main thread is %lx\n", me->thread.fsbase);
 
     err = do_arch_prctl_64(current, ARCH_SET_FS, tls + size);
 
+    unsigned long myfs = x86_fsbase_read_cpu();
+    printk("FS value is %lx\n", myfs);
+
     me = current;
     printk("TLS address for main thread is %lx\n", me->thread.fsbase);
 
     printk("Set up TLS sections, done. \n");
+
+    // void * ptr = pthread_initialize(me->thread.fsbase);
+    // printk("TCB address for main thread is %lx\n", ptr);
+
+    __pthread_initialize_minimal_internal(me->thread.fsbase);
+    printk("Set up TCB done. \n");
 
     int fd = -1;
     int retioctl = -1;

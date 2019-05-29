@@ -174,117 +174,29 @@ out:
 // 	return 0;
 // }
 
-pid_t ukl_set_tid_address(int * tidptr){
-	current->clear_child_tid = tidptr;
-
-	return task_pid_vnr(current);
+int ukl_set_tid_address(int * tidptr){
+	extern int __ukl_set_tid_address(int * ptr);
+	return __ukl_set_tid_address(tidptr);
 }
 
 int ukl_set_robust_list(struct robust_list_head * head, size_t len){
-	if (!futex_cmpxchg_enabled)
-		return -ENOSYS;
-	/*
-	 * The kernel knows only one size for now:
-	 */
-	if (unlikely(len != sizeof(*head)))
-		return -EINVAL;
-
-	current->robust_list = head;
-
-	return 0;
+	extern int __ukl_set_robust_list(struct robust_list_head * head, size_t len);
+	return __ukl_set_robust_list(head, len);
 }
 
-int ukl_rt_sigaction(int sig, const struct sigaction * act,	struct sigaction * oact, size_t sigsetsize){
-	struct k_sigaction new_sa, old_sa;
-	int ret;
-
-	/* XXX: Don't preclude handling different sized sigset_t's.  */
-	if (sigsetsize != sizeof(sigset_t))
-		return -EINVAL;
-
-	if (act && copy_from_user(&new_sa.sa, act, sizeof(new_sa.sa)))
-		return -EFAULT;
-
-	ret = do_sigaction(sig, act ? &new_sa : NULL, oact ? &old_sa : NULL);
-	if (ret)
-		return ret;
-
-	if (oact && copy_to_user(oact, &old_sa.sa, sizeof(old_sa.sa)))
-		return -EFAULT;
-
-	return 0;
+int ukl_rt_sigprocmask(int how, sigset_t * nset,  sigset_t * oset, size_t sigsetsize){
+	extern int __ukl_rt_sigprocmask(int how, sigset_t * nset,  sigset_t * oset, size_t sigsetsize);
+	return __ukl_rt_sigprocmask(how, nset, oset, sigsetsize);
 }
 
-int ukl_rt_sigprocmask(int how, sigset_t * nset, sigset_t * oset, size_t sigsetsize){
-	sigset_t old_set, new_set;
-	int error;
-
-	/* XXX: Don't preclude handling different sized sigset_t's.  */
-	if (sigsetsize != sizeof(sigset_t))
-		return -EINVAL;
-
-	old_set = current->blocked;
-
-	if (nset) {
-		if (copy_from_user(&new_set, nset, sizeof(sigset_t)))
-			return -EFAULT;
-		sigdelsetmask(&new_set, sigmask(SIGKILL)|sigmask(SIGSTOP));
-
-		error = sigprocmask(how, &new_set, NULL);
-		if (error)
-			return error;
-	}
-
-	if (oset) {
-		if (copy_to_user(oset, &old_set, sizeof(sigset_t)))
-			return -EFAULT;
-	}
-
-	return 0;
+int ukl_rt_sigaction(int sig, const struct sigaction * act, struct sigaction * oact, size_t sigsetsize){
+	extern int __ukl_rt_sigaction(int sig, const struct sigaction * act, struct sigaction * oact, size_t sigsetsize);
+	return __ukl_rt_sigaction(sig, act, oact, sigsetsize);
 }
 
-int ukl_prlimit64(pid_t pid, unsigned int resource,	const struct rlimit64 * new_rlim, struct rlimit64 * old_rlim){
-	struct rlimit64 old64, new64;
-	struct rlimit old, new;
-	struct task_struct *tsk;
-	unsigned int checkflags = 0;
-	int ret;
-
-	if (old_rlim)
-		checkflags |= LSM_PRLIMIT_READ;
-
-	if (new_rlim) {
-		if (copy_from_user(&new64, new_rlim, sizeof(new64)))
-			return -EFAULT;
-		rlim64_to_rlim(&new64, &new);
-		checkflags |= LSM_PRLIMIT_WRITE;
-	}
-
-	rcu_read_lock();
-	tsk = pid ? find_task_by_vpid(pid) : current;
-	if (!tsk) {
-		rcu_read_unlock();
-		return -ESRCH;
-	}
-	ret = check_prlimit_permission(tsk, checkflags);
-	if (ret) {
-		rcu_read_unlock();
-		return ret;
-	}
-	get_task_struct(tsk);
-	rcu_read_unlock();
-
-	ret = do_prlimit(tsk, resource, new_rlim ? &new : NULL,
-			old_rlim ? &old : NULL);
-
-	if (!ret && old_rlim) {
-		rlim_to_rlim64(&old, &old64);
-		if (copy_to_user(old_rlim, &old64, sizeof(old64)))
-			ret = -EFAULT;
-	}
-
-	put_task_struct(tsk);
-	return ret;
+int ukl_prlimit64(pid_t pid, unsigned int resource, const struct rlimit64 * new_rlim, struct rlimit64 * old_rlim){
+	extern int __ukl_prlimit64(pid_t pid, unsigned int resource, const struct rlimit64 * new_rlim,	struct rlimit64 * old_rlim);
+	return __ukl_prlimit64(pid, resource, new_rlim,	old_rlim);
 }
 
 

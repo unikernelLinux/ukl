@@ -9,7 +9,7 @@
 #include <pthread.h> 
 
 #define QUEUE_SIZE 10
-#define PORT 5555
+#define PORT 4444
 #define BUFFER_SIZE 1024
 
 void *connection_handler(void *);
