@@ -67,9 +67,6 @@ int interface(void)
 
     printk("Set up TLS sections, done. \n");
 
-    // void * ptr = pthread_initialize(me->thread.fsbase);
-    // printk("TCB address for main thread is %lx\n", ptr);
-
     __pthread_initialize_minimal_internal(me->thread.fsbase);
     printk("Set up TCB done. \n");
 
