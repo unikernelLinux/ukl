@@ -10,7 +10,10 @@
 
 #define BUFFER_SIZE 1024
 
-int kmain (int argc, char *argv[]) {
+int kmain (unsigned long fs) {
+
+  __pthread_initialize_minimal_internal((void *) fs);
+  printf("Set up TCB done. \n");
 
   int port = 5555;
 

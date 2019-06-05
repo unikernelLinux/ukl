@@ -43,29 +43,26 @@ int interface(void)
 
     int size = __tls_end - __tls_start;
     // printk("TLS size = %d", size);
-    tls = vmalloc(size);
+    tls = vmalloc(2*size);
     // printk("TLS address while setup is %lx\n", tls);
     
     tls = memcpy(tls, __tls_start, size);
     // memset(tls, 300, size);
     // tls = tls - size;
 
-    // printk("Address of myCounter = %lx\n", &myCounter);
-    // current->mm = current->active_mm;
-    // printk("TLS address for main thread is %lx\n", me->thread.fsbase);
+    printk("TLS address for main thread is %lx\n", me->thread.fsbase);
 
     err = do_arch_prctl_64(current, ARCH_SET_FS, tls + size);
 
     me = current;
-    // printk("TLS address for main thread is %lx\n", me->thread.fsbase);
-    // printk("Address of mm struct of current is %lx\n", &me->mm);
+    printk("TLS address for main thread is %lx\n", me->thread.fsbase);
 
     // printk("TLS address for main thread is %lx\n", me->thread.fsbase);
 
     printk("Set up TLS sections, done. \n");
     
-    __pthread_initialize_minimal_internal(me->thread.fsbase);
-    printk("Set up TCB done. \n");
+    // __pthread_initialize_minimal_internal(me->thread.fsbase);
+    // printk("Set up TCB done. \n");
 
     int fd = -1;
     int retioctl = -1;
@@ -123,7 +120,7 @@ int interface(void)
 
     printk("Set up of mm struct, done.\n");
 
-    kmain();
+    kmain(me->thread.fsbase);
    
     return 0;
 }
