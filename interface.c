@@ -67,7 +67,7 @@ int interface(void)
 
     printk("Set up TLS sections, done. \n");
 
-    __pthread_initialize_minimal_internal(me->thread.fsbase);
+    // __pthread_initialize_minimal_internal(me->thread.fsbase);
     printk("Set up TCB done. \n");
 
     int fd = -1;
@@ -123,6 +123,7 @@ int interface(void)
 
     me->mm = mm_alloc();
     me->mm->get_unmapped_area = arch_get_unmapped_area_topdown;
+    me->mm->owner = current;
 
     printk("Set up of mm struct, done.\n");
 
