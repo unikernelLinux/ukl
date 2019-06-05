@@ -40,6 +40,8 @@ int kmain (int argc, char *argv[]) {
 
       if (!read) break;
 
+      printf("Message received: %s\n", buf);
+
       err = send(client_fd, buf, read, 0); // (sendto, fd, buf, len, flags, NULL, 0);
 
     }
