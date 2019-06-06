@@ -13,7 +13,7 @@
 int kmain (unsigned long fs) {
 
   __pthread_initialize_minimal_internal((void *) fs);
-  printf("Set up TCB done. \n");
+  printf("Set up of TCB done. \n");
 
   int port = 5555;
 
