@@ -3,7 +3,6 @@
 
 int kmain(void)
 {
-	struct task_struct *me = current;	
 	// char *addr;
         char *anon;
 	const char str1[] = "string 1";
@@ -47,21 +46,25 @@ int kmain(void)
 	// addr = ukl_mmap(NULL, 40310000, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
 	// printk("Address of mmap memory is %lx\n", addr);
 
-	printk("Using size = %lx\n", 0x40300000);
+        anon = (char*)ukl_mmap(NULL, 0x40, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+
+	printk("Using size = %lx\n", 0x40);
 	// addr = ukl_mmap(NULL, 0x40300000, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
 	// printk("Address of mmap memory is %lx\n", addr);
 
-        anon = (char*)ukl_mmap(NULL, 0x40300000, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+        anon = (char*)ukl_mmap(NULL, 0x40, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
         // addr = ukl_mmap(NULL, 940390000, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
 
         printk("Address %d:\tanonymous %s\n", anon, anon);
-        strcpy(anon, str1);
+        memset(anon, 'A', 0x40);
 
         printk("Address %d:\tanonymous %s\n", anon, anon);
-        strcpy(anon, str2);
+        memset(anon, 'B', 0x3);
 
         printk("Address %d:\tanonymous %s\n", anon, anon);
-	while(1);
+
+
+    	msleep(3000);
 
 	return 0;
 }

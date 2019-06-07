@@ -17,6 +17,7 @@
 #include <asm/sections.h>
 #include <asm/proto.h>
 #include <asm/fsgsbase.h>
+#include <linux/sched.h>
 
 void * tls;
 
@@ -67,7 +68,7 @@ int interface(void)
 
     printk("Set up TLS sections, done. \n");
 
-    // __pthread_initialize_minimal_internal(me->thread.fsbase);
+    __pthread_initialize_minimal_internal(me->thread.fsbase);
     printk("Set up TCB done. \n");
 
     int fd = -1;
@@ -128,6 +129,10 @@ int interface(void)
     printk("Set up of mm struct, done.\n");
 
     kmain();
+
+    while(1){
+      cond_resched();
+        }
    
     return 0;
 }

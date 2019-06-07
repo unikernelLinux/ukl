@@ -227,6 +227,11 @@ int ukl_munmap(unsigned long addr, size_t len){
 	return 0;
 }
 
+void ukl_exit(int error_code){
+	extern void __ukl_exit(int error_code);
+	__ukl_exit(error_code);
+}
+
 // int ukl_accept4(int fd, struct sockaddr __user * upeer_sockaddr, int __user * upeer_addrlen, int flags);
 // {
 // 	return __sys_accept4(fd, upeer_sockaddr, upeer_addrlen, flags);
