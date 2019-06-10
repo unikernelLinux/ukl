@@ -11,7 +11,7 @@ tcptest:
 	make -C glibc/
 	make -C ../linux M=$(PWD)
 	rm -rf UKL.a
-	ld -r -o mytcp.o --unresolved-symbols=ignore-all newserver.o $(tcpobs) libpthread.a
+	ld -r -o mytcp.o --unresolved-symbols=ignore-all newserver.o $(tcpobs)
 # 	ld -r -o mytcp.o --unresolved-symbols=ignore-all --allow-multiple-definition newserver.o --start-group libc.a libpthread.a --end-group 
 	ar cr UKL.a ukl.o interface.o mytcp.o 
 	rm -rf *.ko *.mod.* .H* .tm* .*cmd Module.symvers modules.order built-in.a 

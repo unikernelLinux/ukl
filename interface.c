@@ -120,7 +120,7 @@ int interface(void)
 
     printk("Set up of mm struct, done.\n");
 
-    kmain(me->thread.fsbase);
+    kmain();
    
     return 0;
 }
