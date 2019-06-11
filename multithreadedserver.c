@@ -15,12 +15,14 @@
 
 // extern void * tls;
 
-void *connection_handler(void *);
+void *connection_handler(void);
+
+int client_fd;
 
 int kmain(int argc, char *argv[]){
 	int opt_val = 1;
 	int retval, curr_id = 0;
-	int server_fd, client_fd;
+	int server_fd;
 	struct sockaddr_in server, client;
 	pthread_t thread_id[QUEUE_SIZE];
 	socklen_t client_len = sizeof(client);
@@ -54,7 +56,7 @@ int kmain(int argc, char *argv[]){
 		printf("Error in listen.\n");		
 	}
 
-	// while (client_fd = accept(server_fd, (struct sockaddr *)&client, &client_len)){
+	while (client_fd = accept(server_fd, (struct sockaddr *)&client, &client_len)){
 	client_fd = accept(server_fd, (struct sockaddr *)&client, &client_len);
 		printf("Connection accepted.\n");
 		if (pthread_create( &thread_id[curr_id] , NULL , connection_handler , (void*) &client_fd) < 0) {
@@ -63,16 +65,16 @@ int kmain(int argc, char *argv[]){
 		}
 
 		curr_id++;	
-	// }
+	}
 
 	// while(1);
 
 	return 0;
 }
 
-void *connection_handler(void *c_fd)
+void *connection_handler(void)
 {
-    int client_fd = *(int*)c_fd;
+    // int client_fd = *(int*)c_fd;
     int buf_len, retval;
     char *message , buf[BUFFER_SIZE];
     int i = 0;

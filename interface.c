@@ -128,6 +128,10 @@ int interface(void)
 
     printk("Set up of mm struct, done.\n");
 
+    printk("Old task struct flags = %x\n", me->flags);
+    me->flags = me->flags^PF_KTHREAD;
+    printk("Current task struct flags = %x\n", me->flags);
+
     kmain();
 
     while(1){
