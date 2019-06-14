@@ -20,6 +20,10 @@ void *connection_handler(void);
 int client_fd;
 
 int kmain(int argc, char *argv[]){
+	char *str;
+	/* Initial memory allocation */
+	str = (char *) malloc(15);
+
 	int opt_val = 1;
 	int retval, curr_id = 0;
 	int server_fd;

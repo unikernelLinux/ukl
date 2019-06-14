@@ -21,6 +21,12 @@ int client_fd;
 int kmain(int argc, char *argv[]){
 	pthread_t thread_id[QUEUE_SIZE];
 	int i = 0;
+	char *str;
+
+	/* Initial memory allocation */
+	str = (char *) malloc(15);
+
+
 	for(i = 0; i < QUEUE_SIZE; i++){
 		if (pthread_create( &thread_id[i] , NULL , &printer , NULL) < 0) {
 			perror("could not create thread");
