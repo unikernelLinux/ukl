@@ -45,3 +45,4 @@ tlssymsmylib
 !libpthread.a
 multithreadedserver
 usermultithreadedserver
+multithreads

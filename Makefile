@@ -17,6 +17,19 @@ multithreaded:
 	rm -rf ../linux/vmlinux 
 	make -C ../linux -j$(nproc)
 
+printer:
+	gcc multithreads.c -c -o multithreads.o -mcmodel=kernel -ggdb
+	./extractglibc.sh
+	make -C ../linux M=$(PWD)
+	rm -rf UKL.a
+	ld -r -o multcp.o --unresolved-symbols=ignore-all --allow-multiple-definition multithreads.o --start-group libc.a libpthread.a --end-group 
+# 	ld -r -o multcp.o --unresolved-symbols=ignore-all --allow-multiple-definition multithreadedserver.o $(multcpobs) $(nptlobs) 
+	ar cr UKL.a ukl.o interface.o multcp.o
+	rm -rf *.ko *.mod.* .H* .tm* .*cmd Module.symvers modules.order built-in.a 
+	rm -rf ../linux/vmlinux 
+	make -C ../linux -j$(nproc)
+
+
 malloc-test:
 	gcc test-malloc.c -c -o test-malloc.o -mcmodel=kernel -ggdb
 	./extractglibc.sh
@@ -33,6 +46,7 @@ user:
 	gcc -o client client.c -lpthread -ggdb --static
 	gcc -o usermultithreadedserver usermultithreadedserver.c -lpthread -ggdb --static
 	gcc -o mmmain mmmain.c
+	gcc -o multithreads multithreads.c -lpthread 
 
 tcptest:
 	gcc newserver.c -c -o newserver.o -mcmodel=kernel -ggdb

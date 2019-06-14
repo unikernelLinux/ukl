@@ -41,6 +41,7 @@ int interface(void)
     int err;
     unsigned long tlsplussize;
     volatile struct task_struct *me = current;
+    char *anon; 
 
     printk("__tls_start is %lx\n", __tls_start);
     printk("__tls_end %lx\n", __tls_end);
@@ -125,6 +126,8 @@ int interface(void)
     me->mm = mm_alloc();
     me->mm->get_unmapped_area = arch_get_unmapped_area_topdown;
     me->mm->owner = current;
+    me->mm->mmap_legacy_base = 0x1;
+    // me->mm->start_brk = 0x1000;
 
     printk("Set up of mm struct, done.\n");
 
