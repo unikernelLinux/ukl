@@ -57,7 +57,7 @@ int kmain(int argc, char *argv[]){
 	}
 
 	while (client_fd = accept(server_fd, (struct sockaddr *)&client, &client_len)){
-	client_fd = accept(server_fd, (struct sockaddr *)&client, &client_len);
+	// client_fd = accept(server_fd, (struct sockaddr *)&client, &client_len);
 		printf("Connection accepted.\n");
 		if (pthread_create( &thread_id[curr_id] , NULL , connection_handler , (void*) &client_fd) < 0) {
 				perror("could not create thread");
