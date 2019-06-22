@@ -26,7 +26,7 @@ Note: This will fail at the very end (linking step). Thats ok.
 ```
     cd linux
     make olddefconfig
-    make -j
+    make -j `nproc`
 ```
 3. Build usercode
 ```
