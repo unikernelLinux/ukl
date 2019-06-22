@@ -9,14 +9,13 @@
 #include <pthread.h> 
 
 extern int printk(const char *fmt, ...);
+extern void cond_resched(void);
 
-#define QUEUE_SIZE 10
+#define QUEUE_SIZE 1
 #define printff printk
 
 
 void *printer(void);
-
-int client_fd;
 
 int kmain(int argc, char *argv[]){
 	pthread_t thread_id[QUEUE_SIZE];
@@ -34,7 +33,7 @@ int kmain(int argc, char *argv[]){
 		}	
 	}
 
-	while(1);	
+	// while(1);	
 	return 0;
 }
 
@@ -49,5 +48,8 @@ void *printer(void)
     printff("a\n");
     printff("lazy\n");
     printff("dog.\n");
+    while(1){
+      cond_resched();
+        }
     return 0;
 } 
