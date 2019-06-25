@@ -27,7 +27,7 @@ printer:
 	ar cr UKL.a ukl.o interface.o multcp.o
 	rm -rf *.ko *.mod.* .H* .tm* .*cmd Module.symvers modules.order built-in.a 
 	rm -rf ../linux/vmlinux 
-	make -C ../linux -j$(nproc)
+	make -C ../linux -j$(shell nproc)
 
 
 malloc-test:
@@ -46,7 +46,7 @@ user:
 	gcc -o client client.c -lpthread -ggdb --static
 	gcc -o usermultithreadedserver usermultithreadedserver.c -lpthread -ggdb --static
 	gcc -o mmmain mmmain.c
-	gcc -o multithreads multithreads.c -lpthread 
+	gcc -o usermultithreads usermultithreads.c -lpthread -ggdb
 
 tcptest:
 	gcc newserver.c -c -o newserver.o -mcmodel=kernel -ggdb
