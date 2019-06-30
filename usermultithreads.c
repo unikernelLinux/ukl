@@ -23,9 +23,11 @@ int main(int argc, char *argv[]){
 		}	
 	}
 
-	for(i = 0; i < QUEUE_SIZE; i++){
-		pthread_join(&thread_id[i], NULL);	
-	}
+	// for(i = 0; i < QUEUE_SIZE; i++){
+	// 	pthread_join(&thread_id[i], NULL);	
+	// }
+
+	while(1);
 		
 	return 0;
 }

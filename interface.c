@@ -21,6 +21,8 @@
 
 void * tls;
 
+extern void __libc_setup_tls(unsigned long start, unsigned long end);
+
 unsigned int inet_addr2(char* ip)
 {
     int a, b, c, d;
@@ -43,34 +45,47 @@ int interface(void)
     volatile struct task_struct *me = current;
     char *anon; 
 
-    printk("__tls_start is %lx\n", __tls_start);
-    printk("__tls_end %lx\n", __tls_end);
+    // printk("__tls_start is %lx\n", __tls_start);
+    // printk("__tls_end %lx\n", __tls_end);
 
-    int size = __tls_end - __tls_start;
-    printk("TLS size = %d", size);
-    tls = vmalloc(size*2);
-    printk("TLS address while setup is %lx\n", tls);
+    // int size = __tls_end - __tls_start;
+    // printk("TLS size = %d", size);
+    // tls = vmalloc(size*2);
+    // printk("TLS address while setup is %lx\n", tls);
     
-    tls = memcpy(tls, __tls_start, size);
-    printk("TLS address after memcpy is %lx\n", tls);
+    // tls = memcpy(tls, __tls_start, size);
+    // printk("TLS address after memcpy is %lx\n", tls);
 
-    tlsplussize = memset(tls+size, 0, size);
-    printk("tlsplussize address after memset zero is %lx\n", tlsplussize);
+    // tlsplussize = memset(tls+size, 0, size);
+    // printk("tlsplussize address after memset zero is %lx\n", tlsplussize);
 
+    // printk("TLS address for main thread is %lx\n", me->thread.fsbase);
+
+    // err = do_arch_prctl_64(current, ARCH_SET_FS, tls + size);
+
+    // unsigned long myfs = x86_fsbase_read_cpu();
+    // printk("FS value is %lx\n", myfs);
+
+    // me = current;
+    // printk("TLS address for main thread is %lx\n", me->thread.fsbase);
+
+    // printk("Set up TLS sections, done. \n");
+
+    // __pthread_initialize_minimal_internal(me->thread.fsbase);
+    // printk("Set up TCB done. \n");
+
+    me->mm = mm_alloc();
+    me->mm->get_unmapped_area = arch_get_unmapped_area_topdown;
+    me->mm->mmap_base = 0x7f0000000000; 
+    me->mm->mmap_legacy_base = 0x300000000000;
+    me->mm->task_size = 0x7ffffffff000;
+    me->mm->start_brk = 0x405000;
+    me->mm->brk = 0x405000;
+
+    printk("Set up of mm struct, done.\n");
+
+    __libc_setup_tls(__tls_start, __tls_end);
     printk("TLS address for main thread is %lx\n", me->thread.fsbase);
-
-    err = do_arch_prctl_64(current, ARCH_SET_FS, tls + size);
-
-    unsigned long myfs = x86_fsbase_read_cpu();
-    printk("FS value is %lx\n", myfs);
-
-    me = current;
-    printk("TLS address for main thread is %lx\n", me->thread.fsbase);
-
-    printk("Set up TLS sections, done. \n");
-
-    __pthread_initialize_minimal_internal(me->thread.fsbase);
-    printk("Set up TCB done. \n");
 
     int fd = -1;
     int retioctl = -1;
@@ -122,14 +137,6 @@ int interface(void)
     msleep(3000);
 
     printk("Set up of network interface, done.\n");
-
-    me->mm = mm_alloc();
-    me->mm->get_unmapped_area = arch_get_unmapped_area_topdown;
-    me->mm->owner = current;
-    // me->mm->mmap_legacy_base = 0x1;
-    // me->mm->start_brk = 0x1000;
-
-    printk("Set up of mm struct, done.\n");
 
     printk("Old task struct flags = %x\n", me->flags);
     me->flags = me->flags^PF_KTHREAD;

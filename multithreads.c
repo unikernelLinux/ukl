@@ -14,10 +14,23 @@ extern void cond_resched(void);
 #define QUEUE_SIZE 1
 #define printff printk
 
+// __thread int counter = 10;
+// __thread int nocounter;
 
 void *printer(void);
 
 int kmain(int argc, char *argv[]){
+
+	// int i = 0;
+	// nocounter = 0;
+	// for(i = 0; i < 10; i++){
+	// 	counter = counter + i*10;
+	// 	nocounter = nocounter + 1;
+	// 	printff("Counter = %d\n", counter);
+	// 	printff("No Counter = %d\n", nocounter);
+	// }
+
+
 	pthread_t thread_id[QUEUE_SIZE];
 	int i = 0;
 	char *str;
@@ -32,8 +45,7 @@ int kmain(int argc, char *argv[]){
 			return 1;
 		}	
 	}
-
-	// while(1);	
+	
 	return 0;
 }
 
