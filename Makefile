@@ -15,7 +15,7 @@ multithreaded:
 	ar cr UKL.a ukl.o interface.o multcp.o
 	rm -rf *.ko *.mod.* .H* .tm* .*cmd Module.symvers modules.order built-in.a 
 	rm -rf ../linux/vmlinux 
-	make -C ../linux -j$(nproc)
+	make -C ../linux -j$(shell nproc)
 
 printer:
 	gcc multithreads.c -c -o multithreads.o -mcmodel=kernel -ggdb
@@ -40,7 +40,7 @@ malloc-test:
 	ar cr UKL.a ukl.o interface.o multcp.o
 	rm -rf *.ko *.mod.* .H* .tm* .*cmd Module.symvers modules.order built-in.a 
 	rm -rf ../linux/vmlinux 
-	make -C ../linux -j$(nproc)
+	make -C ../linux -j$(shell nproc)
 
 user:
 	gcc -o client client.c -lpthread -ggdb --static
@@ -61,7 +61,7 @@ tcptest:
 	ar cr UKL.a ukl.o interface.o mytcp.o 
 	rm -rf *.ko *.mod.* .H* .tm* .*cmd Module.symvers modules.order built-in.a 
 	rm -rf ../linux/vmlinux 
-	make -C ../linux -j$(nproc)
+	make -C ../linux -j$(shell nproc)
 
 mmap:
 	make -C ../linux M=$(PWD)
@@ -69,7 +69,7 @@ mmap:
 	ar cr UKL.a ukl.o interface.o mmkmain.o 
 	rm -rf *.ko *.mod.* .H* .tm* .*cmd Module.symvers modules.order built-in.a 
 	rm -rf ../linux/vmlinux 
-	make -C ../linux -j$(nproc)
+	make -C ../linux -j$(shell nproc)
 
 run:
 	make -C ../min-initrd runU
