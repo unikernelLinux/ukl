@@ -33,10 +33,6 @@ int kmain(int argc, char *argv[]){
 
 	pthread_t thread_id[QUEUE_SIZE];
 	int i = 0;
-	char *str;
-
-	/* Initial memory allocation */
-	str = (char *) malloc(15);
 
 
 	for(i = 0; i < QUEUE_SIZE; i++){
@@ -60,8 +56,5 @@ void *printer(void)
     printff("a\n");
     printff("lazy\n");
     printff("dog.\n");
-    while(1){
-      cond_resched();
-        }
     return 0;
 } 

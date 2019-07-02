@@ -22,6 +22,7 @@
 void * tls;
 
 extern void __libc_setup_tls(unsigned long start, unsigned long end);
+extern void __ctype_init (void);
 
 unsigned int inet_addr2(char* ip)
 {
@@ -35,6 +36,11 @@ unsigned int inet_addr2(char* ip)
     addr[3] = d;
     
     return *(unsigned int *)addr;
+}
+
+void __copy_tls(void * dest, void * src, size_t n, size_t m){
+	memset (memcpy (dest, src, n), '\0', m);
+	return;
 }
 
 int interface(void)
@@ -86,11 +92,15 @@ int interface(void)
 
     __libc_setup_tls(__tls_start, __tls_end);
     printk("TLS address for main thread is %lx\n", me->thread.fsbase);
+    __pthread_initialize_minimal_internal(me->thread.fsbase);
+    printk("Set up of TCB done. \n");
+    __ctype_init ();
+    printk("Set up of ctype data done. \n");
 
     int fd = -1;
     int retioctl = -1;
 
-    struct sockaddr_in sin;
+    struct sockaddr_in sin; 
     struct ifreq ifr;
 
     fd = ukl_socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);

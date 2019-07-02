@@ -46,7 +46,7 @@ user:
 	gcc -o client client.c -lpthread -ggdb --static
 	gcc -o usermultithreadedserver usermultithreadedserver.c -lpthread -ggdb --static
 	gcc -o mmmain mmmain.c
-	gcc -o usermultithreads usermultithreads.c -lpthread -ggdb
+	gcc -o usermultithreads usermultithreads.c -lpthread -ggdb --static
 
 tcptest:
 	gcc newserver.c -c -o newserver.o -mcmodel=kernel -ggdb

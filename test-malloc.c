@@ -6,15 +6,13 @@ extern int printk(const char *fmt, ...);
 int kmain()
 {
 
-    int i;
-
-    char *ptr, *newptr;
+    int i, *ptr, *newptr;
 
     long long n, diff = 0, valdiff = 0;
 
-    n = 15;
+    n = 1000;
 
-    ptr = (char *) malloc(n);
+    ptr = (int*) malloc(n * sizeof(int));
     printk("Malloc returned\n");
     printk("Value at start pointer %lx is %d\n", ptr, *ptr);
     // if(ptr == NULL)                     
