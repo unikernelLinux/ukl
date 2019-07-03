@@ -11,13 +11,13 @@
 extern int printk(const char *fmt, ...);
 extern void cond_resched(void);
 
-#define QUEUE_SIZE 1
+#define QUEUE_SIZE 10
 #define printff printk
 
 // __thread int counter = 10;
 // __thread int nocounter;
 
-void *printer(void);
+void *printer(int * id);
 
 int kmain(int argc, char *argv[]){
 
@@ -36,7 +36,7 @@ int kmain(int argc, char *argv[]){
 
 
 	for(i = 0; i < QUEUE_SIZE; i++){
-		if (pthread_create( &thread_id[i] , NULL , &printer , NULL) < 0) {
+		if (pthread_create( &thread_id[i] , NULL , printer , (void *)i) < 0) {
 			perror("could not create thread");
 			return 1;
 		}	
@@ -45,16 +45,17 @@ int kmain(int argc, char *argv[]){
 	return 0;
 }
 
-void *printer(void)
+void *printer(int * id)
 {
-    printff("A\n");
-    printff("quick\n");
-    printff("brown\n");
-    printff("fox\n");
-    printff("jumped\n");
-    printff("over\n");
-    printff("a\n");
-    printff("lazy\n");
-    printff("dog.\n");
+    printff("Thread %d = A\n", id);
+    printff("Thread %d = quick\n", id);
+    printff("Thread %d = brown\n", id);
+    printff("Thread %d = fox\n", id);
+    printff("Thread %d = jumped\n", id);
+    printff("Thread %d = over\n", id);
+    printff("Thread %d = a\n", id);
+    printff("Thread %d = lazy\n", id);
+    printff("Thread %d = dog.\n", id);
+    while(1);
     return 0;
 } 
