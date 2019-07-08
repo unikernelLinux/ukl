@@ -21,7 +21,7 @@
 
 void * tls;
 
-extern void __libc_setup_tls(unsigned long start, unsigned long end);
+extern void __libc_setup_tls (unsigned long start, unsigned long tbss_start, unsigned long end);
 extern void __ctype_init (void);
 
 unsigned int inet_addr2(char* ip)
@@ -39,7 +39,7 @@ unsigned int inet_addr2(char* ip)
 }
 
 void __copy_tls(void * dest, void * src, size_t n, size_t m){
-	memset (memcpy (dest, src, n), '\0', m);
+	memset (memcpy (dest, src, n) + n, '\0', m);
 	return;
 }
 
@@ -90,7 +90,7 @@ int interface(void)
 
     printk("Set up of mm struct, done.\n");
 
-    __libc_setup_tls(__tls_start, __tls_end);
+    __libc_setup_tls(__tls_data_start, __tls_bss_start, __tls_bss_end);
     printk("TLS address for main thread is %lx\n", me->thread.fsbase);
     __pthread_initialize_minimal_internal(me->thread.fsbase);
     printk("Set up of TCB done. \n");

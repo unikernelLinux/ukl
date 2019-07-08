@@ -34,14 +34,14 @@ int main(int argc, char *argv[]){
 
 void *printer(void)
 {
-    printf("A\n");
-    printf("quick\n");
-    printf("brown\n");
-    printf("fox\n");
-    printf("jumped\n");
-    printf("over\n");
-    printf("a\n");
-    printf("lazy\n");
-    printf("dog.\n");
+    printf("%d A\n", 1);
+    printf("%d quick\n", 1);
+    printf("%d brown\n", 1);
+    printf("%d fox\n", 1);
+    printf("%d jumped\n", 1);
+    printf("%d over\n", 1);
+    printf("%d a\n", 1);
+    printf("%d lazy\n", 1);
+    printf("%d dog.\n", 1);
     return 0;
 } 
