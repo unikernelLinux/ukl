@@ -7,7 +7,7 @@
 
 Assuming you are running Fedora, you need the following packages. Run the following command to install them.
 ```
-    sudo dnf install qemu supermin git elfutils-devel kernel-devel
+    sudo dnf install qemu supermin git elfutils-devel kernel-devel openssl-devel
     sudo dnf groupinstall "C Development Tools and Libraries"
 ```
 
