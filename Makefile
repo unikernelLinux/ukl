@@ -22,8 +22,8 @@ printer:
 	./extractglibc.sh
 	make -C ../linux M=$(PWD)
 	rm -rf UKL.a
-	ld -r -o multcp.o --allow-multiple-definition multithreads.o --whole-archive libc.a libpthread.a --no-whole-archive 
-# 	ld -r -o multcp.o --unresolved-symbols=ignore-all --allow-multiple-definition multithreadedserver.o $(multcpobs) $(nptlobs) 
+	ld -r -o glibcfinal --unresolved-symbols=ignore-all --allow-multiple-definition --whole-archive libc.a libpthread.a --no-whole-archive 
+	ld -r -o multcp.o --unresolved-symbols=ignore-all --allow-multiple-definition multithreads.o --start-group glibcfinal --end-group 
 	ar cr UKL.a ukl.o interface.o multcp.o
 	rm -rf *.ko *.mod.* .H* .tm* .*cmd Module.symvers modules.order built-in.a 
 	rm -rf ../linux/vmlinux 

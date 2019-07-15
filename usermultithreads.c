@@ -8,7 +8,7 @@
 #include <string.h> 
 #include <pthread.h> 
 
-#define QUEUE_SIZE 1
+#define QUEUE_SIZE 5
 
 void *printer(void);
 
@@ -23,25 +23,24 @@ int main(int argc, char *argv[]){
 		}	
 	}
 
-	// for(i = 0; i < QUEUE_SIZE; i++){
-	// 	pthread_join(&thread_id[i], NULL);	
-	// }
+	for(i = 0; i < QUEUE_SIZE; i++){
+		pthread_join(thread_id[i], NULL);	
+	}
 
-	while(1);
-		
 	return 0;
 }
 
 void *printer(void)
 {
-    printf("%d A\n", 1);
-    printf("%d quick\n", 1);
-    printf("%d brown\n", 1);
-    printf("%d fox\n", 1);
-    printf("%d jumped\n", 1);
-    printf("%d over\n", 1);
-    printf("%d a\n", 1);
-    printf("%d lazy\n", 1);
-    printf("%d dog.\n", 1);
+    int id = 1;
+    printf("Thread %d = A\n", id);
+    printf("Thread %d = quick\n", id);
+    printf("Thread %d = brown\n", id);
+    printf("Thread %d = fox\n", id);
+    printf("Thread %d = jumped\n", id);
+    printf("Thread %d = over\n", id);
+    printf("Thread %d = a\n", id);
+    printf("Thread %d = lazy\n", id);
+    printf("Thread %d = dog.\n", id);
     return 0;
 } 

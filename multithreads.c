@@ -11,8 +11,8 @@
 extern int printk(const char *fmt, ...);
 extern void cond_resched(void);
 
-#define QUEUE_SIZE 1
-// #define printff printk
+#define QUEUE_SIZE 5
+#define printff printk
 
 // __thread int counter = 10;
 // __thread int nocounter;
@@ -26,7 +26,7 @@ int kmain(int argc, char *argv[]){
 	// for(i = 0; i < 10; i++){
 	// 	counter = counter + i*10;
 	// 	nocounter = nocounter + 1;
-	// 	printff("Counter = %d\n", counter);
+	// 	printf("Counter = %d\n", counter);
 	// 	printf("No Counter = %d\n", nocounter);
 	// }
 
@@ -41,20 +41,31 @@ int kmain(int argc, char *argv[]){
 			return 1;
 		}	
 	}
+
+	for(i = 0; i < QUEUE_SIZE; i++){
+		if (pthread_join(thread_id[i], NULL) < 0) {
+			perror("could not join thread");
+			return 1;
+		}else{
+			printff("pthread_join worked for thread id %d\n",i);
+		}
+	}
 	
 	return 0;
 }
 
 void *printer(int * id)
 {
-    printf("Thread %d = A\n", id);
-    printf("Thread %d = quick\n", id);
-    printf("Thread %d = brown\n", id);
-    printf("Thread %d = fox\n", id);
-    printf("Thread %d = jumped\n", id);
-    printf("Thread %d = over\n", id);
-    printf("Thread %d = a\n", id);
-    printf("Thread %d = lazy\n", id);
-    printf("Thread %d = dog.\n", id);
+	while(1){
+    printff("Thread %d = A\n", id);
+    printff("Thread %d = quick\n", id);
+    printff("Thread %d = brown\n", id);
+    printff("Thread %d = fox\n", id);
+    printff("Thread %d = jumped\n", id);
+    printff("Thread %d = over\n", id);
+    printff("Thread %d = a\n", id);
+    printff("Thread %d = lazy\n", id);
+    printff("Thread %d = dog.\n", id);
+	}
     return 0;
 } 
