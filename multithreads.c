@@ -18,6 +18,7 @@ extern void cond_resched(void);
 // __thread int nocounter;
 
 void *printer(int * id);
+void extern yield(void);
 
 int kmain(int argc, char *argv[]){
 
@@ -66,6 +67,7 @@ void *printer(int * id)
     printff("Thread %d = a\n", id);
     printff("Thread %d = lazy\n", id);
     printff("Thread %d = dog.\n", id);
+    yield();
 	}
     return 0;
 } 

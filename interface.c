@@ -129,21 +129,22 @@ void setup_networking(void){
     printk("Set up of network interface, done.\n");
 }
 
-void *printer(int * id)
-{
-    while(1){
-    printk("Thread %d = A\n", id);
-    printk("Thread %d = quick\n", id);
-    printk("Thread %d = brown\n", id);
-    printk("Thread %d = fox\n", id);
-    printk("Thread %d = jumped\n", id);
-    printk("Thread %d = over\n", id);
-    printk("Thread %d = a\n", id);
-    printk("Thread %d = lazy\n", id);
-    printk("Thread %d = dog.\n", id);
-    }
-    return 0;
-} 
+// void *printer(int * id)
+// {
+//     while(1){
+//     printk("Thread %d = A\n", id);
+//     printk("Thread %d = quick\n", id);
+//     printk("Thread %d = brown\n", id);
+//     printk("Thread %d = fox\n", id);
+//     printk("Thread %d = jumped\n", id);
+//     printk("Thread %d = over\n", id);
+//     printk("Thread %d = a\n", id);
+//     printk("Thread %d = lazy\n", id);
+//     printk("Thread %d = dog.\n", id);
+//     yield();
+//     }
+//     return 0;
+// } 
 
 int interface(void)
 {
@@ -153,10 +154,11 @@ int interface(void)
 
     int i = 0;
 
-    for(i = 0; i < 5; i++){
-        kthread_run((void*)printer, i, "printer\n");
-    }
-    
+    kmain();
+    // for(i = 0; i < 5; i++){
+    //     kthread_run((void*)printer, i, "printer\n");
+    // }
+
     while(1){
         current->state = TASK_INTERRUPTIBLE;
         schedule();
