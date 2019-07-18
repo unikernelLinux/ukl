@@ -72,8 +72,14 @@ void lib_start_kmain(void){
 
     printk("Old task struct flags = %x\n", me->flags);
     me->flags = me->flags^PF_KTHREAD;
+    me->flags = me->flags^PF_NOFREEZE;
+    me->flags = me->flags^PF_USED_ASYNC;
+    me->flags = me->flags^PF_SUPERPRIV; 
     printk("Current task struct flags = %x\n", me->flags);
     printk("Current task struct address = %lx\n", me);
+    printk("Old task struct thread_info flags = %x\n", me->thread_info.flags);
+    me->thread_info.flags = 0;
+    printk("Old task struct thread_info flags = %x\n", me->thread_info.flags);
 }
 
 void setup_networking(void){

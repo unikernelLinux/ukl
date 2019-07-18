@@ -67,7 +67,7 @@ void *printer(int * id)
     printff("Thread %d = a\n", id);
     printff("Thread %d = lazy\n", id);
     printff("Thread %d = dog.\n", id);
-    yield();
+    // yield();
 	}
     return 0;
 } 
