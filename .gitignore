@@ -43,3 +43,9 @@ temp3
 tlssymsmylib
 !libc.a
 !libpthread.a
+multithreadedserver
+usermultithreadedserver
+multithreads
+usermultithreads
+mmmain
+glibcfinal

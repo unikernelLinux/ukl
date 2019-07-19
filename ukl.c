@@ -220,11 +220,23 @@ int ukl_mprotect(unsigned long start, size_t len, unsigned long prot){
 
 
 long ukl_clone(unsigned long clone_flags, unsigned long newsp, int * parent_tidptr, unsigned long tls, int * child_tidptr){
-	return _do_fork(clone_flags, newsp, 0, parent_tidptr, child_tidptr, tls);
+	long ret;
+	ret = _do_fork(clone_flags, newsp, 0, parent_tidptr, child_tidptr, tls);
+	schedule();
+	return ret;
 }
 
 int ukl_munmap(unsigned long addr, size_t len){
 	return 0;
+}
+
+void ukl_exit(int error_code){
+	// extern void __ukl_exit(int error_code);
+	// __ukl_exit(error_code);
+	while(1){
+      	current->state = TASK_INTERRUPTIBLE;
+        schedule();
+        }
 }
 
 // int ukl_accept4(int fd, struct sockaddr __user * upeer_sockaddr, int __user * upeer_addrlen, int flags);
@@ -251,3 +263,8 @@ int ukl_munmap(unsigned long addr, size_t len){
 // 	ret = do_adjtimex(&txc);
 // 	return copy_to_user(txc_p, &txc, sizeof(struct timex)) ? -EFAULT : ret;
 // }
+
+long ukl_futex(unsigned int  * uaddr, int op, unsigned int  val, struct __kernel_timespec * utime, unsigned int  * uaddr2, unsigned int  val3){
+	extern long __ukl_futex(unsigned int  * uaddr, int op, unsigned int  val, struct __kernel_timespec * utime, unsigned int  * uaddr2, unsigned int  val3);
+	return __ukl_futex(uaddr, op, val, utime, uaddr2, val3);
+}

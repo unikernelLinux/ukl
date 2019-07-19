@@ -16,6 +16,13 @@
 #include <linux/kmain.h>
 #include <asm/sections.h>
 #include <asm/proto.h>
+#include <asm/fsgsbase.h>
+#include <linux/sched.h>
+
+void * tls;
+
+extern void __libc_setup_tls (unsigned long start, unsigned long tbss_start, unsigned long end);
+extern void __ctype_init (void);
 
 unsigned int inet_addr2(char* ip)
 {
@@ -31,43 +38,53 @@ unsigned int inet_addr2(char* ip)
     return *(unsigned int *)addr;
 }
 
-int interface(void)
-{
+void __copy_tls(void * dest, void * src, size_t n, size_t m){
+	memset (memcpy (dest, src, n) + n, '\0', m);
+	return;
+}
 
-    int err;
-    void * tls;
-    volatile struct task_struct *me = current;
-
-    // printk("__tls_start is %lx\n", __tls_start);
-    // printk("__tls_end %lx\n", __tls_end);
-
-    int size = __tls_end - __tls_start;
-    // printk("TLS size = %d", size);
-    tls = vmalloc(2*size);
-    // printk("TLS address while setup is %lx\n", tls);
+void setup_mm(void){
+    struct task_struct *me = current;
     
-    tls = memcpy(tls, __tls_start, size);
-    // memset(tls, 300, size);
-    // tls = tls - size;
+    me->mm = mm_alloc();
+    me->mm->get_unmapped_area = arch_get_unmapped_area_topdown;
+    me->mm->mmap_base = 0x7f0000000000; 
+    me->mm->mmap_legacy_base = 0x300000000000;
+    me->mm->task_size = 0x7ffffffff000;
+    me->mm->start_brk = 0x405000;
+    me->mm->brk = 0x405000;
 
+    printk("thread_info->flags = %lx\n", me->thread_info.flags);
+
+    printk("Set up of mm struct, done.\n");
+}
+
+void lib_start_kmain(void){
+    struct task_struct *me = current;
+    __libc_setup_tls(__tls_data_start, __tls_bss_start, __tls_bss_end);
     printk("TLS address for main thread is %lx\n", me->thread.fsbase);
+    __pthread_initialize_minimal_internal(me->thread.fsbase);
+    printk("Set up of TCB done. \n");
+    __ctype_init ();
+    printk("Set up of ctype data done. \n");
 
-    err = do_arch_prctl_64(current, ARCH_SET_FS, tls + size);
+    printk("Old task struct flags = %x\n", me->flags);
+    me->flags = me->flags^PF_KTHREAD;
+    me->flags = me->flags^PF_NOFREEZE;
+    me->flags = me->flags^PF_USED_ASYNC;
+    me->flags = me->flags^PF_SUPERPRIV; 
+    printk("Current task struct flags = %x\n", me->flags);
+    printk("Current task struct address = %lx\n", me);
+    printk("Old task struct thread_info flags = %x\n", me->thread_info.flags);
+    me->thread_info.flags = 0;
+    printk("Old task struct thread_info flags = %x\n", me->thread_info.flags);
+}
 
-    me = current;
-    printk("TLS address for main thread is %lx\n", me->thread.fsbase);
-
-    // printk("TLS address for main thread is %lx\n", me->thread.fsbase);
-
-    printk("Set up TLS sections, done. \n");
-    
-    // __pthread_initialize_minimal_internal(me->thread.fsbase);
-    // printk("Set up TCB done. \n");
-
+void setup_networking(void){
     int fd = -1;
     int retioctl = -1;
 
-    struct sockaddr_in sin;
+    struct sockaddr_in sin; 
     struct ifreq ifr;
 
     fd = ukl_socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
@@ -114,13 +131,22 @@ int interface(void)
     msleep(3000);
 
     printk("Set up of network interface, done.\n");
+}
 
-    me->mm = mm_alloc();
-    me->mm->get_unmapped_area = arch_get_unmapped_area_topdown;
+int interface(void)
+{
+    setup_mm();
+    setup_networking();
+    lib_start_kmain();
 
-    printk("Set up of mm struct, done.\n");
+    int i = 0;
 
     kmain();
+
+    while(1){
+        current->state = TASK_INTERRUPTIBLE;
+        schedule();
+        }
    
     return 0;
 }
