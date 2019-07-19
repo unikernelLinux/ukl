@@ -42,7 +42,7 @@ void *client_funcs(void *args)
     }
 
     their_addr.sin_family = AF_INET;      /* host byte order */
-    their_addr.sin_port = htons(PORT+myid);    /* short, network byte order */
+    their_addr.sin_port = htons(PORT);    /* short, network byte order */
     their_addr.sin_addr = *((struct in_addr *)he->h_addr);
     bzero(&(their_addr.sin_zero), 8);     /* zero the rest of the struct */
 
@@ -60,7 +60,6 @@ while (1) {
     else{
         num++;
     }
-	// printf("After the send function \n");
 
     	if ((numbytes=recv(sockfd, buf, MAXDATASIZE, 0)) == -1) {
         		perror("recv");
@@ -68,7 +67,6 @@ while (1) {
 	}else{
         buf[numbytes -1] = '\0';
         gettimeofday(&t2, NULL);
-        // printf("Received text=: %s \n", myid, buf);
         elapsedTime = (t2.tv_sec - t1.tv_sec) * 1000.0;      // sec to ms
         elapsedTime += (t2.tv_usec - t1.tv_usec) / 1000.0;   // us to ms
         printf("Thread id %d: Received text=: %s and elapsedTime = %f ms\n", myid, buf, elapsedTime);
@@ -102,7 +100,6 @@ int main(int argc, char *argv[]){
         mydata[i].id = i;
         pthread_create( &thread_id[curr_id] , NULL , client_funcs , &mydata[i]);
         curr_id++;
-        usleep(10);
     }
 
     while(1);

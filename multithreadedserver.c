@@ -12,14 +12,17 @@
 #define PORT 5555
 #define BUFFER_SIZE 1024
 
+void *connection_handler(void);
+
 #define printff printk
 
-void connection_handler(int c_fd, int id);
+int client_fd;
 
-int myserver(int curr_id){
+int kmain(int argc, char *argv[]){
+
 	int opt_val = 1;
-	int retval;
-	int server_fd, client_fd;
+	int retval, curr_id = 0;
+	int server_fd;
 	struct sockaddr_in server, client;
 	pthread_t thread_id[QUEUE_SIZE];
 	socklen_t client_len = sizeof(client);
@@ -31,7 +34,7 @@ int myserver(int curr_id){
 	}
 
 	server.sin_family = AF_INET;
-	server.sin_port = __builtin_bswap16 (PORT+curr_id);
+	server.sin_port = __builtin_bswap16 (PORT);
 	server.sin_addr.s_addr = (uint32_t) 0x00000000;
 
 	retval = setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt_val, sizeof opt_val);
@@ -50,30 +53,21 @@ int myserver(int curr_id){
 	}
 
 	while (client_fd = accept(server_fd, (struct sockaddr *)&client, &client_len)){
+	// client_fd = accept(server_fd, (struct sockaddr *)&client, &client_len);
 		printff("Connection accepted.\n");
-		connection_handler(client_fd, curr_id);
-	}
-
-	return 0;
-}
-
-int kmain(int argc, char *argv[]){	
-	int curr_id = 0;
-	pthread_t thread_id[QUEUE_SIZE];
-
-	while (curr_id < QUEUE_SIZE){
-		if (pthread_create( &thread_id[curr_id] , NULL , myserver , (curr_id)) < 0) {
+		if (pthread_create( &thread_id[curr_id] , NULL , connection_handler , (void*) &client_fd) < 0) {
 				perror("could not create thread");
 				return 1;
 		}
-		curr_id++;
+
+		curr_id++;	
 	}
 	return 0;
 }
 
-void connection_handler(int c_fd, int id)
+void *connection_handler(void)
 {
-    int client_fd = c_fd;
+    // int client_fd = *(int*)c_fd;
     int buf_len, retval;
     char *message , buf[BUFFER_SIZE];
     int i = 0;
@@ -86,7 +80,6 @@ void connection_handler(int c_fd, int id)
     {
     	buf_len = recv(client_fd, buf, BUFFER_SIZE, 0);
 		buf[buf_len] = '\0';
-		printff("ThreadID = %d Message = %s", id, buf);
 		retval = send(client_fd, buf, strlen(buf), 0);
 		memset(buf, '\0', BUFFER_SIZE);
     }
