@@ -220,9 +220,14 @@ int ukl_mprotect(unsigned long start, size_t len, unsigned long prot){
 
 
 long ukl_clone(unsigned long clone_flags, unsigned long newsp, int * parent_tidptr, unsigned long tls, int * child_tidptr){
+	extern long _ukl_do_fork(unsigned long clone_flags,
+	      unsigned long newsp,
+	      unsigned long stack_size,
+	      int __user *parent_tidptr,
+	      int __user *child_tidptr,
+	      unsigned long tls);
 	long ret;
-	ret = _do_fork(clone_flags, newsp, 0, parent_tidptr, child_tidptr, tls);
-	schedule();
+	ret = _ukl_do_fork(clone_flags, newsp, 0, parent_tidptr, child_tidptr, tls);
 	return ret;
 }
 
