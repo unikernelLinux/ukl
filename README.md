@@ -41,17 +41,17 @@ Note: This will fail at the very end (linking step). Thats ok.
     make -j `nproc`
 ```
 3. Build the application
-..1. For single threaded TCP echo server, run
+⋅⋅⋅1. For single threaded TCP echo server, run
 ```
     cd ../ukl
     make singlethreaded-tcp-server
 ```
-..2. For multi threaded TCP echo server, run
+⋅⋅⋅2. For multi threaded TCP echo server, run
 ```
     cd ../ukl
     make multithreaded-tcp-server
 ```
-..3. To just see multiple threads printing, run
+⋅⋅⋅3. To just see multiple threads printing, run
 ```
     cd ../ukl
     make multithreaded-printing
@@ -67,11 +67,11 @@ This step will build application code and link everything together in a single b
  If you get messages about module version mismatch when the kernel boots up, you might want to look at this [Supermin](http://libguestfs.org/supermin.1.html#USING-A-CUSTOM-KERNEL-AND-KERNEL-MODULES) page.
 
 5. To test
-..1. From a separate terminal, run telnet
+⋅⋅⋅1. From a separate terminal, run telnet
 ```
     telnet 127.0.0.1 5555
 ```
-..2. To test different threads of the multithreaded TCP server, you can build and run the client
+⋅⋅⋅2. To test different threads of the multithreaded TCP server, you can build and run the client
 ```
     make client
     ./client 127.0.0.1
