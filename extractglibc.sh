@@ -2,8 +2,8 @@
 
 rm libc.a
 rm libpthread.a
-cp ../glibc/glibc-build/libc.a .
-cp ../glibc/glibc-build/nptl/libpthread.a .
+cp ../build-glibc/glibc-build/libc.a .
+cp ../build-glibc/glibc-build/nptl/libpthread.a .
 rm -rf libc
 mkdir libc
 rm -rf libpthread

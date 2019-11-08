@@ -3,7 +3,8 @@ obj-y += ukl.o interface.o
 
 .PHONY: glibc
 
-glibc:
+glibc:	
+	./extractglibc.sh
 	rm -rf UKL.a
 	ld -r -o glibcfinal --unresolved-symbols=ignore-all --allow-multiple-definition --whole-archive libc.a libpthread.a --no-whole-archive 
 	
