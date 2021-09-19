@@ -48,7 +48,8 @@ lebench: undefined_sys_hack.o gcc-build glibc-build
 
 #LINUX
 linux-dir:
-	git clone https://github.com/whunt1965/Linux-Configs.git
+	# Removed Clone line as cloning will take plaace via YAML script
+	# git clone git@github.com:unikernelLinux/Linux-Configs.git
 	git clone --depth 1 --branch ukl git@github.com:unikernelLinux/linux.git
 	cp Linux-Configs/ukl/golden_config-5.7-broadcom linux/.config
 	make -C linux oldconfig
