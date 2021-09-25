@@ -14,7 +14,7 @@ CRT_STARTS=$(CRT_LIB)crt1.o $(CRT_LIB)crti.o $(GCC_LIB)crtbeginT.o
 CRT_ENDS=$(GCC_LIB)crtend.o $(CRT_LIB)crtn.o
 SYS_LIBS=$(GCC_LIB)libgcc.a $(GCC_LIB)libgcc_eh.a
 
-LEBench_UKL_FLAGS=-ggdb -mno-red-zone -mcmodel=kernel
+LEBench_UKL_FLAGS=-ggdb -mno-red-zone -mcmodel=kernel -fno-pic
 
 all: cloneRepos
 	make lebench
@@ -26,7 +26,7 @@ cloneRepos:
 	make min-initrd-dir
 
 undefined_sys_hack.o: undefined_sys_hack.c
-	gcc -c -o $@ $< -mcmodel=kernel -ggdb -mno-red-zone
+	gcc -c -o $@ $< -mcmodel=kernel -ggdb -mno-red-zone -fno-pic
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
@@ -48,7 +48,7 @@ lebench: undefined_sys_hack.o gcc-build glibc-build
 
 #LINUX
 linux-dir:
-	# Removed Clone line as cloning will take plaace via YAML script
+	# Removed Clone line as cloning will take place via Actions YAML script
 	# git clone git@github.com:unikernelLinux/Linux-Configs.git
 	# git clone --depth 1 --branch ukl git@github.com:unikernelLinux/linux.git
 	cp Linux-Configs/ukl/golden_config-5.7-broadcom linux/.config
@@ -63,7 +63,8 @@ linux-build:
 
 #MIN_INITRD
 min-initrd-dir:
-	git clone git@github.com:unikernelLinux/min-initrd.git
+	# Removed Clone line as cloning will take place via Actions YAML script
+	# git clone git@github.com:unikernelLinux/min-initrd.git
 	make all -C min-initrd
 
 #-----------------------------------------------------------------------------
@@ -71,7 +72,8 @@ min-initrd-dir:
 
 #GCC
 gcc-dir:
-	git clone --depth 1 --branch releases/gcc-9.3.0 'https://github.com/gcc-mirror/gcc.git'
+	# Removed Clone line as cloning will take place via Actions YAML script
+	# git clone --depth 1 --branch releases/gcc-9.3.0 'https://github.com/gcc-mirror/gcc.git'
 	cd ./gcc; ./contrib/download_prerequisites
 
 gcc-build:
@@ -82,17 +84,18 @@ gcc-build:
 	  --disable-nls --enable-languages=c,c++ --without-headers \
 	  --prefix=/home/tommyu/localInstall/gcc-install/ --with-multilib-list=m64 --disable-multilib
 	make -C $@ all-gcc $(PARALLEL)
-	- make -C $@ all-target-libgcc CFLAGS_FOR_TARGET='-ggdb -O2 -mno-red-zone -mcmodel=kernel' $(PARALLEL)
-	- make -C $@ all-target-libgcc CFLAGS_FOR_TARGET='-gggdb -O2 -mno-red-zone -mcmodel=kernel'
+	- make -C $@ all-target-libgcc CFLAGS_FOR_TARGET='-ggdb -O2 -mno-red-zone -fno-pic -mcmodel=kernel -no-pie -nostartfiles' $(PARALLEL)
+	- make -C $@ all-target-libgcc CFLAGS_FOR_TARGET='-gggdb -O2 -mno-red-zone -fno-pic -mcmodel=kernel -no-pie -nostartfiles'
 	sed -i 's/PICFLAG/DISABLED_PICFLAG/g' gcc-build/x86_64-pc-linux-gnu/libgcc/Makefile
-	- make -C $@ all-target-libgcc CFLAGS_FOR_TARGET='-ggdb -O2 -mcmodel=kernel -mno-red-zone'
+	- make -C $@ all-target-libgcc CFLAGS_FOR_TARGET='-ggdb -O2 -mcmodel=kernel -fno-pic -mcmodel=kernel -no-pie -nostartfiles'
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 
 #GLIBC
 glibc-dir:
-	git clone --depth 1 --branch ukl git@github.com:unikernelLinux/glibc.git
+	# Removed Clone line as cloning will take place via Actions YAML script
+	# git clone --depth 1 --branch ukl git@github.com:unikernelLinux/glibc.git
 
 glibc-build:
 	./cleanbuild.sh
