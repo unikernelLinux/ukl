@@ -23,6 +23,9 @@
 #include <stdlib.h>
 #include <pthread.h>
 
+//Reboot headers
+#include <sys/reboot.h>
+
 #define MAX_SIZE 40960
 #define MAX_FD_CNT 1000
 #define LOOP 1000
@@ -755,5 +758,16 @@ int main(void){
 
 	fclose(fp);
 #endif	
+
+	//Kill QEMU - Forces a reboot, but -no-reboot should cause qemu to exit
+	/* Try to reboot the system. */
+	reboot (RB_AUTOBOOT);
+	perror ("reboot");
+
+	/* Reboot attempt failed, fallthrough below. */
+	fprintf (stderr, "expect to see a kernel panic below, that is normal\n");
+	fprintf (stderr, "\n");
+	fprintf (stderr, "\n");
+	exit (0);
 
 }
