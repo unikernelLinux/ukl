@@ -759,15 +759,15 @@ int main(void){
 	fclose(fp);
 #endif	
 
-	//Kill QEMU - Forces a reboot, but -no-reboot should cause qemu to exit
-	/* Try to reboot the system. */
-	reboot (RB_AUTOBOOT);
-	perror ("reboot");
+// 	//Kill QEMU - Forces a reboot, but -no-reboot should cause qemu to exit
+// 	/* Try to reboot the system. */
+// 	reboot (RB_AUTOBOOT);
+// 	perror ("reboot");
 
-	/* Reboot attempt failed, fallthrough below. */
-	fprintf (stderr, "expect to see a kernel panic below, that is normal\n");
-	fprintf (stderr, "\n");
-	fprintf (stderr, "\n");
-	exit (0);
+// 	/* Reboot attempt failed, fallthrough below. */
+// 	fprintf (stderr, "expect to see a kernel panic below, that is normal\n");
+// 	fprintf (stderr, "\n");
+// 	fprintf (stderr, "\n");
+// 	exit (0);
 
 }
