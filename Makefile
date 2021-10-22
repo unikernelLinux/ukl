@@ -30,6 +30,22 @@ cloneRepos:
 undefined_sys_hack.o: undefined_sys_hack.c
 	gcc -c -o $@ $< -mcmodel=kernel -ggdb -mno-red-zone -fno-pic
 
+
+#-----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+
+#Unit Test
+unit_test: undefined_sys_hack.o gcc-build glibc-build
+	- rm -rf UKL.a unit_test.ukl
+	ld -r -o unit_test.ukl --allow-multiple-definition $(CRT_STARTS) unit_test.o \
+                --start-group --whole-archive  $(PTHREAD_LIB) \
+                $(C_LIB) --no-whole-archive $(SYS_LIBS) --end-group $(CRT_ENDS)
+	ar cr UKL.a unit_test.ukl undefined_sys_hack.o
+	objcopy --prefix-symbols=ukl_ UKL.a
+	objcopy --redefine-syms=redef_sym_names UKL.a
+	- rm -rf linux/vmlinux
+
+
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 
