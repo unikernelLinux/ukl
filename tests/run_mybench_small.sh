@@ -200,7 +200,7 @@ echo $TOTAL_FAIL
 echo "Unit Test Results"
 echo -e "${RESULTS}"
 
-if [[$TOTAL_FAIL -gt $zero]]
+if [$TOTAL_FAIL -gt $zero]
 then
     echo "===================================="
     echo "SEE FAILURES IN QEMU OUTPUT BELOW"
