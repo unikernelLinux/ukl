@@ -82,6 +82,7 @@ void calc_average(struct timespec *average, struct timespec *sum, int size)
 
 //Start routing for create_thread_bench() threads
 void *doNothing(void *vargp){
+	printf("Hello world\n");
 }
 
 
@@ -98,11 +99,11 @@ void create_thread_bench(){
 		//Exit if thread creation failure
 		if(pthread_create(&tid, NULL, doNothing, NULL) != 0)
 		{
-			printf("Pthread_Create failed in create_thread_bench()");
+			printf("Pthread_Create failed in create_thread_bench()\n");
 			exit(1);
 		}
 		if(pthread_join(tid, NULL) != 0){
-			printf("Pthread_Join failed in create_thread_bench()");
+			printf("Pthread_Join failed in create_thread_bench()\n");
                         exit(1);
 		}
 	}
@@ -141,14 +142,14 @@ void work_thread_bench(){
                 //Exit if thread creation failure
                 if(pthread_create(&tid[i], NULL, doWork, NULL) != 0)
                 {
-                        printf("Pthread_Create failed in work_thread_bench()");
+                        printf("Pthread_Create failed in work_thread_bench()\n");
                         exit(1);
                 }
         }
 	for (i=0; i<LOOP; i++){
 		if(pthread_join(tid[i], NULL) != 0) 
 		{
-			printf("Pthread_Join failed in work_thread_bench()");
+			printf("Pthread_Join failed in work_thread_bench()\n");
                         exit(1);		
 		}
 	}
