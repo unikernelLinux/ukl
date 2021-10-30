@@ -106,6 +106,7 @@ void create_thread_bench(){
 			printf("Pthread_Join failed in create_thread_bench()\n");
                         exit(1);
 		}
+		printf("Thread %d Done\n", i);
 	}
 	clock_gettime(CLOCK_MONOTONIC,&endTime);
 	calc_diff(&diffTime, &endTime, &startTime);
@@ -152,6 +153,7 @@ void work_thread_bench(){
 			printf("Pthread_Join failed in work_thread_bench()\n");
                         exit(1);		
 		}
+		printf("Thread %d Done\n", i);
 	}
         clock_gettime(CLOCK_MONOTONIC,&endTime);
         calc_diff(&diffTime, &endTime, &startTime);
