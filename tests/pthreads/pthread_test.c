@@ -120,7 +120,7 @@ void create_thread_bench(){
 }
 //Random work start routine
 void *doWork(void *vargp){
-	//printf("My name is: %lx\n", (long)pthread_self());
+	printf("My name is: %lx\n", (long)pthread_self());
 	sleep(1);
 	int i;
 	i = 0;
