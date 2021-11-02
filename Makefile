@@ -122,7 +122,7 @@ gcc-build:
 	- make -C $@ all-target-libgcc CFLAGS_FOR_TARGET='-ggdb -O2 -mno-red-zone -fno-pic -mcmodel=kernel -no-pie -nostartfiles' $(PARALLEL)
 	- make -C $@ all-target-libgcc CFLAGS_FOR_TARGET='-gggdb -O2 -mno-red-zone -fno-pic -mcmodel=kernel -no-pie -nostartfiles'
 	sed -i 's/PICFLAG/DISABLED_PICFLAG/g' gcc-build/x86_64-pc-linux-gnu/libgcc/Makefile
-	- make -C $@ all-target-libgcc CFLAGS_FOR_TARGET='-ggdb -O2 -mcmodel=kernel -fno-pic -mcmodel=kernel -no-pie -nostartfiles'
+	- make -C $@ all-target-libgcc CFLAGS_FOR_TARGET='-ggdb -O2 -mno-red-zone -fno-pic -mcmodel=kernel -no-pie -nostartfiles'
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
