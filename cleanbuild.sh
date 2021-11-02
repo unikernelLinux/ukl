@@ -13,4 +13,3 @@ cd ..
 
 ls glibc-build/libc.a
 ls glibc-build/nptl/libpthread.a
-

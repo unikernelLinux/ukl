@@ -15,8 +15,8 @@ CRT_ENDS=$(GCC_LIB)crtend.o $(CRT_LIB)crtn.o
 SYS_LIBS=$(GCC_LIB)libgcc.a $(GCC_LIB)libgcc_eh.a
 
 LEBench_UKL_FLAGS=-ggdb -mno-red-zone -mcmodel=kernel -fno-pic
-
 UKL_FLAGS=-ggdb -mno-red-zone -mcmodel=kernel -fno-pic
+
 
 all: cloneRepos
 	make lebench
@@ -29,6 +29,7 @@ cloneRepos:
 
 undefined_sys_hack.o: undefined_sys_hack.c
 	gcc -c -o $@ $< -mcmodel=kernel -ggdb -mno-red-zone -fno-pic
+
 
 
 #-----------------------------------------------------------------------------
