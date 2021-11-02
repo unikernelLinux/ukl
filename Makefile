@@ -1,4 +1,4 @@
-.PHONY: lebench 
+.PHONY: lebench mybench_small
 
 PARALLEL= -j$(shell nproc)
 
@@ -15,6 +15,8 @@ CRT_ENDS=$(GCC_LIB)crtend.o $(CRT_LIB)crtn.o
 SYS_LIBS=$(GCC_LIB)libgcc.a $(GCC_LIB)libgcc_eh.a
 
 LEBench_UKL_FLAGS=-ggdb -mno-red-zone -mcmodel=kernel -fno-pic
+UKL_FLAGS=-ggdb -mno-red-zone -mcmodel=kernel -fno-pic
+
 
 all: cloneRepos
 	make lebench
@@ -27,6 +29,40 @@ cloneRepos:
 
 undefined_sys_hack.o: undefined_sys_hack.c
 	gcc -c -o $@ $< -mcmodel=kernel -ggdb -mno-red-zone -fno-pic
+
+
+
+#-----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+
+#Unit Test
+unit_test: undefined_sys_hack.o gcc-build glibc-build
+	- rm -rf UKL.a unit_test.ukl
+	ld -r -o unit_test.ukl --allow-multiple-definition $(CRT_STARTS) unit_test.o \
+                --start-group --whole-archive  $(PTHREAD_LIB) \
+                $(C_LIB) --no-whole-archive $(SYS_LIBS) --end-group $(CRT_ENDS)
+	ar cr UKL.a unit_test.ukl undefined_sys_hack.o
+	objcopy --prefix-symbols=ukl_ UKL.a
+	objcopy --redefine-syms=redef_sym_names UKL.a
+	- rm -rf linux/vmlinux
+
+
+#-----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+
+#MYBENCH_SMALL
+mybench_small: undefined_sys_hack.o gcc-build glibc-build
+	- rm -rf UKL.a mybench_small.o 
+	gcc -c -o mybench_small.o mybench_small.c $(UKL_FLAGS) -UUSE_VMALLOC -UBYPASS -UUSE_MALLOC \
+                -DREF_TEST -DWRITE_TEST -DREAD_TEST -DMMAP_TEST -DMUNMAP_TEST -DPF_TEST -DEPOLL_TEST \
+                -USELECT_TEST -UPOLL_TEST
+	ld -r -o mybench_small.ukl --allow-multiple-definition $(CRT_STARTS) mybench_small.o \
+                --start-group --whole-archive  $(PTHREAD_LIB) \
+                $(C_LIB) --no-whole-archive $(SYS_LIBS) --end-group $(CRT_ENDS)
+	ar cr UKL.a mybench_small.ukl undefined_sys_hack.o
+	objcopy --prefix-symbols=ukl_ UKL.a
+	objcopy --redefine-syms=redef_sym_names UKL.a
+	- rm -rf linux/vmlinux
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
@@ -48,7 +84,9 @@ lebench: undefined_sys_hack.o gcc-build glibc-build
 
 #LINUX
 linux-dir:
-	# Removed Clone lines as cloning will take place via Actions YAML script
+	# Removed Clone line as cloning will take place via Actions YAML script
+	# git clone git@github.com:unikernelLinux/Linux-Configs.git
+	# git clone --depth 1 --branch ukl git@github.com:unikernelLinux/linux.git
 	cp Linux-Configs/ukl/golden_config-5.7-broadcom linux/.config
 	make -C linux oldconfig
 
@@ -85,7 +123,7 @@ gcc-build:
 	- make -C $@ all-target-libgcc CFLAGS_FOR_TARGET='-ggdb -O2 -mno-red-zone -fno-pic -mcmodel=kernel -no-pie -nostartfiles' $(PARALLEL)
 	- make -C $@ all-target-libgcc CFLAGS_FOR_TARGET='-gggdb -O2 -mno-red-zone -fno-pic -mcmodel=kernel -no-pie -nostartfiles'
 	sed -i 's/PICFLAG/DISABLED_PICFLAG/g' gcc-build/x86_64-pc-linux-gnu/libgcc/Makefile
-	- make -C $@ all-target-libgcc CFLAGS_FOR_TARGET='-ggdb -O2 -mcmodel=kernel -fno-pic -mcmodel=kernel -no-pie -nostartfiles'
+	- make -C $@ all-target-libgcc CFLAGS_FOR_TARGET='-ggdb -O2 -mno-red-zone -fno-pic -mcmodel=kernel -no-pie -nostartfiles'
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
