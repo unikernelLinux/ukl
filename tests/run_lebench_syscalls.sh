@@ -17,7 +17,7 @@ rm unit_test.o
 rm ../unit_test.o
 
 #Make test
-make lmbench_syscalls_test
+make lebench_syscalls_test
 
 #Move Test file to UKL Directory
 cp unit_test.o ../

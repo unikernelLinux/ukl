@@ -11,7 +11,7 @@ rm unit_test.o
 rm ../unit_test.o
 
 #Make test
-make lmbench_latency_test
+make lebench_latency_test
 
 #Move Test file to UKL Directory
 cp unit_test.o ../
