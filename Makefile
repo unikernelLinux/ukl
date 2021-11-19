@@ -1,4 +1,4 @@
-.PHONY: lebench 
+.PHONY: lebench mybench_small libevent memcached
 
 PARALLEL= -j$(shell nproc)
 
@@ -14,7 +14,9 @@ CRT_STARTS=$(CRT_LIB)crt1.o $(CRT_LIB)crti.o $(GCC_LIB)crtbeginT.o
 CRT_ENDS=$(GCC_LIB)crtend.o $(CRT_LIB)crtn.o
 SYS_LIBS=$(GCC_LIB)libgcc.a $(GCC_LIB)libgcc_eh.a
 
-LEBench_UKL_FLAGS=-ggdb -mno-red-zone -mcmodel=kernel
+LEBench_UKL_FLAGS=-ggdb -mno-red-zone -mcmodel=kernel -fno-pic
+UKL_FLAGS=-ggdb -mno-red-zone -mcmodel=kernel -fno-pic
+
 
 all: cloneRepos
 	make lebench
@@ -26,7 +28,75 @@ cloneRepos:
 	make min-initrd-dir
 
 undefined_sys_hack.o: undefined_sys_hack.c
-	gcc -c -o $@ $< -mcmodel=kernel -ggdb -mno-red-zone
+	gcc -c -o $@ $< -mcmodel=kernel -ggdb -mno-red-zone -fno-pic
+
+
+
+#-----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+
+#Unit Test
+unit_test: undefined_sys_hack.o gcc-build glibc-build
+	- rm -rf UKL.a unit_test.ukl
+	ld -r -o unit_test.ukl --allow-multiple-definition $(CRT_STARTS) unit_test.o \
+                --start-group --whole-archive  $(PTHREAD_LIB) \
+                $(C_LIB) --no-whole-archive $(SYS_LIBS) --end-group $(CRT_ENDS)
+	ar cr UKL.a unit_test.ukl undefined_sys_hack.o
+	objcopy --prefix-symbols=ukl_ UKL.a
+	objcopy --redefine-syms=redef_sym_names UKL.a
+	- rm -rf linux/vmlinux
+
+
+#-----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+
+#libevent
+libevent:
+	- make clean -C libevent/
+	cd libevent && ./autogen.sh && ./configure --disable-shared CFLAGS='-ggdb -mno-red-zone -mcmodel=kernel -fno-pic -no-pie' && make --trace 2>&1| tee ../elog
+	- rm -rf mylibevent
+	ar cr mylibevent libevent/*.o
+
+#-----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+
+#memcached
+memcached: gcc-build glibc-build undefined_sys_hack.o
+	- rm -rf memcached.ukl UKL.a memcached/memcached.ukl
+	- make clean -C memcached/
+	cd memcached && ./autogen.sh && ./configure CFLAGS='-ggdb -mno-red-zone -mcmodel=kernel -fno-pic -no-pie'
+	make -C memcached --trace 2>&1| tee mlog
+	ld -r -o memcached.ukl --allow-multiple-definition $(CRT_STARTS) \
+		memcached/memcached-memcached.o memcached/memcached-hash.o \
+		memcached/memcached-jenkins_hash.o memcached/memcached-murmur3_hash.o memcached/memcached-slabs.o memcached/memcached-items.o \
+		memcached/memcached-assoc.o memcached/memcached-thread.o memcached/memcached-daemon.o memcached/memcached-stats_prefix.o \
+		memcached/memcached-util.o memcached/memcached-cache.o memcached/memcached-bipbuffer.o memcached/memcached-logger.o \
+		memcached/memcached-crawler.o memcached/memcached-itoa_ljust.o memcached/memcached-slab_automove.o memcached/memcached-authfile.o \
+		memcached/memcached-restart.o  memcached/memcached-extstore.o \
+		memcached/memcached-crc32c.o memcached/memcached-storage.o memcached/memcached-slab_automove_extstore.o \
+		--start-group mylibevent  --whole-archive $(PTHREAD_LIB) $(C_LIB) --no-whole-archive \
+                $(SYS_LIBS) --end-group $(CRT_ENDS)
+	#cp memcached/memcached.ukl .
+	ar cr UKL.a memcached.ukl undefined_sys_hack.o
+	objcopy --prefix-symbols=ukl_ UKL.a
+	objcopy --redefine-syms=redef_sym_names UKL.a
+	
+#-----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+
+#MYBENCH_SMALL
+mybench_small: undefined_sys_hack.o gcc-build glibc-build
+	- rm -rf UKL.a mybench_small.o 
+	gcc -c -o mybench_small.o mybench_small.c $(UKL_FLAGS) -UUSE_VMALLOC -UBYPASS -UUSE_MALLOC \
+                -DREF_TEST -DWRITE_TEST -DREAD_TEST -DMMAP_TEST -DMUNMAP_TEST -DPF_TEST -DEPOLL_TEST \
+                -USELECT_TEST -UPOLL_TEST
+	ld -r -o mybench_small.ukl --allow-multiple-definition $(CRT_STARTS) mybench_small.o \
+                --start-group --whole-archive  $(PTHREAD_LIB) \
+                $(C_LIB) --no-whole-archive $(SYS_LIBS) --end-group $(CRT_ENDS)
+	ar cr UKL.a mybench_small.ukl undefined_sys_hack.o
+	objcopy --prefix-symbols=ukl_ UKL.a
+	objcopy --redefine-syms=redef_sym_names UKL.a
+	- rm -rf linux/vmlinux
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
@@ -48,8 +118,9 @@ lebench: undefined_sys_hack.o gcc-build glibc-build
 
 #LINUX
 linux-dir:
-	git clone git@github.com:unikernelLinux/Linux-Configs.git
-	git clone --depth 1 --branch ukl git@github.com:unikernelLinux/linux.git
+	# Removed Clone line as cloning will take place via Actions YAML script
+	# git clone git@github.com:unikernelLinux/Linux-Configs.git
+	# git clone --depth 1 --branch ukl git@github.com:unikernelLinux/linux.git
 	cp Linux-Configs/ukl/golden_config-5.7-broadcom linux/.config
 	make -C linux oldconfig
 
@@ -62,7 +133,8 @@ linux-build:
 
 #MIN_INITRD
 min-initrd-dir:
-	git clone git@github.com:unikernelLinux/min-initrd.git
+	# Removed Clone line as cloning will take place via Actions YAML script
+	# git clone git@github.com:unikernelLinux/min-initrd.git
 	make all -C min-initrd
 
 #-----------------------------------------------------------------------------
@@ -70,7 +142,8 @@ min-initrd-dir:
 
 #GCC
 gcc-dir:
-	git clone --depth 1 --branch releases/gcc-9.3.0 'https://github.com/gcc-mirror/gcc.git'
+	# Removed Clone line as cloning will take place via Actions YAML script
+	# git clone --depth 1 --branch releases/gcc-9.3.0 'https://github.com/gcc-mirror/gcc.git'
 	cd ./gcc; ./contrib/download_prerequisites
 
 gcc-build:
@@ -81,17 +154,18 @@ gcc-build:
 	  --disable-nls --enable-languages=c,c++ --without-headers \
 	  --prefix=/home/tommyu/localInstall/gcc-install/ --with-multilib-list=m64 --disable-multilib
 	make -C $@ all-gcc $(PARALLEL)
-	- make -C $@ all-target-libgcc CFLAGS_FOR_TARGET='-ggdb -O2 -mno-red-zone -mcmodel=kernel' $(PARALLEL)
-	- make -C $@ all-target-libgcc CFLAGS_FOR_TARGET='-gggdb -O2 -mno-red-zone -mcmodel=kernel'
+	- make -C $@ all-target-libgcc CFLAGS_FOR_TARGET='-ggdb -O2 -mno-red-zone -fno-pic -mcmodel=kernel -no-pie -nostartfiles' $(PARALLEL)
+	- make -C $@ all-target-libgcc CFLAGS_FOR_TARGET='-gggdb -O2 -mno-red-zone -fno-pic -mcmodel=kernel -no-pie -nostartfiles'
 	sed -i 's/PICFLAG/DISABLED_PICFLAG/g' gcc-build/x86_64-pc-linux-gnu/libgcc/Makefile
-	- make -C $@ all-target-libgcc CFLAGS_FOR_TARGET='-ggdb -O2 -mcmodel=kernel -mno-red-zone'
+	- make -C $@ all-target-libgcc CFLAGS_FOR_TARGET='-ggdb -O2 -mno-red-zone -fno-pic -mcmodel=kernel -no-pie -nostartfiles'
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 
 #GLIBC
 glibc-dir:
-	git clone --depth 1 --branch ukl git@github.com:unikernelLinux/glibc.git
+	# Removed Clone line as cloning will take place via Actions YAML script
+	# git clone --depth 1 --branch ukl git@github.com:unikernelLinux/glibc.git
 
 glibc-build:
 	./cleanbuild.sh
@@ -103,6 +177,10 @@ glibc-build:
 run:
 	make runU -C min-initrd
 
+#RUN MEMCACHED
+run_memcached:
+	make runU_memcached -C min-initrd
+	
 debug:
 	make debugU -C min-initrd
 
