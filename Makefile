@@ -51,7 +51,7 @@ linux-dir:
 	git clone git@github.com:unikernelLinux/Linux-Configs.git
 	git clone --depth 1 --branch ukl-main-5.14 git@github.com:unikernelLinux/linux.git
 	cp Linux-Configs/ukl/golden_config-5.7-broadcom linux/.config
-	make -C linux oldconfig
+	make -C linux olddefconfig
 
 linux-build:
 	- rm -rf linux/vmlinux
