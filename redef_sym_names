@@ -19,3 +19,5 @@ ukl___dlopen __dlopen
 ukl___dlsym __dlsym
 ukl___dlvsym __dlvsym
 ukl_k_t_arr k_t_arr
+ukl_shortcut_tcp_recvmsg shortcut_tcp_recvmsg
+ukl_shortcut_tcp_sendmsg shortcut_tcp_sendmsg

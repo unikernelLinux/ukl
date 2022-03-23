@@ -11,4 +11,5 @@ glibc-build
 Linux-Configs  
 min-initrd  
 undefined_sys_hack.o
+*.ukl
 
