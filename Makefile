@@ -28,6 +28,18 @@ cloneRepos:
 	make min-initrd-dir
 	make all -C min-initrd/
 	make linux-dir
+	make new_lebench-dir
+	make gapbs_dir
+
+#-----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+
+#Example Projects
+new_lebench-dir:
+	git clone git@github.com:unikernelLinux/new_lebench.git
+
+gapbs-dir:
+	git clone -b ukl git@github.com:unikernelLinux/gapbs.git
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
