@@ -30,7 +30,7 @@ linux-build:
 	make -C linux LLVM=1 LLVM_IAS=1 $(PARALLEL) |& tee out
 
 linux-copy:
-	cp linux/arch/x86/boot/bzImage /var/lib/tftpboot/ukl/
+	scp linux/arch/x86/boot/bzImage 10.255.19.36:/mnt/experiments/ukl/lto/
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
