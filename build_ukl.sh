@@ -42,7 +42,7 @@ rm -rf linux/vmlinux
 ./cleanbuild.sh $1 |& tee log_build
 
 # build gcc
-make gcc-build-cpp |& tee -a log_build
+# make gcc-build-cpp |& tee -a log_build
 
 # build undefined_sys_hack.o
 gcc -c -o undefined_sys_hack.o undefined_sys_hack.c -mcmodel=kernel -ggdb -mno-red-zone |& tee -a log_build
