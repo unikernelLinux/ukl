@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e
+set -x
+
 if [[ $# -eq 0 ]] ; then
     echo 'glibc bypass arg missing'
     echo '0 for no bypass, 1 for bypass on'
