@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e
+set -x
+
 if [[ $# -eq 0 ]] ; then
     echo 'No arguments'
     echo 'usage: ./build_ukl.sh glibc_arg workload_dir'
