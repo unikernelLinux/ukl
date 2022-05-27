@@ -29,7 +29,7 @@ cloneRepos:
 	make all -C min-initrd/
 	make linux-dir
 	make new_lebench-dir
-	make gapbs_dir
+	make gapbs-dir
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
