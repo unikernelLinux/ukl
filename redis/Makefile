@@ -50,5 +50,7 @@ redis: redis-dir
 	cp UKL.a ../
 
 redis-dir:
-	git clone -b redis-ukl git@github.com:unikernelLinux/redis.git
+	if ! test -d redis; then \
+	    git clone -b redis-ukl git@github.com:unikernelLinux/redis.git; \
+	fi
 

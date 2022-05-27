@@ -36,17 +36,23 @@ cloneRepos:
 
 #Example Projects
 new_lebench-dir:
-	git clone git@github.com:unikernelLinux/new_lebench.git
+	if ! test -d new_lebench; then \
+	    git clone git@github.com:unikernelLinux/new_lebench.git; \
+	fi
 
 gapbs-dir:
-	git clone -b ukl git@github.com:unikernelLinux/gapbs.git
+	if ! test -d gapbs; then \
+	    git clone -b ukl git@github.com:unikernelLinux/gapbs.git; \
+	fi
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 
 #LINUX
 linux-dir:
-	git clone --depth 1 --branch ukl-main-5.14 git@github.com:unikernelLinux/linux.git
+	if ! test -d linux; then \
+	    git clone --depth 1 --branch ukl-main-5.14 git@github.com:unikernelLinux/linux.git; \
+	fi
 
 linux-clean:
 	make distclean -C linux/
@@ -66,14 +72,18 @@ linux-copy:
 
 #MIN_INITRD
 min-initrd-dir:
-	git clone git@github.com:unikernelLinux/min-initrd.git
+	if ! test -d min-initrd; then \
+	    git clone git@github.com:unikernelLinux/min-initrd.git; \
+	fi
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 
 #GCC
 gcc-dir:
-	git clone --depth 1 --branch releases/gcc-9.3.0 'https://github.com/gcc-mirror/gcc.git'
+	if ! test -d gcc; then \
+	    git clone --depth 1 --branch releases/gcc-9.3.0 'https://github.com/gcc-mirror/gcc.git'; \
+	fi
 	cd ./gcc; ./contrib/download_prerequisites
 
 gcc-build:
@@ -90,7 +100,9 @@ gcc-build:
 	- make -C $@ all-target-libgcc CFLAGS_FOR_TARGET='-ggdb -O2 -mcmodel=kernel -mno-red-zone'
 
 gpp-dir:
-	git clone --depth 1 --branch releases/gcc-9.3.0 'https://github.com/gcc-mirror/gcc.git' gpp
+	if ! test -d gpp; then \
+	    git clone --depth 1 --branch releases/gcc-9.3.0 'https://github.com/gcc-mirror/gcc.git' gpp; \
+	fi
 	cd ./gpp; ./contrib/download_prerequisites
 
 gcc-build-cpp:
@@ -118,7 +130,9 @@ gcc-build-cpp:
 
 #GLIBC
 glibc-dir:
-	git clone --depth 1 --branch ukl git@github.com:unikernelLinux/glibc.git
+	if ! test -d glibc; then \
+	    git clone --depth 1 --branch ukl git@github.com:unikernelLinux/glibc.git; \
+	fi
 
 glibc-build:
 	./cleanbuild.sh
