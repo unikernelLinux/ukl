@@ -56,7 +56,7 @@ linux-clean:
 
 linux-build:
 	- rm -rf linux/vmlinux
-	make -C linux $(PARALLEL)
+	make -C linux $(PARALLEL) WERROR=0
 
 linux-copy:
 	cp linux/arch/x86/boot/bzImage /var/lib/tftpboot/ukl/
