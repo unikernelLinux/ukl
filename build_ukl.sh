@@ -39,18 +39,18 @@ rm -rf UKL.a
 rm -rf linux/vmlinux
 
 # building glibc
-./cleanbuild.sh $1 |& tee log_build
+./cleanbuild.sh $1
 
 # build gcc
-# make gcc-build-cpp |& tee -a log_build
+# make gcc-build-cpp
 
 # build undefined_sys_hack.o
-gcc -c -o undefined_sys_hack.o undefined_sys_hack.c -mcmodel=kernel -ggdb -mno-red-zone |& tee -a log_build
+gcc -c -o undefined_sys_hack.o undefined_sys_hack.c -mcmodel=kernel -ggdb -mno-red-zone
 
 # build workload
-make -C $2 |& tee -a log_build
+make -C $2
 
 # build unikernel
 make linux-clean
 sleep 2
-make linux-build |& tee -a log_build
+make linux-build

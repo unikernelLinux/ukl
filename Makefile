@@ -52,11 +52,11 @@ linux-clean:
 	make distclean -C linux/
 	cp saveconfig linux/.config
 	make -C linux menuconfig
-	cat linux/.config |& tee -a log_build
+	cat linux/.config
 
 linux-build:
 	- rm -rf linux/vmlinux
-	make -C linux $(PARALLEL) |& tee out
+	make -C linux $(PARALLEL)
 
 linux-copy:
 	cp linux/arch/x86/boot/bzImage /var/lib/tftpboot/ukl/

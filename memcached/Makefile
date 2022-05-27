@@ -27,7 +27,7 @@ all:
 libevent:
 	- make clean -C libevent/
 	cd libevent && ./autogen.sh && ./configure --disable-shared CFLAGS='-ggdb -mno-red-zone -mcmodel=kernel' \
-		&& make --trace |& tee ../elog
+		&& make --trace
 	- rm -rf mylibevent
 	ar cr mylibevent libevent/*.o
 
@@ -39,7 +39,7 @@ memcached: libevent
 	- rm -rf memcached.ukl UKL.a memcached/memcached.ukl ../UKL.a
 	- make clean -C memcached/
 	cd memcached && ./autogen.sh && ./configure CFLAGS='-ggdb -mno-red-zone -mcmodel=kernel'
-	make -C memcached --trace |& tee mlog
+	make -C memcached --trace
 	cd memcached && ld -r -o memcached.ukl --allow-multiple-definition $(CRT_STARTS) \
 		memcached-memcached.o memcached-hash.o \
 		memcached-jenkins_hash.o memcached-murmur3_hash.o memcached-slabs.o memcached-items.o \
