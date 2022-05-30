@@ -21,7 +21,7 @@ rm -rf log
 rm -rf glibc-build
 mkdir glibc-build
 cd glibc-build
-../glibc/configure CFLAGS="-g -O2 -fthread-jumps -mcmodel=kernel -mno-red-zone ${BP_FLAG}" --prefix=/home/fedora/unikernel/build-glibc/glibc-build --enable-hacker-mode --enable-timezone-tools --disable-build-nscd --disable-nscd --disable-pt_chown --enable-static-nss x86_64-ukl --disable-shared --disable-tunables build_alias=x86_64-ukl host_alias=x86_64-ukl target_alias=x86_64-ukl
+../glibc/configure CFLAGS="-g -O2 -fthread-jumps -mcmodel=kernel -mno-red-zone ${BP_FLAG}" --prefix=/home/fedora/unikernel/build-glibc/glibc-build --enable-hacker-mode --enable-timezone-tools --disable-build-nscd --disable-nscd --disable-pt_chown --enable-static-nss x86_64-ukl --disable-shared --disable-tunables --disable-werror build_alias=x86_64-ukl host_alias=x86_64-ukl target_alias=x86_64-ukl
 make -j10
 make -j10 subdirs=nptl
 make -j10 subdirs=math
