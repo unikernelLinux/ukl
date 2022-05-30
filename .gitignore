@@ -3,6 +3,15 @@
 *.o
 *.ukl
 
+/Makefile.in
+/aclocal.m4
+/autom4te.cache/
+/compile
+/config.h.in
+/configure
+/install-sh
+/missing
+
 /Linux-Configs
 /gapbs
 /gcc
