@@ -18,11 +18,80 @@
 
 EXTRA_DIST = \
 	.gitignore \
+	glibc-build/.gitignore \
 	LICENSE \
 	README.md
 
-CLEANFILES = *~
+CLEANFILES = \
+	*~ *.o *.a \
+	stamp-glibc-configure
 
+clean-local:
+	-cd glibc-build && $(MAKE) clean
+
+#----------------------------------------------------------------------
+# Build glibc.
+
+LIBC_OBJS = libc.a libpthread.a libm.a librt.a crt1.o crti.o crtn.o
+
+noinst_DATA = $(LIBC_OBJS)
+
+GLIBC_CFLAGS = -g -O2 -fthread-jumps -mcmodel=kernel -mno-red-zone
+if ENABLE_BYPASS
+GLIBC_CFLAGS += -DUKL_BP
+else
+GLIBC_CFLAGS += -UUKL_BP
+endif
+
+libc.a: stamp-glibc-configure
+	rm -f $@
+# XXX This fails in the iconv subdirectory, and there seems to be
+# no way to disable that feature.  So instead just continue past
+# the failure and hope if libc.a has not been created then the
+# build will fail on the next line.
+	-cd glibc-build && $(MAKE)
+	cp glibc-build/libc.a $@
+
+libpthread.a: stamp-glibc-configure libc.a
+	rm -f $@
+	cd glibc-build && $(MAKE) subdirs=nptl
+	cp glibc-build/nptl/libpthread.a $@
+
+libm.a: stamp-glibc-configure libpthread.a
+	rm -f $@
+	cd glibc-build && $(MAKE) subdirs=math
+	cp glibc-build/math/libm.a $@
+
+librt.a: stamp-glibc-configure libm.a
+	rm -f $@
+	cd glibc-build && $(MAKE) subdirs=rt
+	cp glibc-build/rt/librt.a $@
+
+crt1.o crti.o crtn.o: librt.a
+	rm -f $@
+	cp glibc-build/csu/$(basename $@).o $@
+
+stamp-glibc-configure:
+	rm -f $@
+	mkdir -p glibc-build
+	cd glibc-build && \
+	$(abs_top_srcdir)/glibc/configure \
+	    CFLAGS="$(GLIBC_CFLAGS)" \
+	    --prefix=$(abs_builddir) \
+	    --enable-hacker-mode \
+	    --enable-timezone-tools \
+	    --disable-build-nscd \
+	    --disable-nscd \
+	    --disable-pt_chown \
+	    --enable-static-nss \
+	    --disable-shared \
+	    --disable-tunables \
+	    --disable-werror \
+	    x86_64-ukl \
+	    build_alias=x86_64-ukl \
+	    host_alias=x86_64-ukl \
+	    target_alias=x86_64-ukl
+	touch $@
 
 #----------------------------------------------------------------------
 # Maintainers only!

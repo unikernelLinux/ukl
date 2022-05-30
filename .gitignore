@@ -3,20 +3,26 @@
 *.o
 *.ukl
 
-/Makefile.in
+Makefile
+Makefile.in
+
 /aclocal.m4
 /autom4te.cache/
 /compile
+/config.h
 /config.h.in
+/config.log
+/config.status
 /configure
 /install-sh
 /missing
+/stamp-glibc-configure
+/stamp-h1
 
 /Linux-Configs
 /gcc-build
 /gcc-build-cpp
 /gcc-install
-/glibc-build
 /gpp
 /lebench.ukl
 /new_lebench

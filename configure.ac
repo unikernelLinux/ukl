@@ -38,6 +38,16 @@ test "x$U" != "x" && AC_MSG_ERROR([Compiler not ANSI compliant])
 
 AM_PROG_CC_C_O
 
+dnl Control glibc bypass.
+AC_MSG_CHECKING([if we should enable glibc bypass])
+AC_ARG_ENABLE([bypass],
+    [AS_HELP_STRING([--enable-bypass],
+        [enable glibc bypass (UKL_BP) @<:@default=no@:>@])],
+        [ENABLE_BYPASS="$enableval"],
+        [ENABLE_BYPASS="no"])
+AM_CONDITIONAL([ENABLE_BYPASS], [test "x$ENABLE_BYPASS" = "xyes"])
+AC_MSG_RESULT([$ENABLE_BYPASS])
+
 dnl Produce output files.
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile])
