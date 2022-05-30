@@ -13,15 +13,10 @@
 /missing
 
 /Linux-Configs
-/gapbs
-/gcc
 /gcc-build
 /gcc-build-cpp
 /gcc-install
-/glibc
 /glibc-build
 /gpp
 /lebench.ukl
-/linux
-/min-initrd
 /new_lebench
