@@ -19,22 +19,89 @@
 EXTRA_DIST = \
 	.gitignore \
 	glibc-build/.gitignore \
+	libgcc-build/.gitignore \
 	LICENSE \
 	README.md
 
 CLEANFILES = \
 	*~ *.o *.a \
-	stamp-glibc-configure
+	stamp-gcc-prereq \
+	stamp-glibc-configure \
+	stamp-libgcc-build \
+	stamp-libgcc-configure
 
 clean-local:
 	-cd glibc-build && $(MAKE) clean
+	-cd libgcc-build && $(MAKE) clean
+	-find -name config.cache -delete
+
+#----------------------------------------------------------------------
+# Build libgcc and static libstdc++.
+#
+# XXX We only want libgcc.  Can we build this in a way which doesn't
+# build the whole of gcc?
+
+# C runtime objects.
+CRT_OBJS = crtbeginT.o crtend.o libgcc.a libgcc_eh.a
+
+noinst_DATA = $(CRT_OBJS) libstdc++.a
+
+$(CRT_OBJS): stamp-libgcc-build
+stamp-libgcc-build: stamp-libgcc-configure
+	rm -f $@
+	cd libgcc-build && $(MAKE) all-gcc
+	-cd libgcc-build && $(MAKE) all-target-libgcc \
+	    CFLAGS_FOR_TARGET='-ggdb -O2 -mno-red-zone -mcmodel=kernel' \
+	    CXXFLAGS_FOR_TARGET='-ggdb -O2 -mno-red-zone -mcmodel=kernel'
+# XXX The kernel memory model doesn't support -fpic, but GCC adds it
+# unconditionally, even though we used --disable-shared.
+	$(SED) -i 's/PICFLAG/#PICFLAG/g' \
+	    libgcc-build/x86_64-pc-linux-gnu/libgcc/Makefile
+	cd libgcc-build && $(MAKE) all-target-libgcc \
+	    CFLAGS_FOR_TARGET='-ggdb -O2 -mno-red-zone -mcmodel=kernel' \
+	    CXXFLAGS_FOR_TARGET='-ggdb -O2 -mno-red-zone -mcmodel=kernel'
+# libgcc_eh.a is not built automatically when we use --disable-shared,
+# but it still builds fine.
+	cd libgcc-build/x86_64-pc-linux-gnu/libgcc && \
+	    $(MAKE) libgcc_eh.a \
+	    CFLAGS_FOR_TARGET='-ggdb -O2 -mno-red-zone -mcmodel=kernel' \
+	    CXXFLAGS_FOR_TARGET='-ggdb -O2 -mno-red-zone -mcmodel=kernel'
+	cd libgcc-build/x86_64-pc-linux-gnu/libgcc && \
+	cp $(CRT_OBJS) $(abs_builddir)
+	touch $@
+
+libstdc++.a: stamp-libgcc-build
+	rm -f $@
+	cd libgcc-build && $(MAKE) all-target-libstdc++-v3 \
+	    CFLAGS_FOR_TARGET='-ggdb -O2 -mno-red-zone -mcmodel=kernel' \
+	    CXXFLAGS_FOR_TARGET='-ggdb -O2 -mno-red-zone -mcmodel=kernel'
+	cp libgcc-build/x86_64-pc-linux-gnu/libstdc++-v3/src/.libs/libstdc++.a $@
+
+stamp-libgcc-configure: stamp-gcc-prereq
+	rm -f $@
+	mkdir -p libgcc-build
+	cd libgcc-build && \
+	$(abs_top_srcdir)/gcc/configure \
+	    --prefix=$(abs_builddir) \
+	    --enable-languages=c,c++ \
+	    --disable-nls \
+	    --without-headers \
+	    --with-multilib-list=m64 \
+	    --disable-multilib \
+	    --disable-shared
+	touch $@
+
+stamp-gcc-prereq:
+	rm -f $@
+	cd $(srcdir)/gcc && contrib/download_prerequisites
+	touch $@
 
 #----------------------------------------------------------------------
 # Build glibc.
 
 LIBC_OBJS = libc.a libpthread.a libm.a librt.a crt1.o crti.o crtn.o
 
-noinst_DATA = $(LIBC_OBJS)
+noinst_DATA += $(LIBC_OBJS)
 
 GLIBC_CFLAGS = -g -O2 -fthread-jumps -mcmodel=kernel -mno-red-zone
 if ENABLE_BYPASS

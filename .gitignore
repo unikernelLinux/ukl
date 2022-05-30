@@ -16,13 +16,12 @@ Makefile.in
 /configure
 /install-sh
 /missing
+/stamp-gcc-prereq
 /stamp-glibc-configure
+/stamp-libgcc-build
+/stamp-libgcc-configure
 /stamp-h1
 
 /Linux-Configs
-/gcc-build
-/gcc-build-cpp
-/gcc-install
-/gpp
 /lebench.ukl
 /new_lebench

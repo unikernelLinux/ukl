@@ -38,6 +38,9 @@ test "x$U" != "x" && AC_MSG_ERROR([Compiler not ANSI compliant])
 
 AM_PROG_CC_C_O
 
+dnl Misc programs.
+AC_PROG_SED
+
 dnl Control glibc bypass.
 AC_MSG_CHECKING([if we should enable glibc bypass])
 AC_ARG_ENABLE([bypass],
