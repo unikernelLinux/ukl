@@ -35,6 +35,7 @@ clean-local:
 	-cd glibc-build && $(MAKE) clean
 	-cd libgcc-build && $(MAKE) clean
 	-cd linux && $(MAKE) mrproper
+	rm -rf initrd supermin.d
 	-find -name config.cache -delete
 
 DIST_SUBDIRS = hello
@@ -203,6 +204,42 @@ UKL.a: $(PROGRAM)/UKL.a
 
 $(PROGRAM)/UKL.a: $(CRT_OBJS) $(LIBC_OBJS)
 	cd $(PROGRAM) && $(MAKE) UKL.a
+
+#----------------------------------------------------------------------
+# Build the initramfs and root filesystem.
+
+INITRD_PACKAGES = \
+	bash \
+	coreutils \
+	ethtool \
+	iproute \
+	iputils \
+	kmod \
+	net-tools \
+	pciutils \
+	perf \
+	procps-ng \
+	python \
+	strace \
+	strace \
+	util-linux \
+	vim
+
+noinst_DATA += initrd/root
+
+initrd/root: supermin.d/packages supermin.d/init.tar.gz
+	$(SUPERMIN) --build \
+	    --size 8G --if-newer --format ext2 \
+	    supermin.d -o initrd
+	touch $@
+
+supermin.d/packages:
+	mkdir -p supermin.d
+	$(SUPERMIN) --prepare $(INITRD_PACKAGES) -o supermin.d
+
+supermin.d/init.tar.gz: init
+	mkdir -p supermin.d
+	tar zcf $@ $^
 
 #----------------------------------------------------------------------
 # Maintainers only!

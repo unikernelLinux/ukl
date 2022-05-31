@@ -15,6 +15,7 @@ Makefile.in
 /config.status
 /configure
 /hello/undefined_sys_hack.c
+/initrd
 /install-sh
 /missing
 /stamp-gcc-prereq
@@ -22,6 +23,7 @@ Makefile.in
 /stamp-libgcc-build
 /stamp-libgcc-configure
 /stamp-h1
+/supermin.d
 /vmlinuz
 
 /lebench.ukl

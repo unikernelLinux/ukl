@@ -41,6 +41,10 @@ AM_PROG_CC_C_O
 dnl Misc programs.
 AC_PROG_SED
 
+dnl supermin (required)
+AC_CHECK_PROG([SUPERMIN],[supermin],[supermin],[no])
+test "x$SUPERMIN" = "xno" && AC_MSG_ERROR(['supermin' program is required])
+
 dnl Select the target program.
 AC_MSG_CHECKING([which program to compile])
 AC_ARG_WITH([program],
