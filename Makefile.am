@@ -250,6 +250,32 @@ supermin.d/program.tar.gz: redis/myredis.conf
 	tar -zcf $@ -C $(srcdir)/redis myredis.conf
 
 #----------------------------------------------------------------------
+# Boot the unikernel under qemu.
+
+# Non-privileged:
+boot:
+	qemu-system-x86_64 \
+	    -cpu host -accel kvm -m 4G \
+	    -kernel vmlinuz \
+	    -initrd ./initrd/initrd \
+	    -hda ./initrd/root \
+	    -nodefaults -nographic -serial stdio \
+	    -append "console=ttyS0 root=/dev/sda net.ifnames=0 biosdevname=0 nowatchdog nosmap nosmep mds=off ip=192.168.122.128:::255.255.255.0::eth0:none" \
+	    -net user
+
+# Privileged (probably required if the kernel is expecting incoming
+# network connections).
+boot-priv:
+	sudo qemu-system-x86_64 \
+	    -cpu host -accel kvm -m 4G \
+	    -kernel vmlinuz \
+	    -initrd ./initrd/initrd \
+	    -hda ./initrd/root \
+	    -nodefaults -nographic -serial stdio \
+	    -append "console=ttyS0 root=/dev/sda net.ifnames=0 biosdevname=0 nowatchdog nosmap nosmep mds=off ip=192.168.122.128:::255.255.255.0::eth0:none" \
+	    -net nic -net bridge,br=virbr0
+
+#----------------------------------------------------------------------
 # Maintainers only!
 
 # Check no files are missing from EXTRA_DIST rules, and that all
