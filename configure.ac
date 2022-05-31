@@ -41,6 +41,16 @@ AM_PROG_CC_C_O
 dnl Misc programs.
 AC_PROG_SED
 
+dnl Select the target program.
+AC_MSG_CHECKING([which program to compile])
+AC_ARG_WITH([program],
+    [AS_HELP_STRING([--with-program],
+        [set which program to compile @<:@default=hello@:>@])],
+        [PROGRAM="$withval"],
+        [PROGRAM="hello"])
+AC_MSG_RESULT([$PROGRAM])
+AC_SUBST([PROGRAM])
+
 dnl Control glibc bypass.
 AC_MSG_CHECKING([if we should enable glibc bypass])
 AC_ARG_ENABLE([bypass],
@@ -90,5 +100,6 @@ AC_MSG_RESULT([$ENABLE_AFTERSPACE])
 
 dnl Produce output files.
 AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile \
+                 hello/Makefile])
 AC_OUTPUT

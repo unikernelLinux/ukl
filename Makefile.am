@@ -37,6 +37,8 @@ clean-local:
 	-cd linux && $(MAKE) mrproper
 	-find -name config.cache -delete
 
+DIST_SUBDIRS = hello
+
 #----------------------------------------------------------------------
 # Build libgcc and static libstdc++.
 #
@@ -192,6 +194,15 @@ endif
 if ENABLE_AFTERSPACE
 	echo CONFIG_UKL_CREATE_AFTERSPACE=y >> $@
 endif
+
+#----------------------------------------------------------------------
+# Compile the program.
+
+UKL.a: $(PROGRAM)/UKL.a
+	cp $< $@
+
+$(PROGRAM)/UKL.a: $(CRT_OBJS) $(LIBC_OBJS)
+	cd $(PROGRAM) && $(MAKE) UKL.a
 
 #----------------------------------------------------------------------
 # Maintainers only!
