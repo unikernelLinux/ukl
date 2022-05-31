@@ -28,11 +28,13 @@ CLEANFILES = \
 	stamp-gcc-prereq \
 	stamp-glibc-configure \
 	stamp-libgcc-build \
-	stamp-libgcc-configure
+	stamp-libgcc-configure \
+	vmlinuz
 
 clean-local:
 	-cd glibc-build && $(MAKE) clean
 	-cd libgcc-build && $(MAKE) clean
+	-cd linux && $(MAKE) mrproper
 	-find -name config.cache -delete
 
 #----------------------------------------------------------------------
@@ -159,6 +161,37 @@ stamp-glibc-configure:
 	    host_alias=x86_64-ukl \
 	    target_alias=x86_64-ukl
 	touch $@
+
+#----------------------------------------------------------------------
+# Build Linux kernel linked with UKL.a
+
+noinst_DATA += vmlinuz
+
+vmlinuz: linux/arch/x86/boot/bzImage
+	cp $< $@
+
+linux/arch/x86/boot/bzImage: linux/.config UKL.a
+	mkdir -p linux
+	$(MAKE) -C $(srcdir)/linux olddefconfig O=$(abs_builddir)/linux
+	$(MAKE) -C $(srcdir)/linux WERROR=0 O=$(abs_builddir)/linux
+
+linux/.config: saveconfig
+	rm -f $@
+	mkdir -p linux
+	cp $(srcdir)/saveconfig $@
+	echo CONFIG_UNIKERNEL_LINUX=y >> $@
+if ENABLE_SAME_STACK
+	echo CONFIG_UKL_SAME_STACK=y >> $@
+endif
+if ENABLE_USE_RET
+	echo CONFIG_UKL_USE_RET=y >> $@
+endif
+if ENABLE_USE_IST_PF
+	echo CONFIG_UKL_USE_IST_PF=y >> $@
+endif
+if ENABLE_AFTERSPACE
+	echo CONFIG_UKL_CREATE_AFTERSPACE=y >> $@
+endif
 
 #----------------------------------------------------------------------
 # Maintainers only!

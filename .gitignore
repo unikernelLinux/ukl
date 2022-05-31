@@ -21,7 +21,7 @@ Makefile.in
 /stamp-libgcc-build
 /stamp-libgcc-configure
 /stamp-h1
+/vmlinuz
 
-/Linux-Configs
 /lebench.ukl
 /new_lebench

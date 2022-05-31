@@ -51,6 +51,43 @@ AC_ARG_ENABLE([bypass],
 AM_CONDITIONAL([ENABLE_BYPASS], [test "x$ENABLE_BYPASS" = "xyes"])
 AC_MSG_RESULT([$ENABLE_BYPASS])
 
+dnl Control UKL features.
+AC_MSG_CHECKING([if we should use same stack])
+AC_ARG_ENABLE([same-stack],
+    [AS_HELP_STRING([--enable-same-stack],
+        [enable same stack (CONFIG_UKL_SAME_STACK) @<:@default=no@:>@])],
+        [ENABLE_SAME_STACK="$enableval"],
+        [ENABLE_SAME_STACK="no"])
+AM_CONDITIONAL([ENABLE_SAME_STACK], [test "x$ENABLE_SAME_STACK" = "xyes"])
+AC_MSG_RESULT([$ENABLE_SAME_STACK])
+
+AC_MSG_CHECKING([if we should use ret instead of iret])
+AC_ARG_ENABLE([use-ret],
+    [AS_HELP_STRING([--enable-use-ret],
+        [use ret instead of iret (CONFIG_UKL_USE_RET) @<:@default=no@:>@])],
+        [ENABLE_USE_RET="$enableval"],
+        [ENABLE_USE_RET="no"])
+AM_CONDITIONAL([ENABLE_USE_RET], [test "x$ENABLE_USE_RET" = "xyes"])
+AC_MSG_RESULT([$ENABLE_USE_RET])
+
+AC_MSG_CHECKING([if we should use IST for PF])
+AC_ARG_ENABLE([use-ist-pf],
+    [AS_HELP_STRING([--enable-use-ist-pf],
+        [use IST for PF instead of DF (CONFIG_UKL_USE_IST_PF) @<:@default=no@:>@])],
+        [ENABLE_USE_IST_PF="$enableval"],
+        [ENABLE_USE_IST_PF="no"])
+AM_CONDITIONAL([ENABLE_USE_IST_PF], [test "x$ENABLE_USE_IST_PF" = "xyes"])
+AC_MSG_RESULT([$ENABLE_USE_IST_PF])
+
+AC_MSG_CHECKING([if we should create an afterspace])
+AC_ARG_ENABLE([afterspace],
+    [AS_HELP_STRING([--enable-afterspace],
+        [enable afterspace (CONFIG_UKL_CREATE_AFTERSPACE) @<:@default=no@:>@])],
+        [ENABLE_AFTERSPACE="$enableval"],
+        [ENABLE_AFTERSPACE="no"])
+AM_CONDITIONAL([ENABLE_AFTERSPACE], [test "x$ENABLE_AFTERSPACE" = "xyes"])
+AC_MSG_RESULT([$ENABLE_AFTERSPACE])
+
 dnl Produce output files.
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile])
