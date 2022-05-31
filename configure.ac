@@ -105,5 +105,6 @@ AC_MSG_RESULT([$ENABLE_AFTERSPACE])
 dnl Produce output files.
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile \
-                 hello/Makefile])
+                 hello/Makefile \
+                 redis/Makefile])
 AC_OUTPUT

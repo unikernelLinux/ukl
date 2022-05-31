@@ -38,7 +38,7 @@ clean-local:
 	rm -rf initrd supermin.d
 	-find -name config.cache -delete
 
-DIST_SUBDIRS = hello
+DIST_SUBDIRS = hello redis
 
 #----------------------------------------------------------------------
 # Build libgcc and static libstdc++.
@@ -227,7 +227,9 @@ INITRD_PACKAGES = \
 
 noinst_DATA += initrd/root
 
-initrd/root: supermin.d/packages supermin.d/init.tar.gz
+initrd/root: supermin.d/packages \
+	     supermin.d/init.tar.gz \
+	     supermin.d/program.tar.gz
 	$(SUPERMIN) --build \
 	    --size 8G --if-newer --format ext2 \
 	    supermin.d -o initrd
@@ -239,7 +241,13 @@ supermin.d/packages:
 
 supermin.d/init.tar.gz: init
 	mkdir -p supermin.d
-	tar zcf $@ $^
+	tar -zcf $@ $^
+
+# XXX Hack for redis configuration.  TODO: Work out how to allow
+# target programs to have their own files/configuration.
+supermin.d/program.tar.gz: redis/myredis.conf
+	mkdir -p supermin.d
+	tar -zcf $@ -C $(srcdir)/redis myredis.conf
 
 #----------------------------------------------------------------------
 # Maintainers only!

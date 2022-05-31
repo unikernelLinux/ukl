@@ -18,6 +18,9 @@ Makefile.in
 /initrd
 /install-sh
 /missing
+/redis/redis
+/redis/stamp-redis-dir
+/redis/undefined_sys_hack.c
 /stamp-gcc-prereq
 /stamp-glibc-configure
 /stamp-libgcc-build
