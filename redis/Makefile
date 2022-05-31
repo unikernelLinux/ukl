@@ -21,7 +21,7 @@ UKL_FLAGS=-ggdb -mno-red-zone -mcmodel=kernel
 redis: redis-dir
 	- rm -rf redis-server.ukl UKL.a
 	make distclean -C redis/
-	- make MALLOC=libc V=1 CFLAGS='-ggdb -mno-red-zone -mcmodel=kernel' -C redis/
+	- make BUILD_WITH_SYSTEMD=no MALLOC=libc V=1 CFLAGS='-ggdb -mno-red-zone -mcmodel=kernel' -C redis/
 	- rm -rf redis/src/redis-server redis/src/redis-cli redis/src/redis-benchmark
 	cd redis/deps/lua/src/ && ld -r -o lua --allow-multiple-definition $(CRT_STARTS) lua.o liblua.a \
 		--start-group --whole-archive $(MATH_LIB) $(C_LIB) --no-whole-archive $(SYS_LIBS) \
@@ -50,5 +50,7 @@ redis: redis-dir
 	cp UKL.a ../
 
 redis-dir:
-	git clone -b redis-ukl git@github.com:unikernelLinux/redis.git
+	if ! test -d redis; then \
+	    git clone -b redis-ukl git@github.com:unikernelLinux/redis.git; \
+	fi
 
