@@ -21,3 +21,4 @@ ukl___dlvsym __dlvsym
 ukl_k_t_arr k_t_arr
 ukl_shortcut_tcp_recvmsg shortcut_tcp_recvmsg
 ukl_shortcut_tcp_sendmsg shortcut_tcp_sendmsg
+ukl_shortcut_tcp_sendmsg2 shortcut_tcp_sendmsg2

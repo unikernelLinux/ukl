@@ -35,7 +35,7 @@ libevent:
 #-----------------------------------------------------------------------------
 
 #memcached
-memcached: libevent
+memcached:
 	- rm -rf memcached.ukl UKL.a memcached/memcached.ukl ../UKL.a
 	- make clean -C memcached/
 	cd memcached && ./autogen.sh && ./configure CFLAGS='-ggdb -mno-red-zone -mcmodel=kernel'
