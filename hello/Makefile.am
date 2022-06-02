@@ -21,14 +21,14 @@ CLEANFILES = *~ *.o *.a
 noinst_DATA = UKL.a
 
 # Libraries built in the top build directory.
-CRT_STARTS  = $(top_builddir)/crt1.o $(top_builddir)/crti.o \
-	      $(top_builddir)/crtbeginT.o
-CRT_ENDS    = $(top_builddir)/crtend.o $(top_builddir)/crtn.o
-C_LIB       = $(top_builddir)/libc.a
-PTHREAD_LIB = $(top_builddir)/libpthread.a
-RT_LIB      = $(top_builddir)/librt.a
-MATH_LIB    = $(top_builddir)/libm.a
-GCC_LIBS    = $(top_builddir)/libgcc.a $(top_builddir)/libgcc_eh.a
+CRT_STARTS  = $(abs_top_builddir)/crt1.o $(abs_top_builddir)/crti.o \
+	      $(abs_top_builddir)/crtbeginT.o
+CRT_ENDS    = $(abs_top_builddir)/crtend.o $(abs_top_builddir)/crtn.o
+C_LIB       = $(abs_top_builddir)/libc.a
+PTHREAD_LIB = $(abs_top_builddir)/libpthread.a
+RT_LIB      = $(abs_top_builddir)/librt.a
+MATH_LIB    = $(abs_top_builddir)/libm.a
+GCC_LIBS    = $(abs_top_builddir)/libgcc.a $(abs_top_builddir)/libgcc_eh.a
 
 AM_CFLAGS   = -ggdb -mno-red-zone -mcmodel=kernel -static
 
