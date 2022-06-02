@@ -17,6 +17,9 @@ Makefile.in
 /hello/undefined_sys_hack.c
 /initrd
 /install-sh
+/memcached/stamp-libevent-dir
+/memcached/stamp-memcached-dir
+/memcached/undefined_sys_hack.c
 /missing
 /redis/redis
 /redis/stamp-redis-dir

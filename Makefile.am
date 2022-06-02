@@ -38,7 +38,7 @@ clean-local:
 	rm -rf initrd supermin.d
 	-find -name config.cache -delete
 
-DIST_SUBDIRS = hello redis
+DIST_SUBDIRS = hello memcached redis
 
 #----------------------------------------------------------------------
 # Build libgcc and static libstdc++.
