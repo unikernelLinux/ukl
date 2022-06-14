@@ -104,7 +104,7 @@ stamp-gcc-prereq:
 #----------------------------------------------------------------------
 # Build glibc.
 
-LIBC_OBJS = libc.a libpthread.a libm.a librt.a crt1.o crti.o crtn.o
+LIBC_OBJS = libc.a libpthread.a libm.a librt.a libcrypt.a crt1.o crti.o crtn.o
 
 noinst_DATA += $(LIBC_OBJS)
 
@@ -138,6 +138,11 @@ librt.a: stamp-glibc-configure libm.a
 	rm -f $@
 	cd glibc-build && $(MAKE) subdirs=rt
 	cp glibc-build/rt/librt.a $@
+
+libcrypt.a: stamp-glibc-configure libm.a
+	rm -f $@
+	cd glibc-build && $(MAKE) subdirs=crypt
+	cp glibc-build/crypt/libcrypt.a $@
 
 crt1.o crti.o crtn.o: librt.a
 	rm -f $@
