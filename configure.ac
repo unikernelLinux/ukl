@@ -108,5 +108,6 @@ AC_CONFIG_FILES([Makefile \
                  dnsmasq/Makefile \
                  hello/Makefile \
                  memcached/Makefile \
-                 redis/Makefile])
+                 redis/Makefile \
+		 nginx/Makefile])
 AC_OUTPUT
