@@ -107,5 +107,6 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile \
                  hello/Makefile \
                  memcached/Makefile \
-                 redis/Makefile])
+                 redis/Makefile \
+		 nginx/Makefile])
 AC_OUTPUT
