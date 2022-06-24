@@ -29,6 +29,7 @@ CLEANFILES = \
 	stamp-glibc-configure \
 	stamp-libgcc-build \
 	stamp-libgcc-configure \
+	supermin.d/data.tar.gz \
 	vmlinuz
 
 clean-local:
@@ -211,6 +212,18 @@ $(PROGRAM)/UKL.a: $(CRT_OBJS) $(LIBC_OBJS)
 	cd $(PROGRAM) && $(MAKE) UKL.a
 
 #----------------------------------------------------------------------
+# Per-program configuration and data files (if required).
+
+supermin.d/data.tar.gz: $(PROGRAM)/data.tar.gz supermin.d/packages
+	rm -f $@
+	cp $< $@
+
+$(PROGRAM)/data.tar.gz:
+	rm -f $@
+	-cd $(PROGRAM) && $(MAKE) data.tar.gz
+	if ! test -f $@; then tar zcf $@ --no-recursion . ; fi
+
+#----------------------------------------------------------------------
 # Build the initramfs and root filesystem.
 
 INITRD_PACKAGES = \
@@ -234,25 +247,19 @@ noinst_DATA += initrd/root
 
 initrd/root: supermin.d/packages \
 	     supermin.d/init.tar.gz \
-	     supermin.d/program.tar.gz
+	     supermin.d/data.tar.gz
 	$(SUPERMIN) --build \
 	    --size 8G --if-newer --format ext2 \
 	    supermin.d -o initrd
 	touch $@
 
-supermin.d/packages:
+supermin.d/packages: Makefile
 	mkdir -p supermin.d
 	$(SUPERMIN) --prepare $(INITRD_PACKAGES) -o supermin.d
 
-supermin.d/init.tar.gz: init
+supermin.d/init.tar.gz: init supermin.d/packages
 	mkdir -p supermin.d
-	tar -zcf $@ $^
-
-# XXX Hack for redis configuration.  TODO: Work out how to allow
-# target programs to have their own files/configuration.
-supermin.d/program.tar.gz: redis/myredis.conf
-	mkdir -p supermin.d
-	tar -zcf $@ -C $(srcdir)/redis myredis.conf
+	tar -zcf $@ $<
 
 #----------------------------------------------------------------------
 # Boot the unikernel under qemu.
