@@ -39,7 +39,7 @@ clean-local:
 	rm -rf initrd supermin.d
 	-find -name config.cache -delete
 
-DIST_SUBDIRS = dnsmasq hello memcached redis
+DIST_SUBDIRS = dnsmasq hello memcached redis secrecy
 
 #----------------------------------------------------------------------
 # Build libgcc and static libstdc++.
