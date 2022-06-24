@@ -18,15 +18,10 @@
 
 EXTRA_DIST = dnsmasq.conf
 
-CLEANFILES = \
-	*~ *.o *.a \
-	stamp-dnsmasq-dir
+CLEANFILES = *~ *.o *.a
 
 clean-local:
-	-cd dnsmasq && $(MAKE) clean
-
-distclean-local:
-	rm -rf dnsmasq
+	-cd $(srcdir)/dnsmasq && $(MAKE) clean
 
 noinst_DATA = UKL.a
 
@@ -48,14 +43,10 @@ UKL.a: dnsmasq.o undefined_sys_hack.o
 	objcopy --prefix-symbols=ukl_ $@
 	objcopy --redefine-syms=$(top_srcdir)/redef_sym_names $@
 
-dnsmasq.o: stamp-dnsmasq-dir
-	rm -f $@
-	$(MAKE) -C dnsmasq clean
-	$(MAKE) -C dnsmasq all CFLAGS="-O2 $(AM_CFLAGS)"
-	rm dnsmasq/src/dnsmasq
+dnsmasq.o: $(srcdir)/dnsmasq/src/dnsmasq
 	ld -r -o $@ -allow-multiple-definition \
 	    $(CRT_STARTS) \
-	    dnsmasq/src/*.o \
+	    $(srcdir)/dnsmasq/src/*.o \
 	    --start-group \
 	    --whole-archive \
 	    $(MATH_LIB) $(RT_LIB) $(PTHREAD_LIB) $(C_LIB) \
@@ -64,15 +55,8 @@ dnsmasq.o: stamp-dnsmasq-dir
 	    --end-group \
 	    $(CRT_ENDS)
 
-# Check out a local copy of dnsmasq (XXX submodules!).
-stamp-dnsmasq-dir:
-	rm -f $@
-	if ! test -d dnsmasq; then \
-	    git clone http://thekelleys.org.uk/git/dnsmasq.git && \
-	    cd dnsmasq && \
-	    git checkout -b 2.86 cac9ca38f62437c65464f58fc54342c7f294c40b; \
-	fi
-	touch $@
+$(srcdir)/dnsmasq/src/dnsmasq:
+	$(MAKE) -C $(srcdir)/dnsmasq all CFLAGS="-O2 $(AM_CFLAGS)"
 
 undefined_sys_hack.c: $(top_builddir)/undefined_sys_hack.c
 	cp $< $@

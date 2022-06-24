@@ -10,3 +10,6 @@
 [submodule "gapbs"]
 	path = gapbs
 	url = https://github.com/unikernelLinux/gapbs
+[submodule "dnsmasq/dnsmasq"]
+	path = dnsmasq/dnsmasq
+	url = https://github.com/rwmjones/dnsmasq

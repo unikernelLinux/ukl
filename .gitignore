@@ -14,7 +14,6 @@ Makefile.in
 /config.log
 /config.status
 /configure
-/dnsmasq/stamp-dnsmasq-dir
 /dnsmasq/undefined_sys_hack.c
 /hello/undefined_sys_hack.c
 /initrd
