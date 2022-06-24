@@ -170,9 +170,6 @@ stamp-glibc-configure:
 	    target_alias=x86_64-ukl
 	touch $@
 
-undefined_sys_hack.o: undefined_sys_hack.c
-	gcc -o $@ -c -ggdb -O2 -fno-omit-frame-pointer -mno-red-zone -mcmodel=kernel -fno-pic $^
-
 #----------------------------------------------------------------------
 # Build Linux kernel linked with UKL.a
 
@@ -207,7 +204,7 @@ endif
 #----------------------------------------------------------------------
 # Compile the program.
 
-UKL.a: undefined_sys_hack.o $(PROGRAM)/UKL.a
+UKL.a: $(PROGRAM)/UKL.a
 	cp $< $@
 
 $(PROGRAM)/UKL.a: $(CRT_OBJS) $(LIBC_OBJS)
