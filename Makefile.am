@@ -240,6 +240,8 @@ INITRD_PACKAGES = \
 	python \
 	strace \
 	strace \
+	systemd \
+	systemd-udev \
 	util-linux \
 	vim
 
