@@ -20,9 +20,6 @@ EXTRA_DIST = dnsmasq.conf
 
 CLEANFILES = *~ *.o *.a
 
-clean-local:
-	-cd $(srcdir)/dnsmasq && $(MAKE) clean
-
 noinst_DATA = UKL.a
 
 # Libraries built in the top build directory.
@@ -35,18 +32,63 @@ RT_LIB      = $(abs_top_builddir)/librt.a
 MATH_LIB    = $(abs_top_builddir)/libm.a
 GCC_LIBS    = $(abs_top_builddir)/libgcc.a $(abs_top_builddir)/libgcc_eh.a
 
-AM_CFLAGS   = -ggdb -mno-red-zone -mcmodel=kernel -static
+AM_CFLAGS   = -ggdb -mno-red-zone -mcmodel=kernel -static -DVERSION='"UNKNOWN"'
 
-UKL.a: dnsmasq.o undefined_sys_hack.o
+# See dnsmasq/src/
+dnsmasq_OBJECTS = \
+	arp.o \
+	auth.o \
+	blockdata.o \
+	bpf.o \
+	cache.o \
+	conntrack.o \
+	crypto.o \
+	dbus.o \
+	dhcp6.o \
+	dhcp-common.o \
+	dhcp.o \
+	dnsmasq.o \
+	dnssec.o \
+	domain-match.o \
+	domain.o \
+	dump.o \
+	edns0.o \
+	forward.o \
+	hash-questions.o \
+	helper.o \
+	inotify.o \
+	ipset.o \
+	lease.o \
+	log.o \
+	loop.o \
+	metrics.o \
+	netlink.o \
+	network.o \
+	option.o \
+	outpacket.o \
+	pattern.o \
+	poll.o \
+	radv.o \
+	rfc1035.o \
+	rfc2131.o \
+	rfc3315.o \
+	rrfilter.o \
+	slaac.o \
+	tables.o \
+	tftp.o \
+	ubus.o \
+	util.o
+
+UKL.a: dnsmasq-full.o undefined_sys_hack.o
 	rm -f $@
 	ar cr UKL.a $^
 	objcopy --prefix-symbols=ukl_ $@
 	objcopy --redefine-syms=$(top_srcdir)/redef_sym_names $@
 
-dnsmasq.o: $(srcdir)/dnsmasq/src/dnsmasq
+dnsmasq-full.o: $(dnsmasq_OBJECTS)
 	ld -r -o $@ -allow-multiple-definition \
 	    $(CRT_STARTS) \
-	    $(srcdir)/dnsmasq/src/*.o \
+	    $(dnsmasq_OBJECTS) \
 	    --start-group \
 	    --whole-archive \
 	    $(MATH_LIB) $(RT_LIB) $(PTHREAD_LIB) $(C_LIB) \
@@ -55,16 +97,15 @@ dnsmasq.o: $(srcdir)/dnsmasq/src/dnsmasq
 	    --end-group \
 	    $(CRT_ENDS)
 
-$(srcdir)/dnsmasq/src/dnsmasq:
-	$(MAKE) -C $(srcdir)/dnsmasq all CFLAGS="-O2 $(AM_CFLAGS)"
-
-undefined_sys_hack.c: $(top_builddir)/undefined_sys_hack.c
-	cp $< $@
-
 # automake doesn't add this rule unless we were to specify a C program
 # to compile, which we don't want to do because of the very special
 # linking requirements.
-.c.o:
+%.o: $(srcdir)/dnsmasq/src/%.c
+	$(CC) $(CFLAGS) $(AM_CFLAGS) -c $< -o $@
+
+undefined_sys_hack.c: $(top_builddir)/undefined_sys_hack.c
+	cp $< $@
+undefined_sys_hack.o: undefined_sys_hack.c
 	$(CC) $(CFLAGS) $(AM_CFLAGS) -c $< -o $@
 
 # Configuration file used by dnsmasq.
