@@ -102,6 +102,15 @@ AC_ARG_ENABLE([afterspace],
 AM_CONDITIONAL([ENABLE_AFTERSPACE], [test "x$ENABLE_AFTERSPACE" = "xyes"])
 AC_MSG_RESULT([$ENABLE_AFTERSPACE])
 
+AC_MSG_CHECKING([if we should enable deep shortcuts])
+AC_ARG_ENABLE([shortcuts],
+    [AS_HELP_STRING([--shortcuts],
+	[enable deep kernel shortcuts @<:@default=no@:>@])],
+	[ENABLE_SHORTCUT="enableval"],
+	[ENABLE_SHORTCUT="no"])
+AM_CONDITIONAL([ENABLE_SHORTCUT], [test "x$ENABLE_SHORCUT" = "xyes"])
+AC_MSG_RESULT([$ENABLE_SHORTCUT])
+
 dnl Produce output files.
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile \
