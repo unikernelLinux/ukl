@@ -16,6 +16,8 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+EXTRA_DIST = dnsmasq.conf
+
 CLEANFILES = \
 	*~ *.o *.a \
 	stamp-dnsmasq-dir
@@ -80,3 +82,11 @@ undefined_sys_hack.c: $(top_builddir)/undefined_sys_hack.c
 # linking requirements.
 .c.o:
 	$(CC) $(CFLAGS) $(AM_CFLAGS) -c $< -o $@
+
+# Configuration file used by dnsmasq.
+data.tar.gz: dnsmasq.conf
+	rm -f $@
+	mkdir etc
+	cp $< etc
+	tar -zcf $@ etc
+	rm -r etc
