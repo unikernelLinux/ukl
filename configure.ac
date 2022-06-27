@@ -104,7 +104,7 @@ AC_MSG_RESULT([$ENABLE_AFTERSPACE])
 
 AC_MSG_CHECKING([if we should enable deep shortcuts])
 AC_ARG_ENABLE([shortcuts],
-    [AS_HELP_STRING([--shortcuts],
+    [AS_HELP_STRING([--enable-shortcuts],
 	[enable deep kernel shortcuts @<:@default=no@:>@])],
 	[ENABLE_SHORTCUT="enableval"],
 	[ENABLE_SHORTCUT="no"])
