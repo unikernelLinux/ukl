@@ -1,0 +1,10 @@
+name: test_boot
+on: [push]
+jobs:
+  check_boot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: sudo apt install build-essential
+      - run: sudo apt install g++
+      - run: echo "Hello world!"
