@@ -16,6 +16,8 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+EXTRA_DIST = myredis.conf
+
 CLEANFILES = \
 	*~ *.o *.a \
 	stamp-redis-dir
@@ -102,3 +104,8 @@ undefined_sys_hack.c: $(top_builddir)/undefined_sys_hack.c
 # linking requirements.
 .c.o:
 	$(CC) $(CFLAGS) $(AM_CFLAGS) -c $< -o $@
+
+# Configuration file used by redis.
+data.tar.gz: myredis.conf
+	rm -f $@
+	tar -zcf $@ -C $(srcdir) myredis.conf
