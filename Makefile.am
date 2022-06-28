@@ -35,7 +35,7 @@ CLEANFILES = \
 clean-local:
 	-cd glibc-build && $(MAKE) clean
 	-cd libgcc-build && $(MAKE) clean
-	-cd linux && $(MAKE) mrproper
+	-cd linux && $(MAKE) clean
 	rm -rf initrd supermin.d
 	-find -name config.cache -delete
 
