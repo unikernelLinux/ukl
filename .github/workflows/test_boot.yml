@@ -5,6 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: sudo apt install build-essential
-      - run: sudo apt install g++
       - run: echo "Hello world!"
+      - run: sudo apt-get install git build-essential flex bison supermin libelf-dev libssl-dev texinfo libgmp3-dev libmpc-dev libmpfr-dev qemu-kvm
+      - run: source run_boot.sh
+      - run: pwd && ls

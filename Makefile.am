@@ -296,6 +296,18 @@ boot-priv:
 	    -append "console=ttyS0 root=/dev/sda net.ifnames=0 biosdevname=0 nowatchdog nosmap nosmep mds=off ip=192.168.122.128:::255.255.255.0::eth0:none" \
 	    -net nic -net bridge,br=virbr0
 
+# GitHub Actions Boot
+# This allows output to be read and tested
+boot-actions:
+	qemu-system-x86_64 \
+	    -cpu host -accel kvm -m 4G \
+	    -kernel vmlinuz \
+	    -initrd ./initrd/initrd \
+	    -hda ./initrd/root \
+	    -nodefaults -nographic \
+	    -append "console=ttyAMA0,115200 console=tty root=/dev/sda biosdevname=0 nowatchdog nosmap nosmep mds=off" \
+		> actions.out
+
 #----------------------------------------------------------------------
 # Maintainers only!
 
