@@ -299,7 +299,7 @@ boot-priv:
 # GitHub Actions Boot
 # This allows output to be read and tested
 boot-actions:
-	qemu-system-x86_64 \
+	sudo qemu-system-x86_64 \
 	    -cpu host -accel kvm -m 4G \
 	    -kernel vmlinuz \
 	    -initrd ./initrd/initrd \
