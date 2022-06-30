@@ -299,15 +299,15 @@ boot-priv:
 # GitHub Actions Boot
 # This allows output to be read and tested
 boot-actions:
-	sudo qemu-system-x86_64 \
-	    -cpu host -accel kvm -m 4G \
-	    -kernel vmlinuz \
-	    -initrd ./initrd/initrd \
-	    -hda ./initrd/root \
-	    -nodefaults -nographic \
-	    -append "console=ttyAMA0,115200 console=tty root=/dev/sda biosdevname=0 nowatchdog nosmap nosmep mds=off" \
+	sudo qemu-system-x86_64 -cpu host \
+		-enable-kvm -smp cpus=2 -m 12G -s \
+		-kernel vmlinuz \
+		-initrd ./initrd/initrd \
+		-hda ./initrd/root \
+		-nodefaults -nographic -serial stdio \
+		-append "console=ttyS0 root=/dev/sda net.ifnames=0 biosdevname=0 nowatchdog nosmap mds=off ip=192.168.19.136:::255.255.255.0::eth0:none -- -g 20 -n 5 " \
+		-netdev tap,id=vlan1,ifname=tap0,script=no,downscript=no,vhost=on,queues=4 -device virtio-net-pci,mq=on,vectors=10,netdev=vlan1,mac=02:00:00:04:00:29 \
 		> actions.out
-
 #----------------------------------------------------------------------
 # Maintainers only!
 

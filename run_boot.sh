@@ -4,23 +4,26 @@
 outfile="actions.out"
 
 # Build
-git submodule update --init -j 2
+git submodule update --init
 autoreconf -i
 ./configure --enable-use-ret --with-program=hello
-make -j `nproc`
+make
 
 # Boot the machine
 sudo timeout 10m make boot-actions
 
 # Check to see that output contains magic string
 # If Test fails, print QEMU output
-if ! grep -sq "hello, from the UKL world" "$test_output"
+if ! grep -sq "hello, from the UKL world" "$outfile"
 then
     echo "TEST FAIL - UKL BOOT"
     cat $outfile
     rm -f $outfile
     exit 1
 fi
+
+echo "Starting QEMU...\n"
+sleep 5s
 
 # Close QEMU
 QEMU_PID=`pidof qemu-system-x86_64`
