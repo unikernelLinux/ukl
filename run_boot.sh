@@ -4,7 +4,6 @@
 outfile="actions.out"
 
 # Build
-git submodule update --init
 autoreconf -i
 ./configure --enable-use-ret --with-program=hello
 make -j`nproc`
