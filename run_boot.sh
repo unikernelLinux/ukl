@@ -7,7 +7,7 @@ outfile="actions.out"
 git submodule update --init
 autoreconf -i
 ./configure --enable-use-ret --with-program=hello
-make
+make -j`nproc`
 
 # Boot the machine
 sudo timeout 10m make boot-actions
