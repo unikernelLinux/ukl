@@ -39,6 +39,12 @@ clean-local:
 	rm -rf initrd supermin.d
 	-find -name config.cache -delete
 
+min-clean:
+	-cd linux && $(MAKE) clean
+	rm -rf initrd supermin.d
+	-rm UKL.a
+	cd $(PROGRAM) && $(MAKE) clean
+
 DIST_SUBDIRS = dnsmasq hello memcached redis secrecy
 
 #----------------------------------------------------------------------
