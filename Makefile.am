@@ -35,7 +35,8 @@ CLEANFILES = \
 clean-local:
 	-cd glibc-build && $(MAKE) clean
 	-cd libgcc-build && $(MAKE) clean
-	-cd linux && $(MAKE) mrproper
+	-cd linux && $(MAKE) clean
+	-cd nginx && $(MAKE) clean
 	rm -rf initrd supermin.d
 	-find -name config.cache -delete
 
@@ -288,6 +289,16 @@ boot-priv:
 	    -nodefaults -nographic -serial stdio \
 	    -append "console=ttyS0 root=/dev/sda net.ifnames=0 biosdevname=0 nowatchdog nosmap nosmep mds=off ip=192.168.122.128:::255.255.255.0::eth0:none" \
 	    -net nic -net bridge,br=virbr0
+
+boot-priv-db:
+	sudo qemu-system-x86_64 \
+	    -cpu host -accel kvm -m 4G \
+	    -kernel vmlinuz \
+	    -initrd ./initrd/initrd \
+	    -hda ./initrd/root \
+	    -nodefaults -nographic -serial stdio \
+	    -append "console=ttyS0 root=/dev/sda net.ifnames=0 biosdevname=0 nowatchdog nosmap nosmep mds=off ip=192.168.122.128:::255.255.255.0::eth0:none" \
+	    -net nic -net bridge,br=virbr0 -s -S
 
 #----------------------------------------------------------------------
 # Maintainers only!
