@@ -161,6 +161,7 @@ stamp-nginx-dir:
 		tar -zxf nginx-1.22.0.tar.gz; \
 		rm -rf nginx-1.22.0.tar.gz; \
 		mv nginx-1.22.0 nginx; \
+		cd nginx && patch -p1 < ../nginx.patch; \
 	fi
 	touch $@
 
