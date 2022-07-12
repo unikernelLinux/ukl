@@ -45,7 +45,7 @@ min-clean:
 	-rm UKL.a
 	cd $(PROGRAM) && $(MAKE) clean
 
-DIST_SUBDIRS = dnsmasq hello memcached redis secrecy
+DIST_SUBDIRS = dnsmasq hello memcached redis secrecy v8
 
 #----------------------------------------------------------------------
 # Build libgcc and static libstdc++.

@@ -13,9 +13,10 @@ LD_DEBUG = all make
 CFLAGS = -I. -c -Iinclude -std=c++17 -DV8_COMPRESS_POINTERS -DV8_ENABLE_SANDBOX -Wall -O0 -static
 LDFLAGS = /home/jonocameron/Documents/ukl/v8/v8/out.gn/x64.release.sample/obj/libv8_monolith.a -pthread 
 LDLIBS = -lm 
+AM_CFLAGS = -no-pie -fno-pic -ggdb -mno-red-zone -mcmodel=kernel
 
 hello: samples/hello-world.cc
-	$(CC) $(CFLAGS) $(LDLIBS) -o v8.o samples/hello-world.cc $(LDFLAGS)
+	$(CC) $(CFLAGS) $(LDLIBS) -o v8.o samples/hello-world.cc $(LDFLAGS) $(AM_CFLAGS)
 
 .PHONY: clean
 

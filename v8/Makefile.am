@@ -97,6 +97,7 @@ out.gn/x64.release.sample/obj/libv8_monolith.a:
 		export PATH=/home/jonocameron/Documents/ukl/v8/depot_tools:$(PATH); gclient sync -D; \
 		cd v8; export PATH=/home/jonocameron/Documents/ukl/v8/depot_tools:$(PATH); gn gen out.gn/x64.release.sample --args='dcheck_always_on=false is_component_build=false is_debug=false target_cpu="x64" use_custom_libcxx=false v8_monolithic=true v8_use_external_startup_data=false is_clang=false use_sysroot=false'; \
 		cd ..; cp v8_base_without_compiler.ninja v8/out.gn/x64.release.sample/obj/v8_base_without_compiler.ninja; \
+		cp support/BUILD.gn v8; \
 		export PATH=/home/jonocameron/Documents/ukl/v8/depot_tools:$(PATH); cd v8; ninja -C out.gn/x64.release.sample v8_monolith; \
 	fi
 #	touch $@

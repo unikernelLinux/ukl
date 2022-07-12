@@ -35,3 +35,11 @@ Makefile.in
 
 /lebench.ukl
 /new_lebench
+
+/v8/v8
+/out.gn
+.cipd
+undefined_sys_hack.c
+stamp-depot_tools-dir
+stamp-v8-dir
+/depot_tools
