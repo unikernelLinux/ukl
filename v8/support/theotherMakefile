@@ -1,0 +1,23 @@
+#
+# A very simple makefile
+#
+#
+# This Makefile is what I am working on to get the v8 engine building statically so it can get loaded into the UKL
+#
+# The default C compiler
+CC = g++
+
+# The CFLAGS variable sets compile flags for gcc:
+#  
+LD_DEBUG = all make
+CFLAGS = -I. -c -Iinclude -std=c++17 -DV8_COMPRESS_POINTERS -DV8_ENABLE_SANDBOX -Wall -O0 -static
+LDFLAGS = /home/jonocameron/Documents/ukl/v8/v8/out.gn/x64.release.sample/obj/libv8_monolith.a -pthread 
+LDLIBS = -lm 
+
+hello: samples/hello-world.cc
+	$(CC) $(CFLAGS) $(LDLIBS) -o v8.o samples/hello-world.cc $(LDFLAGS)
+
+.PHONY: clean
+
+clean:
+	rm -f hello_world *.o
