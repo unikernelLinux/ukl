@@ -1,0 +1,141 @@
+make  all-recursive
+make[1]: Entering directory '/home/jonocameron/Documents/ukl'
+make[2]: Entering directory '/home/jonocameron/Documents/ukl'
+mkdir -p linux
+make -C ./linux olddefconfig O=/home/jonocameron/Documents/ukl/linux
+make[3]: Entering directory '/home/jonocameron/Documents/ukl/linux'
+#
+# No change to .config
+#
+make[3]: Leaving directory '/home/jonocameron/Documents/ukl/linux'
+make -C ./linux WERROR=0 O=/home/jonocameron/Documents/ukl/linux
+make[3]: Entering directory '/home/jonocameron/Documents/ukl/linux'
+  DESCEND objtool
+  CALL    scripts/atomic/check-atomics.sh
+  CALL    scripts/checksyscalls.sh
+  CHK     include/generated/compile.h
+  GEN     .version
+  CHK     include/generated/compile.h
+  UPD     include/generated/compile.h
+  CC      init/version.o
+  AR      init/built-in.a
+  LD      vmlinux.o
+  MODPOST vmlinux.symvers
+  MODINFO modules.builtin.modinfo
+  GEN     modules.builtin
+  LD      .tmp_vmlinux.kallsyms1
+ld: warning: orphan section `.rela.got' from `arch/x86/kernel/head_64.o' being placed in section `.rela.dyn'
+ld: warning: orphan section `.got' from `arch/x86/kernel/head_64.o' being placed in section `.got'
+ld: warning: orphan section `.got.plt' from `arch/x86/kernel/head_64.o' being placed in section `.got.plt'
+ld: warning: orphan section `.iplt' from `arch/x86/kernel/head_64.o' being placed in section `.iplt'
+ld: warning: orphan section `.igot.plt' from `arch/x86/kernel/head_64.o' being placed in section `.igot.plt'
+ld: warning: orphan section `.rela.data' from `arch/x86/kernel/head_64.o' being placed in section `.rela.dyn'
+ld: warning: orphan section `.rela.head.text' from `arch/x86/kernel/head_64.o' being placed in section `.rela.dyn'
+ld: warning: orphan section `.rela.ref.data' from `arch/x86/kernel/head_64.o' being placed in section `.rela.dyn'
+ld: warning: orphan section `.rela.init.text' from `arch/x86/kernel/head_64.o' being placed in section `.rela.dyn'
+ld: warning: orphan section `.rela.text' from `arch/x86/kernel/head_64.o' being placed in section `.rela.dyn'
+ld: warning: orphan section `.rela.init.data' from `arch/x86/kernel/head_64.o' being placed in section `.rela.dyn'
+ld: warning: orphan section `.rela.rodata' from `arch/x86/kernel/head_64.o' being placed in section `.rela.dyn'
+ld: warning: orphan section `.rela.noinstr.text' from `arch/x86/kernel/head_64.o' being placed in section `.rela.dyn'
+ld: warning: orphan section `.rela.ref.text' from `arch/x86/kernel/head_64.o' being placed in section `.rela.dyn'
+ld: warning: orphan section `.rela.data..percpu' from `arch/x86/kernel/head_64.o' being placed in section `.rela.dyn'
+ld: warning: orphan section `.rela.data..ro_after_init' from `arch/x86/kernel/head_64.o' being placed in section `.rela.dyn'
+ld: warning: orphan section `.rela.data..percpu..read_mostly' from `arch/x86/kernel/head_64.o' being placed in section `.rela.dyn'
+ld: warning: orphan section `.rela.text.unlikely' from `arch/x86/kernel/head_64.o' being placed in section `.rela.dyn'
+ld: warning: orphan section `.rela.softirqentry.text' from `arch/x86/kernel/head_64.o' being placed in section `.rela.dyn'
+ld: warning: orphan section `.rela.sched.text' from `arch/x86/kernel/head_64.o' being placed in section `.rela.dyn'
+ld: warning: orphan section `.rela.eh_frame' from `arch/x86/kernel/head_64.o' being placed in section `.rela.dyn'
+ld: warning: orphan section `.gcc_except_table._ZN2v87Isolate5ScopeD2Ev[ukl__ZN2v87Isolate5ScopeD5Ev]' from `../UKL.a(v8.o)' being placed in section `.gcc_except_table._ZN2v87Isolate5ScopeD2Ev'
+ld: warning: orphan section `.gcc_except_table' from `../UKL.a(v8.o)' being placed in section `.gcc_except_table'
+ld: warning: orphan section `.eh_frame' from `../UKL.a(v8.o)' being placed in section `.eh_frame'
+ld: warning: orphan section `.eh_frame' from `../UKL.a(undefined_sys_hack.o)' being placed in section `.eh_frame'
+ld: fs/binfmt_elf.o: in function `load_elf_binary':
+/home/jonocameron/Documents/ukl/linux/fs/binfmt_elf.c:1259: undefined reference to `ukl__start'
+ld: fs/compat_binfmt_elf.o: in function `load_elf_binary':
+/home/jonocameron/Documents/ukl/linux/fs/binfmt_elf.c:1259: undefined reference to `ukl__start'
+ld: ../UKL.a(v8.o): in function `ukl_main':
+/home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:19: undefined reference to `ukl__ZN2v82V828InitializeICUDefaultLocationEPKcS2_'
+ld: /home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:20: undefined reference to `ukl__ZN2v82V829InitializeExternalStartupDataEPKc'
+ld: /home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:21: undefined reference to `ukl__ZN2v88platform18NewDefaultPlatformEiNS0_15IdleTaskSupportENS0_21InProcessStackDumpingESt10unique_ptrINS_17TracingControllerESt14default_deleteIS4_EE'
+ld: /home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:22: undefined reference to `ukl__ZN2v82V818InitializePlatformEPNS_8PlatformE'
+ld: /home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:24: undefined reference to `ukl__ZN2v82V817InitializeSandboxEv'
+ld: /home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:25: undefined reference to `ukl_stderr'
+ld: /home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:25: undefined reference to `ukl_fwrite'
+ld: ../UKL.a(v8.o): in function `v8::V8::Initialize()':
+/home/jonocameron/Documents/ukl/v8/v8/./include/v8-initialization.h:107: undefined reference to `ukl__ZN2v82V810InitializeEi'
+ld: ../UKL.a(v8.o): in function `ukl_main':
+/home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:32: undefined reference to `ukl__ZN2v87Isolate12CreateParamsC1Ev'
+ld: /home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:34: undefined reference to `ukl__ZN2v811ArrayBuffer9Allocator19NewDefaultAllocatorEv'
+ld: /home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:35: undefined reference to `ukl__ZN2v87Isolate3NewERKNS0_12CreateParamsE'
+ld: /home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:40: undefined reference to `ukl__ZN2v811HandleScopeC1EPNS_7IsolateE'
+ld: /home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:43: undefined reference to `ukl__ZN2v87Context3NewEPNS_7IsolateEPNS_22ExtensionConfigurationENS_10MaybeLocalINS_14ObjectTemplateEEENS5_INS_5ValueEEENS_33DeserializeInternalFieldsCallbackEPNS_14MicrotaskQueueE'
+ld: ../UKL.a(v8.o): in function `v8::Context::Scope::Scope(v8::Local<v8::Context>)':
+/home/jonocameron/Documents/ukl/v8/v8/./include/v8-context.h:300: undefined reference to `ukl__ZN2v87Context5EnterEv'
+ld: ../UKL.a(v8.o): in function `ukl_main':
+/home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:55: undefined reference to `ukl__ZN2v86Script7CompileENS_5LocalINS_7ContextEEENS1_INS_6StringEEEPNS_12ScriptOriginE'
+ld: ../UKL.a(v8.o): in function `v8::MaybeLocal<v8::Script>::ToLocalChecked()':
+/home/jonocameron/Documents/ukl/v8/v8/./include/v8-local-handle.h:370: undefined reference to `ukl__ZN2v812api_internal12ToLocalEmptyEv'
+ld: ../UKL.a(v8.o): in function `ukl_main':
+/home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:58: undefined reference to `ukl__ZN2v86Script3RunENS_5LocalINS_7ContextEEE'
+ld: ../UKL.a(v8.o): in function `v8::MaybeLocal<v8::Value>::ToLocalChecked()':
+/home/jonocameron/Documents/ukl/v8/v8/./include/v8-local-handle.h:370: undefined reference to `ukl__ZN2v812api_internal12ToLocalEmptyEv'
+ld: ../UKL.a(v8.o): in function `ukl_main':
+/home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:61: undefined reference to `ukl__ZN2v86String9Utf8ValueC1EPNS_7IsolateENS_5LocalINS_5ValueEEE'
+ld: /home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:62: undefined reference to `ukl_puts'
+ld: /home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:63: undefined reference to `ukl__ZN2v86String9Utf8ValueD1Ev'
+ld: /home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:93: undefined reference to `ukl__ZN2v86Script7CompileENS_5LocalINS_7ContextEEENS1_INS_6StringEEEPNS_12ScriptOriginE'
+ld: ../UKL.a(v8.o): in function `v8::MaybeLocal<v8::Script>::ToLocalChecked()':
+/home/jonocameron/Documents/ukl/v8/v8/./include/v8-local-handle.h:370: undefined reference to `ukl__ZN2v812api_internal12ToLocalEmptyEv'
+ld: ../UKL.a(v8.o): in function `ukl_main':
+/home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:96: undefined reference to `ukl__ZN2v86Script3RunENS_5LocalINS_7ContextEEE'
+ld: ../UKL.a(v8.o): in function `v8::MaybeLocal<v8::Value>::ToLocalChecked()':
+/home/jonocameron/Documents/ukl/v8/v8/./include/v8-local-handle.h:370: undefined reference to `ukl__ZN2v812api_internal12ToLocalEmptyEv'
+ld: ../UKL.a(v8.o): in function `ukl_main':
+/home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:99: undefined reference to `ukl__ZNK2v85Value11Uint32ValueENS_5LocalINS_7ContextEEE'
+ld: ../UKL.a(v8.o): in function `v8::Maybe<unsigned int>::FromJust() const &':
+/home/jonocameron/Documents/ukl/v8/v8/./include/v8-maybe.h:64: undefined reference to `ukl__ZN2v812api_internal17FromJustIsNothingEv'
+ld: ../UKL.a(v8.o): in function `ukl_main':
+/home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:100: undefined reference to `ukl_printf'
+ld: ../UKL.a(v8.o): in function `v8::Context::Scope::~Scope()':
+/home/jonocameron/Documents/ukl/v8/v8/./include/v8-context.h:302: undefined reference to `ukl__ZN2v87Context4ExitEv'
+ld: ../UKL.a(v8.o): in function `ukl_main':
+/home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:102: undefined reference to `ukl__ZN2v811HandleScopeD1Ev'
+ld: /home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:105: undefined reference to `ukl__ZN2v87Isolate7DisposeEv'
+ld: /home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:106: undefined reference to `ukl__ZN2v82V87DisposeEv'
+ld: /home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:107: undefined reference to `ukl__ZN2v82V815DisposePlatformEv'
+ld: /home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:110: undefined reference to `ukl__ZN2v87Isolate12CreateParamsD1Ev'
+ld: /home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:21: undefined reference to `ukl__Unwind_Resume'
+ld: /home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:63: undefined reference to `ukl__ZN2v86String9Utf8ValueD1Ev'
+ld: ../UKL.a(v8.o): in function `v8::Context::Scope::~Scope()':
+/home/jonocameron/Documents/ukl/v8/v8/./include/v8-context.h:302: undefined reference to `ukl__ZN2v87Context4ExitEv'
+ld: ../UKL.a(v8.o): in function `ukl_main':
+/home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:102: undefined reference to `ukl__ZN2v811HandleScopeD1Ev'
+ld: /home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:110: undefined reference to `ukl__ZN2v87Isolate12CreateParamsD1Ev'
+ld: /home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc:110: undefined reference to `ukl__Unwind_Resume'
+ld: ../UKL.a(v8.o): in function `v8::Isolate::Scope::Scope(v8::Isolate*)':
+/home/jonocameron/Documents/ukl/v8/v8/./include/v8-isolate.h:308: undefined reference to `ukl__ZN2v87Isolate5EnterEv'
+ld: ../UKL.a(v8.o): in function `v8::Isolate::Scope::~Scope()':
+/home/jonocameron/Documents/ukl/v8/v8/./include/v8-isolate.h:311: undefined reference to `ukl__ZN2v87Isolate4ExitEv'
+ld: ../UKL.a(v8.o): in function `v8::Local<v8::String> v8::String::NewFromUtf8Literal<21>(v8::Isolate*, char const (&) [21], v8::NewStringType)':
+/home/jonocameron/Documents/ukl/v8/v8/./include/v8-primitive.h:419: undefined reference to `ukl__ZN2v86String18NewFromUtf8LiteralEPNS_7IsolateEPKcNS_13NewStringTypeEi'
+ld: ../UKL.a(v8.o): in function `v8::Local<v8::String> v8::String::NewFromUtf8Literal<487>(v8::Isolate*, char const (&) [487], v8::NewStringType)':
+/home/jonocameron/Documents/ukl/v8/v8/./include/v8-primitive.h:419: undefined reference to `ukl__ZN2v86String18NewFromUtf8LiteralEPNS_7IsolateEPKcNS_13NewStringTypeEi'
+ld: ../UKL.a(v8.o):(.eh_frame+0x8b): undefined reference to `ukl___gxx_personality_v0'
+ld: ../UKL.a(undefined_sys_hack.o): in function `__dladdr':
+/home/jonocameron/Documents/ukl/v8/undefined_sys_hack.c:2: undefined reference to `ukl_printf'
+ld: ../UKL.a(undefined_sys_hack.o): in function `__dladdr1':
+/home/jonocameron/Documents/ukl/v8/undefined_sys_hack.c:3: undefined reference to `ukl_printf'
+ld: ../UKL.a(undefined_sys_hack.o): in function `__dlclose':
+/home/jonocameron/Documents/ukl/v8/undefined_sys_hack.c:4: undefined reference to `ukl_printf'
+ld: ../UKL.a(undefined_sys_hack.o): in function `__dlerror':
+/home/jonocameron/Documents/ukl/v8/undefined_sys_hack.c:5: undefined reference to `ukl_printf'
+ld: ../UKL.a(undefined_sys_hack.o): in function `__dlinfo':
+/home/jonocameron/Documents/ukl/v8/undefined_sys_hack.c:6: undefined reference to `ukl_printf'
+ld: ../UKL.a(undefined_sys_hack.o):/home/jonocameron/Documents/ukl/v8/undefined_sys_hack.c:7: more undefined references to `ukl_printf' follow
+make[3]: *** [Makefile:1176: vmlinux] Error 1
+make[3]: Leaving directory '/home/jonocameron/Documents/ukl/linux'
+make[2]: *** [Makefile:978: linux/arch/x86/boot/bzImage] Error 2
+make[2]: Leaving directory '/home/jonocameron/Documents/ukl'
+make[1]: *** [Makefile:433: all-recursive] Error 1
+make[1]: Leaving directory '/home/jonocameron/Documents/ukl'
+make: *** [Makefile:374: all] Error 2

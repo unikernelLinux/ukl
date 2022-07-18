@@ -88,6 +88,7 @@ libstdc++.a: stamp-libgcc-build
 	    CFLAGS_FOR_TARGET='-ggdb -O2 -mno-red-zone -mcmodel=kernel' \
 	    CXXFLAGS_FOR_TARGET='-ggdb -O2 -mno-red-zone -mcmodel=kernel'
 	cp libgcc-build/x86_64-pc-linux-gnu/libstdc++-v3/src/.libs/libstdc++.a $@
+	cp $@ $(abs_builddir)
 
 stamp-libgcc-configure: stamp-gcc-prereq
 	rm -f $@

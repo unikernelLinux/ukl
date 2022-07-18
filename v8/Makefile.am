@@ -1,6 +1,6 @@
 # Unikernel Linux
 # Copyright (C) 2018-2022 Red Hat Inc., Boston University,
-# Ali Raza, Tommy Unger, Eric Munson, Richard W.M. Jones.
+# Ali Raza, Tommy Unger, Eric Munson, Richard W.M. Jones, Jonathan Cameron
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -39,30 +39,24 @@ AM_CFLAGS   = -no-pie -fno-pic -ggdb -mno-red-zone -mcmodel=kernel -static
 
 noinst_DATA = UKL.a
 
-UKL.a: v8.o undefined_sys_hack.o
-	rm -f $@
-	ar cr UKL.a $^
-	objcopy --prefix-symbols=ukl_ UKL.a
-	objcopy --redefine-syms=$(top_srcdir)/redef_sym_names UKL.a
+UKL.a: stamp-depot_tools-dir stamp-v8-dir v8.o buildcc undefined_sys_hack.o
+	rm -f $@ temp.o
+	ld -r -plugin -static -o temp.o \
+	$(CRT_STARTS) \
+	hello-world.o \
+	/home/jonocameron/Documents/ukl/v8/v8/out.gn/x64.release.sample/obj/libv8_monolith.a \
+	--start-group --whole-archive C++_LIB MATH_LIB PTHREAD_LIB C_LIB --no-whole-archive \
+	GCC_LIBS  --end-group CRT_ENDS 
+	ar cr UKL.a temp.o undefined_sys_hack.o
+	rm temp.o
+	objcopy --prefix-symbols=ukl_ $@
+	objcopy --redefine-syms=$(top_srcdir)/redef_sym_names $@
 
-# Build libsodium.
-#libsodium.a: stamp-libsodium-dir
-#	rm -f $@
-#	-cd libsodium-1.0.18 && $(MAKE) clean
-#	cd libsodium-1.0.18 && \
-#	./configure CFLAGS='-no-pie -fno-pic -ggdb -mno-red-zone -mcmodel=kernel' --enable-static --disable-shared && \
-#	make --trace
-#	cp libsodium-1.0.18/src/libsodium/.libs/libsodium.a .
 
-if ENABLE_BYPASS
-V8_TARGET = v8-bypass
-else
-if ENABLE_SHORTCUT
-V8_TARGET = v8-shortcut
-else
-V8_TARGET = v8
-endif
-endif
+buildcc:
+	g++ -c -D_GNU_SOURCE -D_REENTRANT -D V8_COMPRESS_POINTERS -D V8_ENABLE_SANDBOX \
+	samples/hello-world.cc -quiet -dumpdir hello_world- -dumpbase v8/samples/hello-world.cc \
+	-dumpbase-ext .cc -mtune=generic -march=x86-64 -O0 -Wall -std=c++17 -version -o hello-world.o 
 
 # Build v8.
 v8.o: stamp-depot_tools-dir stamp-v8-dir out.gn/x64.release.sample/obj/libv8_monolith.a
@@ -70,7 +64,7 @@ v8.o: stamp-depot_tools-dir stamp-v8-dir out.gn/x64.release.sample/obj/libv8_mon
 	if ! test -d v8.o; then \
 		cp support/theotherMakefile v8/Makefile;\
 		cd v8; make; \
-		pwd; \
+		cd ..; cp v8/v8.o .; \
 	fi
 	touch $@
 

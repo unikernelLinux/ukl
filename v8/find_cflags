@@ -1,0 +1,1019 @@
+./v8_base_without_compiler.ninja:3:cflags = -Wall -no-pie -fno-pic -ggdb -mno-red-zone -mcmodel=kernel -static -Wno-unused-local-typedefs -Wno-maybe-uninitialized -Wno-deprecated-declarations -Wno-comments -Wno-packed-not-aligned -Wno-missing-field-initializers -Wno-unused-parameter -fno-ident -fno-strict-aliasing --param=ssp-buffer-size=4 -fstack-protector -funwind-tables -pipe -pthread -m64 -msse3 -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -fno-omit-frame-pointer -g0 -Wno-strict-overflow -Wno-return-type -Wno-int-in-bool-context -O3 -fdata-sections -ffunction-sections -fvisibility=default
+./v8_base_without_compiler.ninja:4:cflags_cc = -Wno-narrowing -Wno-class-memaccess -std=gnu++17 -fno-aligned-new -fno-exceptions -fno-rtti
+./support/BUILD.gn:1009:  cflags = []
+./support/BUILD.gn:1049:        cflags += [ "-mbranch-protection=standard" ]
+./support/BUILD.gn:1054:        cflags += [ "-mbranch-protection=pac-ret" ]
+./support/BUILD.gn:1141:    cflags += [ "-ffp-contract=off" ]
+./support/BUILD.gn:1148:      cflags += [ "-march=z196" ]
+./support/BUILD.gn:1156:      cflags += [ "-ffp-contract=off" ]
+./support/BUILD.gn:1163:        cflags += [
+./support/BUILD.gn:1191:      cflags += [ "/arch:SSE2" ]
+./support/BUILD.gn:1202:      #cflags += [ "-no-pie" ]
+./support/BUILD.gn:1260:      cflags += [ "/Ob0" ]
+./support/BUILD.gn:1262:      cflags += [
+./support/BUILD.gn:1270:    cflags += [
+./support/BUILD.gn:1279:      cflags += [ "-Wunreachable-code" ]
+./support/BUILD.gn:1284:      cflags += [ "-Wshorten-64-to-32" ]
+./support/BUILD.gn:1289:    cflags += [
+./support/BUILD.gn:1311:    cflags += [
+./support/BUILD.gn:1452:    cflags += [
+./support/BUILD.gn:1474:    cflags += [ "-fsanitize=undefined" ]
+./support/BUILD.gn:1492:# Configs for code coverage with gcov. Separate configs for cflags and ldflags
+./support/BUILD.gn:1493:# to selectively influde cflags in non-test targets only.
+./support/BUILD.gn:1494:config("v8_gcov_coverage_cflags") {
+./support/BUILD.gn:1495:  cflags = [
+./support/BUILD.gn:6611:    cflags = [
+./support/BUILD.gn:6630:      cflags = [
+./support/BUILD.gn:6641:      cflags += [ "-Wno-microsoft-unqualified-friend" ]
+./depot_tools/.cipd_bin/goma_ctl.py:2072:    if not os.path.isfile(os.path.join(self._dir, 'vcflags.exe')):
+./depot_tools/.cipd_bin/goma_ctl.py:2073:      raise ConfigError('vcflags.exe not found')
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python/bin/python2.7-config:8:valid_opts = ['prefix', 'exec-prefix', 'includes', 'libs', 'cflags',
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python/bin/python2.7-config:39:    elif opt in ('--includes', '--cflags'):
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python/bin/python2.7-config:42:        if opt == '--cflags':
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python/lib/python2.7/_osx_support.py:289:    cflags = _config_vars.get('CFLAGS', '')
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python/lib/python2.7/_osx_support.py:290:    m = re.search(r'-isysroot\s+(\S+)', cflags)
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python/lib/python2.7/_osx_support.py:451:        cflags = _config_vars.get(_INITPRE+'CFLAGS',
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python/lib/python2.7/_osx_support.py:462:        if (macrelease >= (10, 4)) and '-arch' in cflags.strip():
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python/lib/python2.7/_osx_support.py:468:            archs = re.findall('-arch\s+(\S+)', cflags)
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python/lib/python2.7/distutils/sysconfig.py:184:        (cc, cxx, cflags, ccshared, ldshared, so_ext, ar, ar_flags) = \
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python/lib/python2.7/distutils/sysconfig.py:209:            cflags = cflags + ' ' + os.environ['CFLAGS']
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python/lib/python2.7/distutils/sysconfig.py:213:            cflags = cflags + ' ' + os.environ['CPPFLAGS']
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python/lib/python2.7/distutils/sysconfig.py:222:        cc_cmd = cc + ' ' + cflags
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python/lib/python2.7/distutils/unixccompiler.py:274:            cflags = sysconfig.get_config_var('CFLAGS')
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python/lib/python2.7/distutils/unixccompiler.py:275:            m = re.search(r'-isysroot\s+(\S+)', cflags)
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python/lib/python2.7/site-packages/pip/_vendor/distlib/_backport/sysconfig.py:724:                cflags = get_config_vars().get('CFLAGS')
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python/lib/python2.7/site-packages/pip/_vendor/distlib/_backport/sysconfig.py:726:                archs = re.findall(r'-arch\s+(\S+)', cflags)
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python/lib/python2.7/site-packages/setuptools/command/build_clib.py:19:        * cflags   - specify a list of additional flags to pass to
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python/lib/python2.7/site-packages/setuptools/command/build_clib.py:80:                cflags = build_info.get('cflags')
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python/lib/python2.7/site-packages/setuptools/command/build_clib.py:86:                        extra_postargs=cflags,
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python3/bin/python3.8-config:7:    echo "Usage: $0 --prefix|--exec-prefix|--includes|--libs|--cflags|--ldflags|--extension-suffix|--help|--abiflags|--configdir|--embed"
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python3/bin/python3.8-config:69:        --prefix|--exec-prefix|--includes|--libs|--cflags|--ldflags|--extension-suffix|--abiflags|--configdir)
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python3/bin/python3.8-config:93:        --cflags)
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python3/lib/python3.8/_osx_support.py:343:    cflags = _config_vars.get('CFLAGS', '')
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python3/lib/python3.8/_osx_support.py:344:    m = re.search(r'-isysroot\s*(\S+)', cflags)
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python3/lib/python3.8/_osx_support.py:522:        cflags = _config_vars.get(_INITPRE+'CFLAGS',
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python3/lib/python3.8/_osx_support.py:533:        if (macrelease >= (10, 4)) and '-arch' in cflags.strip():
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python3/lib/python3.8/_osx_support.py:539:            archs = re.findall(r'-arch\s+(\S+)', cflags)
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python3/lib/python3.8/config-3.8-x86_64-linux-gnu/python-config.py:11:valid_opts = ['prefix', 'exec-prefix', 'includes', 'libs', 'cflags',
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python3/lib/python3.8/config-3.8-x86_64-linux-gnu/python-config.py:43:    elif opt in ('--includes', '--cflags'):
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python3/lib/python3.8/config-3.8-x86_64-linux-gnu/python-config.py:46:        if opt == '--cflags':
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python3/lib/python3.8/distutils/sysconfig.py:190:        (cc, cxx, cflags, ccshared, ldshared, shlib_suffix, ar, ar_flags) = \
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python3/lib/python3.8/distutils/sysconfig.py:214:            cflags = cflags + ' ' + os.environ['CFLAGS']
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python3/lib/python3.8/distutils/sysconfig.py:218:            cflags = cflags + ' ' + os.environ['CPPFLAGS']
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python3/lib/python3.8/distutils/sysconfig.py:227:        cc_cmd = cc + ' ' + cflags
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python3/lib/python3.8/distutils/tests/test_sysconfig.py:91:            'CFLAGS': '--sc-cflags',
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python3/lib/python3.8/distutils/tests/test_sysconfig.py:121:        os.environ['CFLAGS'] = '--env-cflags'
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python3/lib/python3.8/distutils/tests/test_sysconfig.py:130:                         'env_cc --sc-cflags --env-cflags --env-cppflags')
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python3/lib/python3.8/distutils/tests/test_sysconfig.py:132:                         ('env_cc --sc-cflags '
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python3/lib/python3.8/distutils/tests/test_sysconfig.py:133:                          '--env-cflags ''--env-cppflags --sc-ccshared'))
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python3/lib/python3.8/distutils/tests/test_sysconfig.py:139:                         ('env_ldshared --env-ldflags --env-cflags'
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python3/lib/python3.8/distutils/tests/test_sysconfig.py:159:                         'sc_cc --sc-cflags')
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python3/lib/python3.8/distutils/tests/test_sysconfig.py:161:                         'sc_cc --sc-cflags --sc-ccshared')
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python3/lib/python3.8/distutils/unixccompiler.py:290:            cflags = sysconfig.get_config_var('CFLAGS')
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python3/lib/python3.8/distutils/unixccompiler.py:291:            m = re.search(r'-isysroot\s*(\S+)', cflags)
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python3/lib/python3.8/site-packages/pip/_vendor/distlib/_backport/sysconfig.py:724:                cflags = get_config_vars().get('CFLAGS')
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python3/lib/python3.8/site-packages/pip/_vendor/distlib/_backport/sysconfig.py:726:                archs = re.findall(r'-arch\s+(\S+)', cflags)
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python3/lib/python3.8/site-packages/setuptools/command/build_clib.py:19:        * cflags   - specify a list of additional flags to pass to
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python3/lib/python3.8/site-packages/setuptools/command/build_clib.py:80:                cflags = build_info.get('cflags')
+./depot_tools/bootstrap-2@3.8.10.chromium.23_bin/python3/lib/python3.8/site-packages/setuptools/command/build_clib.py:86:                        extra_postargs=cflags,
+./v8/gni/v8.gni:161:    v8_path_prefix + ":v8_gcov_coverage_cflags",
+./v8/gni/v8.gni:249:      # Only add code coverage cflags for non-test files for performance
+./v8/gni/v8.gni:256:        configs -= [ v8_path_prefix + ":v8_gcov_coverage_cflags" ]
+./v8/src/compiler/js-native-context-specialization.cc:2590:  DefineKeyedOwnPropertyInLiteralFlags cflags(mflags.ResolvedValue());
+./v8/src/compiler/js-native-context-specialization.cc:2591:  DCHECK(!(cflags & DefineKeyedOwnPropertyInLiteralFlag::kDontEnum));
+./v8/src/compiler/js-native-context-specialization.cc:2592:  if (cflags & DefineKeyedOwnPropertyInLiteralFlag::kSetFunctionName)
+./v8/test/cctest/BUILD.gn:70:    cflags = [ "-Wno-string-concatenation" ]
+./v8/test/cctest/BUILD.gn:482:  cflags = []
+./v8/test/cctest/BUILD.gn:492:      cflags += [ "-ffp-contract=off" ]
+./v8/test/cctest/BUILD.gn:500:    cflags += [ "/wd4309" ]
+./v8/test/cctest/BUILD.gn:503:    cflags += [ "/bigobj" ]
+./v8/test/inspector/BUILD.gn:49:  cflags = []
+./v8/test/unittests/BUILD.gn:546:    cflags = [ "/wd4309" ]
+./v8/third_party/googletest/BUILD.gn:36:    cflags = [ "/wd4800" ]  # Unused variable warning.
+./v8/third_party/googletest/src/docs/pkgconfig.md:120:$ pkg-config --cflags gtest
+./v8/third_party/googletest/src/docs/pkgconfig.md:140:$ pkg-config --cflags gtest
+./v8/third_party/jsoncpp/BUILD.gn:16:    cflags_cc = [ "-Wno-deprecated-declarations" ]
+./v8/third_party/jsoncpp/BUILD.gn:46:    cflags_cc = [ "-Wno-implicit-fallthrough" ]
+./v8/third_party/zlib/BUILD.gn:34:    cflags = [
+./v8/third_party/zlib/BUILD.gn:95:      cflags = [ "-mssse3" ]
+./v8/third_party/zlib/BUILD.gn:145:        cflags_c = [ "-march=armv8-a+crc" ]
+./v8/third_party/zlib/BUILD.gn:222:      cflags = [
+./v8/third_party/zlib/BUILD.gn:254:      cflags = [
+./v8/third_party/zlib/BUILD.gn:270:    cflags = [ "-Wno-incompatible-pointer-types" ]
+./v8/third_party/zlib/BUILD.gn:376:    cflags = [ "-Wno-parentheses-equality" ]
+./v8/third_party/zlib/BUILD.gn:440:      cflags = [ "-Wno-incompatible-pointer-types-discards-qualifiers" ]
+./v8/third_party/zlib/BUILD.gn:460:      cflags = [ "-Wno-incompatible-pointer-types-discards-qualifiers" ]
+./v8/third_party/instrumented_libraries/focal/BUILD.gn:102:    package_cflags = [
+./v8/third_party/instrumented_libraries/focal/BUILD.gn:114:    if (defined(invoker.package_cflags)) {
+./v8/third_party/instrumented_libraries/focal/BUILD.gn:115:      package_cflags += invoker.package_cflags
+./v8/third_party/instrumented_libraries/focal/BUILD.gn:137:      "--cflags=${package_cflags}",
+./v8/third_party/instrumented_libraries/focal/BUILD.gn:205:  package_cflags = [ "-Wno-c++11-narrowing" ]
+./v8/third_party/instrumented_libraries/focal/BUILD.gn:477:  package_cflags = [ "-Wno-return-type" ]
+./v8/third_party/instrumented_libraries/focal/BUILD.gn:495:  package_cflags = [ "-Wno-return-type" ]
+./v8/third_party/instrumented_libraries/focal/BUILD.gn:613:  package_cflags = [ "-Wno-return-type" ]
+./v8/third_party/instrumented_libraries/focal/scripts/download_build_install.py:71:    self._cflags = unescape_flags(args.cflags)
+./v8/third_party/instrumented_libraries/focal/scripts/download_build_install.py:74:      self._cflags += ' -fsanitize-blacklist=%s' % ignorelist_file  # nocheck
+./v8/third_party/instrumented_libraries/focal/scripts/download_build_install.py:92:    self._build_env['CFLAGS'] = self._cflags
+./v8/third_party/instrumented_libraries/focal/scripts/download_build_install.py:93:    self._build_env['CXXFLAGS'] = self._cflags
+./v8/third_party/instrumented_libraries/focal/scripts/download_build_install.py:287:    self._build_env['DEB_CFLAGS_APPEND'] = self._cflags
+./v8/third_party/instrumented_libraries/focal/scripts/download_build_install.py:288:    self._build_env['DEB_CXXFLAGS_APPEND'] = self._cflags
+./v8/third_party/instrumented_libraries/focal/scripts/download_build_install.py:540:  parser.add_argument('--cflags', default='')
+./v8/third_party/instrumented_libraries/focal/scripts/pre-build/libgdk-pixbuf2.0-0.sh:19:	$(pkg-config gdk-pixbuf-2.0 --libs --cflags)
+./v8/third_party/instrumented_libraries/xenial/BUILD.gn:102:    package_cflags = [
+./v8/third_party/instrumented_libraries/xenial/BUILD.gn:114:    if (defined(invoker.package_cflags)) {
+./v8/third_party/instrumented_libraries/xenial/BUILD.gn:115:      package_cflags += invoker.package_cflags
+./v8/third_party/instrumented_libraries/xenial/BUILD.gn:133:      "--cflags=${package_cflags}",
+./v8/third_party/instrumented_libraries/xenial/BUILD.gn:205:  package_cflags = [ "-Wno-c++11-narrowing" ]
+./v8/third_party/instrumented_libraries/xenial/BUILD.gn:493:  package_cflags = [ "-Wno-return-type" ]
+./v8/third_party/instrumented_libraries/xenial/BUILD.gn:511:  package_cflags = [ "-Wno-return-type" ]
+./v8/third_party/instrumented_libraries/xenial/BUILD.gn:662:  package_cflags = [ "-Wno-return-type" ]
+./v8/third_party/instrumented_libraries/xenial/patches/zlib1g.diff:4:@@ -72,6 +72,8 @@ cflags=${CFLAGS-"-O3"}
+./v8/third_party/instrumented_libraries/xenial/patches/zlib1g.diff:12: if test "$gcc" -eq 1 && ($cc -c $cflags $test.c) 2>/dev/null; then
+./v8/third_party/instrumented_libraries/xenial/scripts/download_build_install.py:71:    self._cflags = unescape_flags(args.cflags)
+./v8/third_party/instrumented_libraries/xenial/scripts/download_build_install.py:74:      self._cflags += ' -fsanitize-blacklist=%s' % ignorelist_file  # nocheck
+./v8/third_party/instrumented_libraries/xenial/scripts/download_build_install.py:90:    self._build_env['CFLAGS'] = self._cflags
+./v8/third_party/instrumented_libraries/xenial/scripts/download_build_install.py:91:    self._build_env['CXXFLAGS'] = self._cflags
+./v8/third_party/instrumented_libraries/xenial/scripts/download_build_install.py:280:    self._build_env['DEB_CFLAGS_APPEND'] = self._cflags
+./v8/third_party/instrumented_libraries/xenial/scripts/download_build_install.py:281:    self._build_env['DEB_CXXFLAGS_APPEND'] = self._cflags
+./v8/third_party/instrumented_libraries/xenial/scripts/download_build_install.py:489:  parser.add_argument('--cflags', default='')
+./v8/third_party/protobuf/benchmarks/Makefile.am:168:python_cpp_pkg_flags = `pkg-config --cflags --libs python`
+./v8/third_party/protobuf/examples/Makefile:43:	pkg-config --cflags protobuf  # fails if protobuf is not installed
+./v8/third_party/protobuf/examples/Makefile:44:	c++ add_person.cc addressbook.pb.cc -o add_person_cpp `pkg-config --cflags --libs protobuf`
+./v8/third_party/protobuf/examples/Makefile:47:	pkg-config --cflags protobuf  # fails if protobuf is not installed
+./v8/third_party/protobuf/examples/Makefile:48:	c++ list_people.cc addressbook.pb.cc -o list_people_cpp `pkg-config --cflags --libs protobuf`
+./v8/third_party/protobuf/m4/ax_pthread.m4:345:		PTHREAD_CFLAGS="`pthread-config --cflags`"
+./v8/third_party/protobuf/src/README.md:86:    pkg-config --cflags protobuf         # print compiler flags
+./v8/third_party/protobuf/src/README.md:88:    pkg-config --cflags --libs protobuf  # print both
+./v8/third_party/protobuf/src/README.md:92:    c++ my_program.cc my_proto.pb.cc `pkg-config --cflags --libs protobuf`
+./v8/third_party/protobuf/src/README.md:100:    configure CXXFLAGS="$(pkg-config --cflags protobuf)" \
+./v8/third_party/perfetto/Android.bp:155:  cflags: [
+./v8/third_party/perfetto/Android.bp:205:  cflags: [
+./v8/third_party/perfetto/Android.bp:251:  cflags: [
+./v8/third_party/perfetto/Android.bp:417:  cflags: [
+./v8/third_party/perfetto/Android.bp:447:  cflags: [
+./v8/third_party/perfetto/Android.bp:603:  cflags: [
+./v8/third_party/perfetto/Android.bp:840:  cflags: [
+./v8/third_party/perfetto/Android.bp:981:  cflags: [
+./v8/third_party/perfetto/Android.bp:1238:  cflags: [
+./v8/third_party/perfetto/Android.bp:1480:  cflags: [
+./v8/third_party/perfetto/Android.bp:1489:  cflags: [
+./v8/third_party/perfetto/Android.bp:1504:      cflags: ["-DPERFETTO_BUILD_WITH_ANDROID_USERDEBUG"],
+./v8/third_party/perfetto/Android.bp:1840:  cflags: [
+./v8/third_party/perfetto/Android.bp:7108:  cflags: [
+./v8/third_party/perfetto/Android.bp:8574:  cflags: [
+./v8/third_party/perfetto/Android.bp:8892:  cflags: [
+./v8/third_party/perfetto/Android.bp:8927:  cflags: [
+./v8/third_party/perfetto/Android.bp:9044:  cflags: [
+./v8/third_party/perfetto/Android.bp:9199:  cflags: [
+./v8/third_party/perfetto/Android.bp:9369:  cflags: [
+./v8/third_party/perfetto/Android.bp:9527:  cflags: [
+./v8/third_party/perfetto/Android.bp:9570:  cflags: [
+./v8/third_party/perfetto/Android.bp:9583:    cflags: [
+./v8/third_party/perfetto/Android.bp.extras:38:  cflags: [
+./v8/third_party/perfetto/Android.bp.extras:51:    cflags: [
+./v8/third_party/perfetto/buildtools/BUILD.gn:39:    cflags = [
+./v8/third_party/perfetto/buildtools/BUILD.gn:55:    cflags = [
+./v8/third_party/perfetto/buildtools/BUILD.gn:64:  cflags = [
+./v8/third_party/perfetto/buildtools/BUILD.gn:78:    cflags += [
+./v8/third_party/perfetto/buildtools/BUILD.gn:136:  cflags = []
+./v8/third_party/perfetto/buildtools/BUILD.gn:140:    cflags += [
+./v8/third_party/perfetto/buildtools/BUILD.gn:148:    cflags += [ "-Wno-return-type" ]
+./v8/third_party/perfetto/buildtools/BUILD.gn:151:    cflags += [ "/W0" ]
+./v8/third_party/perfetto/buildtools/BUILD.gn:158:  cflags = []
+./v8/third_party/perfetto/buildtools/BUILD.gn:160:    cflags += [ "-Wno-switch-enum" ]
+./v8/third_party/perfetto/buildtools/BUILD.gn:596:    cflags = [ "-fstrict-aliasing" ]
+./v8/third_party/perfetto/buildtools/BUILD.gn:601:    cflags = [
+./v8/third_party/perfetto/buildtools/BUILD.gn:625:      "//gn/standalone/sanitizers:sanitizers_cflags",
+./v8/third_party/perfetto/buildtools/BUILD.gn:791:  cflags = [ "-Wno-deprecated-declarations" ]
+./v8/third_party/perfetto/buildtools/BUILD.gn:804:    cflags = [
+./v8/third_party/perfetto/buildtools/BUILD.gn:834:  cflags = [
+./v8/third_party/perfetto/buildtools/BUILD.gn:921:  cflags = [
+./v8/third_party/perfetto/buildtools/BUILD.gn:949:  cflags = []
+./v8/third_party/perfetto/buildtools/BUILD.gn:965:  cflags = [
+./v8/third_party/perfetto/buildtools/BUILD.gn:1035:  cflags = [ "-DFAKE_LOG_DEVICE=1" ]
+./v8/third_party/perfetto/buildtools/BUILD.gn:1042:  cflags = [
+./v8/third_party/perfetto/buildtools/BUILD.gn:1050:  cflags = [
+./v8/third_party/perfetto/buildtools/BUILD.gn:1075:  cflags = [
+./v8/third_party/perfetto/buildtools/BUILD.gn:1092:  cflags = [ "-Wno-tautological-unsigned-zero-compare" ]
+./v8/third_party/perfetto/buildtools/BUILD.gn:1101:      "//gn/standalone/sanitizers:sanitizers_cflags",
+./v8/third_party/perfetto/docs/contributing/build-instructions.md:285:extra_cflags="${CFLAGS}"
+./v8/third_party/perfetto/docs/contributing/build-instructions.md:290:extra_host_cflags="${BUILD_CFLAGS}"
+./v8/third_party/perfetto/docs/contributing/build-instructions.md:295:extra_target_cflags="${CFLAGS}"
+./v8/third_party/perfetto/gn/BUILD.gn:25:# that is required by the codebase. This is to avoid sprinkling cflags all over
+./v8/third_party/perfetto/gn/BUILD.gn:257:  cflags = []
+./v8/third_party/perfetto/gn/BUILD.gn:259:    cflags += [
+./v8/third_party/perfetto/gn/BUILD.gn:267:    cflags += [
+./v8/third_party/perfetto/gn/BUILD.gn:279:    cflags += [
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:44:    cflags = [
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:50:      cflags += [
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:58:    cflags = [
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:71:      cflags += [ "-Weverything" ]
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:73:    cflags += [
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:89:    cflags += [ "-Wno-redundant-move" ]
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:96:    cflags_cc = [ "-fno-exceptions" ]
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:102:    cflags_cc = [ "/GR-" ]
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:104:    cflags_cc = [ "-fno-rtti" ]
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:111:    cflags_cc = [ "-std=c++11" ]
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:114:    cflags_cc = [ "/permissive-" ]
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:121:    cflags_cc = [ "/std:c++17" ]
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:123:    cflags_cc = [ "-std=c++17" ]
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:129:    cflags = [ "-fvisibility=hidden" ]
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:141:  cflags = []
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:142:  cflags_c = []
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:143:  cflags_cc = []
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:154:    cflags += [
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:161:    cflags += [
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:176:    cflags += [
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:186:      cflags += [ "/WX" ]
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:188:      cflags += [ "-Werror" ]
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:193:    cflags += [ "-fcolor-diagnostics" ]
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:195:      cflags += [ "-fdiagnostics-show-template-tree" ]
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:200:    cflags += hermetic_clang_suppressions
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:206:    cflags += [ "-flto=full" ]
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:214:    cflags += [
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:221:    cflags += [
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:231:    cflags += [ "-fno-omit-frame-pointer" ]
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:250:      cflags += [ "/Z7" ]
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:253:        cflags += [ "-gcodeview-ghash" ]
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:263:    cflags += [
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:271:    cflags_cc += [
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:313:  cflags = []
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:315:    cflags = [ "/Od" ]
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:317:    cflags = [ "-O0" ]
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:320:    cflags += [ "-funwind-tables" ]
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:327:    cflags = [
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:332:    cflags = [ "-O2" ]
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:334:    cflags = [ "-O1" ]
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:336:    cflags = [ "-O3" ]
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:339:    cflags += [
+./v8/third_party/perfetto/gn/standalone/BUILD.gn:378:    cflags = [ "-fPIE" ]
+./v8/third_party/perfetto/gn/standalone/BUILDCONFIG.gn:69:  "//gn/standalone/sanitizers:sanitizers_cflags",
+./v8/third_party/perfetto/gn/standalone/libc++/BUILD.gn:23:    cflags_cc = [
+./v8/third_party/perfetto/gn/standalone/sanitizers/BUILD.gn:35:config("sanitizers_cflags") {
+./v8/third_party/perfetto/gn/standalone/sanitizers/BUILD.gn:36:  cflags = []
+./v8/third_party/perfetto/gn/standalone/sanitizers/BUILD.gn:39:    cflags += [ "-fno-omit-frame-pointer" ]
+./v8/third_party/perfetto/gn/standalone/sanitizers/BUILD.gn:43:    cflags += [ "-fsanitize=address" ]
+./v8/third_party/perfetto/gn/standalone/sanitizers/BUILD.gn:47:    cflags += [ "-fsanitize=leak" ]
+./v8/third_party/perfetto/gn/standalone/sanitizers/BUILD.gn:51:    cflags += [ "-fsanitize=thread" ]
+./v8/third_party/perfetto/gn/standalone/sanitizers/BUILD.gn:58:    cflags += [
+./v8/third_party/perfetto/gn/standalone/sanitizers/BUILD.gn:65:    cflags += [
+./v8/third_party/perfetto/gn/standalone/sanitizers/BUILD.gn:84:    cflags += [ "-fsanitize=fuzzer-no-link" ]
+./v8/third_party/perfetto/gn/standalone/sanitizers/BUILD.gn:86:      cflags += [
+./v8/third_party/perfetto/gn/standalone/toolchain/BUILD.gn:32:  extra_cflags = ""
+./v8/third_party/perfetto/gn/standalone/toolchain/BUILD.gn:37:  extra_target_cflags = ""
+./v8/third_party/perfetto/gn/standalone/toolchain/BUILD.gn:42:  extra_host_cflags = ""
+./v8/third_party/perfetto/gn/standalone/toolchain/BUILD.gn:178:    external_cflags = ""
+./v8/third_party/perfetto/gn/standalone/toolchain/BUILD.gn:195:    if (defined(invoker.external_cflags)) {
+./v8/third_party/perfetto/gn/standalone/toolchain/BUILD.gn:196:      external_cflags = invoker.external_cflags
+./v8/third_party/perfetto/gn/standalone/toolchain/BUILD.gn:207:      command = "$cc_wrapper $cc -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} ${external_cflags} -c {{source}} -o {{output}}"
+./v8/third_party/perfetto/gn/standalone/toolchain/BUILD.gn:216:      command = "$cc_wrapper $cxx -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}}  ${external_cflags} ${external_cxxflags} -c {{source}} -o {{output}}"
+./v8/third_party/perfetto/gn/standalone/toolchain/BUILD.gn:296:  external_cflags = string_join(" ",
+./v8/third_party/perfetto/gn/standalone/toolchain/BUILD.gn:298:                                  extra_cflags,
+./v8/third_party/perfetto/gn/standalone/toolchain/BUILD.gn:299:                                  extra_target_cflags,
+./v8/third_party/perfetto/gn/standalone/toolchain/BUILD.gn:322:  external_cflags = string_join(" ",
+./v8/third_party/perfetto/gn/standalone/toolchain/BUILD.gn:324:                                  extra_cflags,
+./v8/third_party/perfetto/gn/standalone/toolchain/BUILD.gn:325:                                  extra_host_cflags,
+./v8/third_party/perfetto/gn/standalone/toolchain/BUILD.gn:364:    command = "$cc_wrapper $cc /nologo /showIncludes /FC {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+./v8/third_party/perfetto/gn/standalone/toolchain/BUILD.gn:374:    command = "$cc_wrapper $cxx /nologo /showIncludes /FC {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+./v8/third_party/perfetto/gn/standalone/wasm.gni:88:      "cflags",
+./v8/third_party/perfetto/include/perfetto/base/build_config.h:137://   default cflags add this path to the default include path.
+./v8/third_party/perfetto/infra/oss-fuzz/build_fuzzers:12:extra_cflags=\"$CFLAGS -Wno-implicit-int-float-conversion\" \
+./v8/third_party/perfetto/src/base/BUILD.gn:104:    cflags = [ "-Wno-deprecated" ]
+./v8/third_party/perfetto/src/profiling/memory/BUILD.gn:38:# being compiled for this library. When generating Android.bp, the |cflags|
+./v8/third_party/perfetto/src/profiling/memory/BUILD.gn:48:    cflags = [ "-DPERFETTO_ANDROID_ASYNC_SAFE_LOG" ]
+./v8/third_party/perfetto/src/profiling/memory/BUILD.gn:64:    cflags = [
+./v8/third_party/perfetto/src/profiling/memory/BUILD.gn:124:    cflags = [ "-DPERFETTO_ANDROID_ASYNC_SAFE_LOG" ]
+./v8/third_party/perfetto/src/profiling/memory/BUILD.gn:129:    cflags = [ "-DPERFETTO_DISABLE_LOG" ]
+./v8/third_party/perfetto/src/profiling/memory/BUILD.gn:160:    cflags = [ "-DPERFETTO_ANDROID_ASYNC_SAFE_LOG" ]
+./v8/third_party/perfetto/src/profiling/memory/BUILD.gn:165:    cflags = [ "-DPERFETTO_DISABLE_LOG" ]
+./v8/third_party/perfetto/test/BUILD.gn:53:      cflags = [ "-DPERFETTO_START_DAEMONS_FOR_TESTING" ]
+./v8/third_party/perfetto/test/BUILD.gn:136:      cflags = [ "-DPERFETTO_START_DAEMONS_FOR_TESTING" ]
+./v8/third_party/perfetto/test/BUILD.gn:163:      cflags = [ "-DPERFETTO_START_DAEMONS_FOR_TESTING" ]
+./v8/third_party/perfetto/tools/gen_amalgamated:78:default_cflags = [
+./v8/third_party/perfetto/tools/gen_amalgamated:85:protobuf_cflags = [
+./v8/third_party/perfetto/tools/gen_amalgamated:106:        'cflags': protobuf_cflags,
+./v8/third_party/perfetto/tools/gen_amalgamated:110:        'cflags': protobuf_cflags,
+./v8/third_party/perfetto/tools/gen_amalgamated:224:    self.cflags = set(default_cflags)
+./v8/third_party/perfetto/tools/gen_amalgamated:277:        self.cflags.update(system_library_map[dep].get('cflags', []))
+./v8/third_party/perfetto/tools/gen_amalgamated:290:  def _filter_cflags(self, cflags):
+./v8/third_party/perfetto/tools/gen_amalgamated:295:    for flag in cflags:
+./v8/third_party/perfetto/tools/gen_amalgamated:305:      self.cflags.update(self._filter_cflags(target.get('cflags', [])))
+./v8/third_party/perfetto/tools/gen_amalgamated:306:      self.cflags.update(self._filter_cflags(target.get('cflags_cc', [])))
+./v8/third_party/perfetto/tools/gen_amalgamated:518: - cflags:    %s
+./v8/third_party/perfetto/tools/gen_amalgamated:525:""" % (header_file, source_file, ' '.join(self.cflags), ' '.join(self.ldflags),
+./v8/third_party/perfetto/tools/gen_amalgamated:542:        sorted(self.cflags) + sorted(self.ldflags)
+./v8/third_party/perfetto/tools/gen_android_bp:180:        ('cflags', {'-Wglobal-constructors', '-Werror=global-constructors'}),
+./v8/third_party/perfetto/tools/gen_android_bp:392:    self.cflags = set()
+./v8/third_party/perfetto/tools/gen_android_bp:402:    self._output_field(nested_out, 'cflags')
+./v8/third_party/perfetto/tools/gen_android_bp:439:    self.cflags = set()
+./v8/third_party/perfetto/tools/gen_android_bp:481:    self._output_field(output, 'cflags')
+./v8/third_party/perfetto/tools/gen_android_bp:515:            '      cflags: ["-DPERFETTO_BUILD_WITH_ANDROID_USERDEBUG"],')
+./v8/third_party/perfetto/tools/gen_android_bp:780:def _get_cflags(target):
+./v8/third_party/perfetto/tools/gen_android_bp:781:  cflags = {flag for flag in target.cflags if re.match(cflag_allowlist, flag)}
+./v8/third_party/perfetto/tools/gen_android_bp:782:  cflags |= set("-D%s" % define
+./v8/third_party/perfetto/tools/gen_android_bp:785:  return cflags
+./v8/third_party/perfetto/tools/gen_android_bp:852:    module.cflags.update(_get_cflags(target))
+./v8/third_party/perfetto/tools/gen_android_bp:955:  defaults.cflags = [
+./v8/third_party/perfetto/tools/gn_utils.py:280:       GN source_sets expect that dependencies, cflags and other source_set
+./v8/third_party/perfetto/tools/gn_utils.py:283:       source_set is encountered, some of its variables (cflags and such) are
+./v8/third_party/perfetto/tools/gn_utils.py:323:      self.cflags = set()
+./v8/third_party/perfetto/tools/gn_utils.py:355:      for key in ('cflags', 'defines', 'deps', 'include_dirs', 'ldflags',
+./v8/third_party/perfetto/tools/gn_utils.py:419:    target.cflags.update(desc.get('cflags', []) + desc.get('cflags_cc', []))
+./v8/third_party/perfetto/tools/gn_utils.py:439:        target.update(dep)  # Bubble up source set's cflags/ldflags etc.
+./v8/third_party/perfetto/tools/gn_utils.py:441:        target.update(dep)  # Bubble up groups's cflags/ldflags etc.
+./v8/third_party/icu/BUILD.gn:67:  cflags = []
+./v8/third_party/icu/BUILD.gn:84:    cflags += [
+./v8/third_party/icu/BUILD.gn:91:      cflags += [
+./v8/third_party/icu/BUILD.gn:103:    cflags += [ "-Wno-unused-function" ]
+./v8/third_party/icu/BUILD.gn:106:    cflags += [
+./v8/third_party/icu/BUILD.gn:121:    cflags += [
+./v8/third_party/icu/BUILD.gn:127:    cflags += [
+./v8/third_party/icu/BUILD.gn:158:  cflags = []
+./v8/third_party/icu/BUILD.gn:160:    cflags += [ "-fvisibility=hidden" ]
+./v8/third_party/icu/icu.gyp:43:        'cflags': [ '/utf-8' ],
+./v8/third_party/icu/icu.gyp:54:                'cflags': [ '-m31' ],
+./v8/third_party/icu/icu.gyp:58:               'cflags': [ '-m32' ],
+./v8/third_party/icu/icu.gyp:76:            'cflags': [ '-m64' ],
+./v8/third_party/icu/icu.gyp:294:          'cflags': [
+./v8/third_party/icu/icu.gyp:297:          'cflags_cc': [
+./v8/third_party/icu/icu.gyp:300:          'cflags_cc!': [
+./v8/third_party/icu/icu.gyp:325:                'cflags': [
+./v8/third_party/icu/icu.gyp:393:          'cflags': [
+./v8/third_party/icu/icu.gyp:399:          'cflags_cc': [
+./v8/third_party/icu/icu.gyp:402:          'cflags_cc!': [
+./v8/third_party/icu/source/aclocal.m4:215:_PKG_CONFIG([$1][_CFLAGS], [cflags], [$2])
+./v8/third_party/icu/source/aclocal.m4:226:	        $1[]_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "$2" 2>&1`
+./v8/third_party/icu/source/aclocal.m4:228:	        $1[]_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "$2" 2>&1`
+./v8/third_party/icu/source/aclocal.m4:269:dnl static libraries enabled. Sets VARIABLE-PREFIX_CFLAGS from --cflags
+./v8/third_party/icu/source/config/icu-config-bottom:33:    echo "  --cflags               Print C compiler flags [CFLAGS]"
+./v8/third_party/icu/source/config/icu-config-bottom:34:    echo "  --cflags-dynamic       Print additional C flags for"
+./v8/third_party/icu/source/config/icu-config-bottom:87:    echo "The most commonly used options will be --cflags, --cxxflags, --cppflags, and --ldflags."
+./v8/third_party/icu/source/config/icu-config-bottom:226:	--cflags)
+./v8/third_party/icu/source/config/icu-config-bottom:259:	--cflags-dynamic)
+./v8/third_party/icu/source/config/icu-config.1.in:30:.BI "\-\-cflags"
+./v8/third_party/icu/source/config/icu-config.1.in:167:.BI "\-\-cflags"
+./v8/third_party/icu/source/config/test-icu-config.sh:17:icu-config --cflags               
+./v8/third_party/icu/source/config/test-icu-config.sh:48:icu-config --prefix=/Users/srl/II --cflags
+./v8/third_party/icu/source/configure:3913:  pkg_cv_ICULEHB_CFLAGS=`$PKG_CONFIG --cflags "icu-le-hb" 2>/dev/null`
+./v8/third_party/icu/source/configure:3951:	        ICULEHB_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "icu-le-hb" 2>&1`
+./v8/third_party/icu/source/configure:3953:	        ICULEHB_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "icu-le-hb" 2>&1`
+./v8/third_party/icu/source/samples/defs.mk:14:CFLAGS=$(shell icu-config --cflags)
+./v8/third_party/icu/source/samples/layout/Makefile.in:29:CPPFLAGS += -DLE_USE_CMEMORY `pkg-config --cflags libgnomeui-2.0 freetype2 cairo` -I$(top_srcdir)/common -I$(top_srcdir)/i18n -I$(top_srcdir)/layoutex -I$(top_srcdir)/layout -I$(top_srcdir) -g
+./v8/tools/run-wasm-api-tests.py:60:  "cflags": "",
+./v8/tools/run-wasm-api-tests.py:65:  "cflags": "-std=c++11",
+./v8/tools/run-wasm-api-tests.py:106:    c = _Call([compiler[lang], "-c", language["cflags"], CFLAGS,
+./v8/tools/v8windbg/BUILD.gn:9:  cflags_cc = [ "/Zc:twoPhase-" ]
+./v8/tools/clang/scripts/apply_fixits.py:15:#    and adding `-fdiagnostics-parseable-fixits` to cflags.
+./v8/tools/clang/scripts/build.py:364:  extra_cflags = ['-DLIBXML_STATIC']
+./v8/tools/clang/scripts/build.py:366:  return extra_cmake_flags, extra_cflags
+./v8/tools/clang/scripts/build.py:619:  cflags = []
+./v8/tools/clang/scripts/build.py:671:    cflags.append('--gcc-toolchain=' + args.gcc_toolchain)
+./v8/tools/clang/scripts/build.py:702:    cflags.append('-I' + zlib_dir)
+./v8/tools/clang/scripts/build.py:713:  libxml_cmake_args, libxml_cflags = BuildLibXml2()
+./v8/tools/clang/scripts/build.py:715:  cflags += libxml_cflags
+./v8/tools/clang/scripts/build.py:716:  cxxflags += libxml_cflags
+./v8/tools/clang/scripts/build.py:743:        '-DCMAKE_C_FLAGS=' + ' '.join(cflags),
+./v8/tools/clang/scripts/build.py:827:        '-DCMAKE_C_FLAGS=' + ' '.join(cflags),
+./v8/tools/clang/scripts/build.py:923:    cflags = ['-isysroot', isysroot]
+./v8/tools/clang/scripts/build.py:924:    cxxflags = ['-stdlib=libc++'] + cflags
+./v8/tools/clang/scripts/build.py:931:    cflags += ['-DLLVM_FORCE_HEAD_REVISION']
+./v8/tools/clang/scripts/build.py:938:    cflags += ['/Zi', '/GS-']
+./v8/tools/clang/scripts/build.py:955:      '-DCMAKE_C_FLAGS=' + ' '.join(cflags),
+./v8/tools/clang/scripts/build.py:1038:      cflags += ['-m32']
+./v8/tools/clang/scripts/build.py:1042:        '-DCMAKE_C_FLAGS=' + ' '.join(cflags),
+./v8/tools/clang/scripts/build.py:1088:      cflags = [
+./v8/tools/clang/scripts/build.py:1105:        cflags += [ '-mbranch-protection=standard' ]
+./v8/tools/clang/scripts/build.py:1111:        '-DCMAKE_C_FLAGS=' + ' '.join(cflags),
+./v8/tools/clang/scripts/build.py:1112:        '-DCMAKE_CXX_FLAGS=' + ' '.join(cflags),
+./v8/tools/clang/scripts/build.py:1113:        '-DCMAKE_ASM_FLAGS=' + ' '.join(cflags),
+./v8/buildtools/third_party/libc++/BUILD.gn:11:  cflags = [ "-fstrict-aliasing" ]
+./v8/buildtools/third_party/libc++/BUILD.gn:13:    cflags += [
+./v8/buildtools/third_party/libc++/BUILD.gn:19:    cflags_cc = [
+./v8/buildtools/third_party/libc++/BUILD.gn:26:    cflags += [ "-fPIC" ]
+./v8/buildtools/third_party/libc++/BUILD.gn:27:    cflags_cc = [ "-std=c++20" ]
+./v8/buildtools/third_party/libc++/BUILD.gn:162:      cflags = [ "-fvisibility-global-new-delete-hidden" ]
+./v8/buildtools/third_party/libunwind/BUILD.gn:9:  cflags = [
+./v8/build/android/gradle/gn_to_cmake.py:438:  # "arflags", "asmflags", "cflags",
+./v8/build/android/gradle/gn_to_cmake.py:439:  # "cflags_c", "clfags_cc", "cflags_objc", "clfags_objcc"
+./v8/build/android/gradle/gn_to_cmake.py:441:  # TODO: $<$<COMPILE_LANGUAGE:CXX>:cflags_cc style generator expression.
+./v8/build/android/gradle/gn_to_cmake.py:444:  flags.extend(target.properties.get('cflags', []))
+./v8/build/android/gradle/gn_to_cmake.py:445:  cflags_asm = target.properties.get('asmflags', [])
+./v8/build/android/gradle/gn_to_cmake.py:446:  cflags_c = target.properties.get('cflags_c', [])
+./v8/build/android/gradle/gn_to_cmake.py:447:  cflags_cxx = target.properties.get('cflags_cc', [])
+./v8/build/android/gradle/gn_to_cmake.py:449:    flags.extend(cflags_c)
+./v8/build/android/gradle/gn_to_cmake.py:451:    flags.extend(cflags_cxx)
+./v8/build/android/gradle/gn_to_cmake.py:455:    if 'asm' in sources and cflags_asm:
+./v8/build/android/gradle/gn_to_cmake.py:456:      SetFilesProperty(out, sources['asm'], 'COMPILE_FLAGS', cflags_asm, ' ')
+./v8/build/android/gradle/gn_to_cmake.py:457:    if 'c' in sources and cflags_c:
+./v8/build/android/gradle/gn_to_cmake.py:458:      SetFilesProperty(out, sources['c'], 'COMPILE_FLAGS', cflags_c, ' ')
+./v8/build/android/gradle/gn_to_cmake.py:459:    if 'cxx' in sources and cflags_cxx:
+./v8/build/android/gradle/gn_to_cmake.py:460:      SetFilesProperty(out, sources['cxx'], 'COMPILE_FLAGS', cflags_cxx, ' ')
+./v8/build/android/gyp/check_flag_expectations.py:12:    # For cflags.
+./v8/build/android/native_flags/BUILD.gn:12:      command = "$cxx {{output}} {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}}"
+./v8/build/android/native_flags/BUILD.gn:31:  source_set("default_ccflags") {
+./v8/build/config/BUILD.gn:381:      cflags = [ "/FI$precompiled_header" ]
+./v8/build/config/aix/BUILD.gn:19:  cflags = [
+./v8/build/config/aix/BUILD.gn:38:  cflags_cc = [
+./v8/build/config/aix/BUILD.gn:52:    cflags += [ "-fpic" ]
+./v8/build/config/android/BUILD.gn:20:  cflags = [
+./v8/build/config/android/BUILD.gn:37:    cflags += [
+./v8/build/config/android/BUILD.gn:59:      cflags += [ "-mbranch-protection=standard" ]
+./v8/build/config/android/BUILD.gn:61:      cflags += [ "-mbranch-protection=pac-ret" ]
+./v8/build/config/android/BUILD.gn:77:  cflags += [ "--target=$android_abi_target$compile_api_level" ]
+./v8/build/config/android/BUILD.gn:82:  asmflags = cflags
+./v8/build/config/android/BUILD.gn:135:    cflags = [ "-finstrument-function-entry-bare" ]
+./v8/build/config/c++/BUILD.gn:22:  cflags = []
+./v8/build/config/c++/BUILD.gn:23:  cflags_cc = []
+./v8/build/config/c++/BUILD.gn:85:    cflags_cc +=
+./v8/build/config/c++/BUILD.gn:102:    cflags_cc += [
+./v8/build/config/c++/BUILD.gn:107:    cflags_objcc = cflags_cc
+./v8/build/config/c++/BUILD.gn:118:      cflags += [ "-fno-builtin-abs" ]
+./v8/build/config/chromeos/BUILD.gn:33:      cflags = [ "--target=x86_64-cros-linux-gnu" ]
+./v8/build/config/chromeos/BUILD.gn:36:      cflags = [ "--target=armv7a-cros-linux-gnueabihf" ]
+./v8/build/config/chromeos/BUILD.gn:39:      cflags = [ "--target=aarch64-cros-linux-gnu" ]
+./v8/build/config/clang/BUILD.gn:9:    cflags = []
+./v8/build/config/clang/BUILD.gn:13:    cflags += [
+./v8/build/config/clang/BUILD.gn:29:      cflags += [
+./v8/build/config/clang/BUILD.gn:42:  cflags = [
+./v8/build/config/compiler/BUILD.gn:252:  cflags = []
+./v8/build/config/compiler/BUILD.gn:253:  cflags_c = []
+./v8/build/config/compiler/BUILD.gn:254:  cflags_cc = []
+./v8/build/config/compiler/BUILD.gn:255:  cflags_objc = []
+./v8/build/config/compiler/BUILD.gn:256:  cflags_objcc = []
+./v8/build/config/compiler/BUILD.gn:305:    cflags += [ "-fno-delete-null-pointer-checks" ]
+./v8/build/config/compiler/BUILD.gn:312:    cflags += [ "-fno-ident" ]
+./v8/build/config/compiler/BUILD.gn:320:    cflags += [ "-fno-strict-aliasing" ]  # See http://crbug.com/32204
+./v8/build/config/compiler/BUILD.gn:327:        cflags += [ "-fstack-protector-strong" ]
+./v8/build/config/compiler/BUILD.gn:329:        cflags += [ "-fstack-protector" ]
+./v8/build/config/compiler/BUILD.gn:335:        cflags += [ "--param=ssp-buffer-size=4" ]
+./v8/build/config/compiler/BUILD.gn:340:        cflags += [ "-fno-stack-protector" ]
+./v8/build/config/compiler/BUILD.gn:343:        cflags += [ "-fstack-protector" ]
+./v8/build/config/compiler/BUILD.gn:369:    cflags_cc += [
+./v8/build/config/compiler/BUILD.gn:380:        cflags += [ "-g" ]
+./v8/build/config/compiler/BUILD.gn:383:          cflags += [
+./v8/build/config/compiler/BUILD.gn:416:        cflags += [
+./v8/build/config/compiler/BUILD.gn:422:        cflags += [ "-funwind-tables" ]
+./v8/build/config/compiler/BUILD.gn:431:    cflags += [ "-fPIC" ]
+./v8/build/config/compiler/BUILD.gn:437:      cflags += [ "-pipe" ]
+./v8/build/config/compiler/BUILD.gn:486:    cflags += [ "-pthread" ]
+./v8/build/config/compiler/BUILD.gn:495:    cflags += [ "-fcolor-diagnostics" ]
+./v8/build/config/compiler/BUILD.gn:503:    cflags += [ "-fmerge-all-constants" ]
+./v8/build/config/compiler/BUILD.gn:526:    cflags += [ "-fcrash-diagnostics-dir=" + clang_diagnostic_dir ]
+./v8/build/config/compiler/BUILD.gn:530:    cflags += [
+./v8/build/config/compiler/BUILD.gn:544:      cflags += [ "/clang:-ffp-contract=off" ]
+./v8/build/config/compiler/BUILD.gn:546:      cflags += [ "-ffp-contract=off" ]
+./v8/build/config/compiler/BUILD.gn:570:        cflags += [ "-U__STRICT_ANSI__" ]
+./v8/build/config/compiler/BUILD.gn:581:    cflags_c += [ "-std=${standard_prefix}11" ]
+./v8/build/config/compiler/BUILD.gn:586:      cflags_cc += [ "-std=${standard_prefix}++14" ]
+./v8/build/config/compiler/BUILD.gn:588:        cflags_cc += [ "-fno-trigraphs" ]
+./v8/build/config/compiler/BUILD.gn:591:      cflags_cc += [ "-std=${standard_prefix}++17" ]
+./v8/build/config/compiler/BUILD.gn:594:    cflags_c += [ "/std:c11" ]
+./v8/build/config/compiler/BUILD.gn:595:    cflags_cc += [ "/std:c++17" ]
+./v8/build/config/compiler/BUILD.gn:601:    cflags_c += [ "-std=c11" ]
+./v8/build/config/compiler/BUILD.gn:602:    cflags_cc += [ "-std=c++17" ]
+./v8/build/config/compiler/BUILD.gn:608:    cflags_cc += [ "-Wno-trigraphs" ]
+./v8/build/config/compiler/BUILD.gn:627:      cflags_cc += [ "/Zc:alignedNew-" ]
+./v8/build/config/compiler/BUILD.gn:629:      cflags_cc += [ "-fno-aligned-new" ]
+./v8/build/config/compiler/BUILD.gn:649:    cflags += [ "-flto=thin" ]
+./v8/build/config/compiler/BUILD.gn:652:      cflags += [ "-fsplit-lto-unit" ]
+./v8/build/config/compiler/BUILD.gn:712:      cflags += [ "-fwhole-program-vtables" ]
+./v8/build/config/compiler/BUILD.gn:730:      cflags += [ "-ftime-trace" ]
+./v8/build/config/compiler/BUILD.gn:732:      cflags += [
+./v8/build/config/compiler/BUILD.gn:764:      cflags += [
+./v8/build/config/compiler/BUILD.gn:769:      cflags += [
+./v8/build/config/compiler/BUILD.gn:781:    cflags += [ "-fcomplete-member-pointers" ]
+./v8/build/config/compiler/BUILD.gn:785:  cflags_objc += cflags_c
+./v8/build/config/compiler/BUILD.gn:786:  cflags_objcc += cflags_cc
+./v8/build/config/compiler/BUILD.gn:792:    asmflags += cflags
+./v8/build/config/compiler/BUILD.gn:793:    asmflags += cflags_c
+./v8/build/config/compiler/BUILD.gn:884:  cflags = []
+./v8/build/config/compiler/BUILD.gn:892:      cflags += [
+./v8/build/config/compiler/BUILD.gn:898:      cflags += [ "-m32" ]
+./v8/build/config/compiler/BUILD.gn:901:        cflags += [
+./v8/build/config/compiler/BUILD.gn:908:        cflags += [ "--target=arm-linux-gnueabihf" ]
+./v8/build/config/compiler/BUILD.gn:912:        cflags += [
+./v8/build/config/compiler/BUILD.gn:918:        cflags += [ "-mtune=$arm_tune" ]
+./v8/build/config/compiler/BUILD.gn:922:        cflags += [ "--target=aarch64-linux-gnu" ]
+./v8/build/config/compiler/BUILD.gn:927:        cflags += [ "-mno-outline-atomics" ]
+./v8/build/config/compiler/BUILD.gn:934:            cflags += [ "--target=mipsel-linux-android" ]
+./v8/build/config/compiler/BUILD.gn:937:            cflags += [ "--target=mipsel-linux-gnu" ]
+./v8/build/config/compiler/BUILD.gn:941:          cflags += [ "-EL" ]
+./v8/build/config/compiler/BUILD.gn:947:        cflags += [ "-mno-odd-spreg" ]
+./v8/build/config/compiler/BUILD.gn:950:          cflags += [
+./v8/build/config/compiler/BUILD.gn:955:          cflags += [
+./v8/build/config/compiler/BUILD.gn:964:          cflags += [
+./v8/build/config/compiler/BUILD.gn:972:          cflags += [
+./v8/build/config/compiler/BUILD.gn:977:          cflags += [
+./v8/build/config/compiler/BUILD.gn:982:            cflags += [ "-m$mips_fpu_mode" ]
+./v8/build/config/compiler/BUILD.gn:988:          cflags += [
+./v8/build/config/compiler/BUILD.gn:993:          cflags += [
+./v8/build/config/compiler/BUILD.gn:1000:        cflags += [
+./v8/build/config/compiler/BUILD.gn:1008:        cflags += [ "-mdsp" ]
+./v8/build/config/compiler/BUILD.gn:1010:        cflags += [ "-mdspr2" ]
+./v8/build/config/compiler/BUILD.gn:1013:      cflags += [ "-m${mips_float_abi}-float" ]
+./v8/build/config/compiler/BUILD.gn:1018:          cflags += [ "--target=mips-linux-gnu" ]
+./v8/build/config/compiler/BUILD.gn:1021:          cflags += [ "-EB" ]
+./v8/build/config/compiler/BUILD.gn:1027:        cflags += [
+./v8/build/config/compiler/BUILD.gn:1032:          cflags += [
+./v8/build/config/compiler/BUILD.gn:1038:        cflags += [
+./v8/build/config/compiler/BUILD.gn:1043:          cflags += [ "-m$mips_fpu_mode" ]
+./v8/build/config/compiler/BUILD.gn:1046:        cflags += [
+./v8/build/config/compiler/BUILD.gn:1053:        cflags += [ "-mdsp" ]
+./v8/build/config/compiler/BUILD.gn:1055:        cflags += [ "-mdspr2" ]
+./v8/build/config/compiler/BUILD.gn:1058:      cflags += [ "-m${mips_float_abi}-float" ]
+./v8/build/config/compiler/BUILD.gn:1060:      cflags += [ "-D__SANE_USERSPACE_TYPES__" ]
+./v8/build/config/compiler/BUILD.gn:1065:            cflags += [ "--target=mips64el-linux-android" ]
+./v8/build/config/compiler/BUILD.gn:1068:            cflags += [ "--target=mips64el-linux-gnuabi64" ]
+./v8/build/config/compiler/BUILD.gn:1072:          cflags += [
+./v8/build/config/compiler/BUILD.gn:1085:          cflags += [
+./v8/build/config/compiler/BUILD.gn:1090:          cflags += [
+./v8/build/config/compiler/BUILD.gn:1097:          cflags += [
+./v8/build/config/compiler/BUILD.gn:1105:          cflags += [
+./v8/build/config/compiler/BUILD.gn:1110:          cflags += [
+./v8/build/config/compiler/BUILD.gn:1117:        cflags += [
+./v8/build/config/compiler/BUILD.gn:1127:          cflags += [ "--target=mips64-linux-gnuabi64" ]
+./v8/build/config/compiler/BUILD.gn:1130:          cflags += [
+./v8/build/config/compiler/BUILD.gn:1142:        cflags += [
+./v8/build/config/compiler/BUILD.gn:1149:          cflags += [
+./v8/build/config/compiler/BUILD.gn:1155:        cflags += [
+./v8/build/config/compiler/BUILD.gn:1163:        cflags += [ "-maix64" ]
+./v8/build/config/compiler/BUILD.gn:1166:        cflags += [ "-m64" ]
+./v8/build/config/compiler/BUILD.gn:1170:      cflags += [ "-m64" ]
+./v8/build/config/compiler/BUILD.gn:1175:  asmflags = cflags
+./v8/build/config/compiler/BUILD.gn:1183:  cflags = []
+./v8/build/config/compiler/BUILD.gn:1193:    cflags += [ "-mno-outline" ]
+./v8/build/config/compiler/BUILD.gn:1201:  asmflags = cflags
+./v8/build/config/compiler/BUILD.gn:1212:  cflags = []
+./v8/build/config/compiler/BUILD.gn:1219:      cflags += [
+./v8/build/config/compiler/BUILD.gn:1226:      cflags += [
+./v8/build/config/compiler/BUILD.gn:1244:      cflags += [
+./v8/build/config/compiler/BUILD.gn:1253:      cflags += [ "-ffile-compilation-dir=." ]
+./v8/build/config/compiler/BUILD.gn:1278:    cflags += [ "-no-canonical-prefixes" ]
+./v8/build/config/compiler/BUILD.gn:1330:    cflags = [ "-mfpu=$arm_fpu" ]
+./v8/build/config/compiler/BUILD.gn:1332:      cflags += [ "-marm" ]
+./v8/build/config/compiler/BUILD.gn:1334:    asmflags = cflags
+./v8/build/config/compiler/BUILD.gn:1341:    cflags = [ "-mthumb" ]
+./v8/build/config/compiler/BUILD.gn:1349:    cflags = [ "-marm" ]
+./v8/build/config/compiler/BUILD.gn:1409:  cflags = []
+./v8/build/config/compiler/BUILD.gn:1410:  cflags_c = []
+./v8/build/config/compiler/BUILD.gn:1411:  cflags_cc = []
+./v8/build/config/compiler/BUILD.gn:1416:      cflags += [ "/WX" ]
+./v8/build/config/compiler/BUILD.gn:1436:      cflags += [ "/wd4244" ]
+./v8/build/config/compiler/BUILD.gn:1442:      cflags += [ "-Wunguarded-availability" ]
+./v8/build/config/compiler/BUILD.gn:1448:      cflags += [ "-Wundeclared-selector" ]
+./v8/build/config/compiler/BUILD.gn:1454:      cflags += [ "-Wno-psabi" ]
+./v8/build/config/compiler/BUILD.gn:1458:      cflags_cc += [
+./v8/build/config/compiler/BUILD.gn:1466:        cflags_cc += [ "-Wno-class-memaccess" ]
+./v8/build/config/compiler/BUILD.gn:1471:      cflags += [ "-Wno-unused-local-typedefs" ]
+./v8/build/config/compiler/BUILD.gn:1475:      cflags += [ "-Wno-maybe-uninitialized" ]
+./v8/build/config/compiler/BUILD.gn:1476:      cflags += [ "-Wno-deprecated-declarations" ]
+./v8/build/config/compiler/BUILD.gn:1482:      cflags += [ "-Wno-comments" ]
+./v8/build/config/compiler/BUILD.gn:1486:      cflags += [ "-Wno-packed-not-aligned" ]
+./v8/build/config/compiler/BUILD.gn:1492:    cflags += [
+./v8/build/config/compiler/BUILD.gn:1500:    cflags += [
+./v8/build/config/compiler/BUILD.gn:1513:        cflags += [ "-Wno-nonportable-include-path" ]
+./v8/build/config/compiler/BUILD.gn:1516:        cflags += [ "-Wno-null-pointer-subtraction" ]
+./v8/build/config/compiler/BUILD.gn:1519:      cflags += [
+./v8/build/config/compiler/BUILD.gn:1533:        cflags += [
+./v8/build/config/compiler/BUILD.gn:1541:        cflags += [ "-Wno-unqualified-std-cast-call" ]
+./v8/build/config/compiler/BUILD.gn:1546:        cflags += [ "-Wno-builtin-assume-aligned-alignment" ]
+./v8/build/config/compiler/BUILD.gn:1551:        cflags += [ "-Wno-deprecated-copy" ]
+./v8/build/config/compiler/BUILD.gn:1555:        cflags += [ "-Wmax-tokens" ]
+./v8/build/config/compiler/BUILD.gn:1587:  #   cflags = [
+./v8/build/config/compiler/BUILD.gn:1594:  #     cflags += [
+./v8/build/config/compiler/BUILD.gn:1611:      cflags = [ "/W4" ]  # Warning level 4.
+./v8/build/config/compiler/BUILD.gn:1617:    cflags = [ "-Wall" ]
+./v8/build/config/compiler/BUILD.gn:1619:      cflags += [ "-Werror" ]
+./v8/build/config/compiler/BUILD.gn:1628:      cflags += [ "-Wextra" ]
+./v8/build/config/compiler/BUILD.gn:1648:      cflags_objc = [ "-Wobjc-missing-property-synthesis" ]
+./v8/build/config/compiler/BUILD.gn:1649:      cflags_objcc = [ "-Wobjc-missing-property-synthesis" ]
+./v8/build/config/compiler/BUILD.gn:1653:      cflags_objc = [ "-Wimplicit-retain-self" ]
+./v8/build/config/compiler/BUILD.gn:1654:      cflags_objcc = cflags_objc
+./v8/build/config/compiler/BUILD.gn:1659:    cflags += [
+./v8/build/config/compiler/BUILD.gn:1669:      cflags += [ "-Wunreachable-code-aggressive" ]
+./v8/build/config/compiler/BUILD.gn:1674:      cflags += [
+./v8/build/config/compiler/BUILD.gn:1689:  cflags = []
+./v8/build/config/compiler/BUILD.gn:1690:  cflags_cc = []
+./v8/build/config/compiler/BUILD.gn:1695:      cflags += [ "/W3" ]  # Warning level 3.
+./v8/build/config/compiler/BUILD.gn:1697:    cflags += [
+./v8/build/config/compiler/BUILD.gn:1705:      cflags += [ "-Werror" ]
+./v8/build/config/compiler/BUILD.gn:1711:      cflags += [ "-Wall" ]
+./v8/build/config/compiler/BUILD.gn:1716:    cflags += [
+./v8/build/config/compiler/BUILD.gn:1726:      cflags += [
+./v8/build/config/compiler/BUILD.gn:1779:    cflags = [ "-Wshadow" ]
+./v8/build/config/compiler/BUILD.gn:1789:    cflags_cc = [ "/GR" ]
+./v8/build/config/compiler/BUILD.gn:1791:    cflags_cc = [ "-frtti" ]
+./v8/build/config/compiler/BUILD.gn:1799:      cflags_cc = [ "/GR-" ]
+./v8/build/config/compiler/BUILD.gn:1801:      cflags_cc = [ "-fno-rtti" ]
+./v8/build/config/compiler/BUILD.gn:1802:      cflags_objcc = cflags_cc
+./v8/build/config/compiler/BUILD.gn:1858:    cflags_cc = [ "/EHsc" ]
+./v8/build/config/compiler/BUILD.gn:1860:    cflags_cc = [ "-fexceptions" ]
+./v8/build/config/compiler/BUILD.gn:1861:    cflags_objcc = cflags_cc
+./v8/build/config/compiler/BUILD.gn:1877:    cflags_cc = [ "-fno-exceptions" ]
+./v8/build/config/compiler/BUILD.gn:1878:    cflags_objcc = cflags_cc
+./v8/build/config/compiler/BUILD.gn:1889:    cflags = [ "-Wglobal-constructors" ]
+./v8/build/config/compiler/BUILD.gn:1898:    cflags = [ "-Wexit-time-destructors" ]
+./v8/build/config/compiler/BUILD.gn:1908:  cflags = []
+./v8/build/config/compiler/BUILD.gn:1910:    cflags += [ "-Wno-incompatible-pointer-types" ]
+./v8/build/config/compiler/BUILD.gn:1912:    cflags += [ "-w" ]
+./v8/build/config/compiler/BUILD.gn:1914:    cflags += [ "-w" ]
+./v8/build/config/compiler/BUILD.gn:1933:  common_optimize_on_cflags = [
+./v8/build/config/compiler/BUILD.gn:1939:    common_optimize_on_cflags += [
+./v8/build/config/compiler/BUILD.gn:1961:  common_optimize_on_cflags = []
+./v8/build/config/compiler/BUILD.gn:1988:    common_optimize_on_cflags += [
+./v8/build/config/compiler/BUILD.gn:1997:      common_optimize_on_cflags += [ "-fno-unique-section-names" ]
+./v8/build/config/compiler/BUILD.gn:2013:      cflags = [ "-fno-omit-frame-pointer" ]
+./v8/build/config/compiler/BUILD.gn:2019:        cflags += [ "-momit-leaf-frame-pointer" ]
+./v8/build/config/compiler/BUILD.gn:2022:      cflags = [ "-fomit-frame-pointer" ]
+./v8/build/config/compiler/BUILD.gn:2027:  # the "optimize" configs, see rest of this file. The ordering that cflags are
+./v8/build/config/compiler/BUILD.gn:2029:  # cflags set by "default_stack_frames" is applied after those set by an
+./v8/build/config/compiler/BUILD.gn:2032:  # definition for common_optimize_on_cflags definition, even though this may
+./v8/build/config/compiler/BUILD.gn:2042:      cflags = [ "/O1" ] + common_optimize_on_cflags + [ "/Oi" ]
+./v8/build/config/compiler/BUILD.gn:2046:      cflags = [ "/O2" ] + common_optimize_on_cflags + [ "/Oi" ]
+./v8/build/config/compiler/BUILD.gn:2051:      cflags = [ "-Oz" ] + common_optimize_on_cflags
+./v8/build/config/compiler/BUILD.gn:2053:      cflags = [ "-Os" ] + common_optimize_on_cflags
+./v8/build/config/compiler/BUILD.gn:2062:    cflags = [ "-Os" ] + common_optimize_on_cflags
+./v8/build/config/compiler/BUILD.gn:2064:    cflags = [ "-O2" ] + common_optimize_on_cflags
+./v8/build/config/compiler/BUILD.gn:2077:    cflags = [
+./v8/build/config/compiler/BUILD.gn:2086:      cflags += [ "/Oy-" ]
+./v8/build/config/compiler/BUILD.gn:2092:      cflags = [ "-Oz" ] + common_optimize_on_cflags
+./v8/build/config/compiler/BUILD.gn:2094:      cflags = [ "-Os" ] + common_optimize_on_cflags
+./v8/build/config/compiler/BUILD.gn:2105:    cflags = [ "-Og" ]
+./v8/build/config/compiler/BUILD.gn:2107:    cflags = [ "-O0" ]
+./v8/build/config/compiler/BUILD.gn:2131:      cflags = [ "/O2" ] + common_optimize_on_cflags
+./v8/build/config/compiler/BUILD.gn:2133:      cflags = [ "-O1" ] + common_optimize_on_cflags
+./v8/build/config/compiler/BUILD.gn:2135:      cflags = [ "-O2" ] + common_optimize_on_cflags
+./v8/build/config/compiler/BUILD.gn:2164:      cflags = [ "/O2" ] + common_optimize_on_cflags
+./v8/build/config/compiler/BUILD.gn:2166:      cflags = [ "-O1" ] + common_optimize_on_cflags
+./v8/build/config/compiler/BUILD.gn:2168:      cflags = [ "-O3" ] + common_optimize_on_cflags
+./v8/build/config/compiler/BUILD.gn:2175:  cflags = [ "-O1" ] + common_optimize_on_cflags
+./v8/build/config/compiler/BUILD.gn:2231:    cflags = [ "-fprofile-sample-accurate" ]
+./v8/build/config/compiler/BUILD.gn:2240:    cflags = []
+./v8/build/config/compiler/BUILD.gn:2243:      cflags += [ "-gline-tables-only" ]
+./v8/build/config/compiler/BUILD.gn:2245:        cflags += [ "-fdebug-info-for-profiling" ]
+./v8/build/config/compiler/BUILD.gn:2252:      cflags += [ "-fprofile-sample-use=${rebased_clang_sample_profile}" ]
+./v8/build/config/compiler/BUILD.gn:2256:    cflags = [ "-fauto-profile=${auto_profile_path}" ]
+./v8/build/config/compiler/BUILD.gn:2296:      cflags = [ "/Z7" ]  # Debug information in the .obj files.
+./v8/build/config/compiler/BUILD.gn:2298:      cflags = [ "/Zi" ]  # Produce PDB file, no edit and continue.
+./v8/build/config/compiler/BUILD.gn:2302:      cflags += [ "-gcodeview-ghash" ]
+./v8/build/config/compiler/BUILD.gn:2311:    cflags = []
+./v8/build/config/compiler/BUILD.gn:2318:      cflags += [ "-fno-standalone-debug" ]
+./v8/build/config/compiler/BUILD.gn:2323:      cflags += [ "-gdwarf-4" ]
+./v8/build/config/compiler/BUILD.gn:2327:      cflags += [ "-gdwarf-4" ]
+./v8/build/config/compiler/BUILD.gn:2331:      cflags += [ "-gdwarf-5" ]
+./v8/build/config/compiler/BUILD.gn:2341:      cflags += [ "-g2" ]
+./v8/build/config/compiler/BUILD.gn:2355:      cflags += [ "-gdwarf-aranges" ]
+./v8/build/config/compiler/BUILD.gn:2363:      cflags += [ "-gsplit-dwarf" ]
+./v8/build/config/compiler/BUILD.gn:2365:    asmflags = cflags
+./v8/build/config/compiler/BUILD.gn:2392:        cflags += [ "-ggnu-pubnames" ]
+./v8/build/config/compiler/BUILD.gn:2402:      cflags += [
+./v8/build/config/compiler/BUILD.gn:2409:      cflags += [
+./v8/build/config/compiler/BUILD.gn:2424:    cflags = []
+./v8/build/config/compiler/BUILD.gn:2427:      cflags += [ "-gcodeview-ghash" ]
+./v8/build/config/compiler/BUILD.gn:2440:      cflags += [ "-gline-tables-only" ]
+./v8/build/config/compiler/BUILD.gn:2443:    cflags = []
+./v8/build/config/compiler/BUILD.gn:2448:      cflags += [ "-gdwarf-4" ]
+./v8/build/config/compiler/BUILD.gn:2452:      cflags += [ "-gdwarf-4" ]
+./v8/build/config/compiler/BUILD.gn:2456:      cflags += [ "-gdwarf-5" ]
+./v8/build/config/compiler/BUILD.gn:2466:      cflags += [ "-g1" ]
+./v8/build/config/compiler/BUILD.gn:2472:      cflags += [ "-gdwarf-aranges" ]
+./v8/build/config/compiler/BUILD.gn:2483:      cflags += [ "-fdebug-info-for-profiling" ]
+./v8/build/config/compiler/BUILD.gn:2486:    asmflags = cflags
+./v8/build/config/compiler/BUILD.gn:2501:    cflags = [ "-g0" ]
+./v8/build/config/compiler/BUILD.gn:2502:    asmflags = cflags
+./v8/build/config/compiler/BUILD.gn:2536:    cflags_objc = common_flags
+./v8/build/config/compiler/BUILD.gn:2537:    cflags_objcc = common_flags
+./v8/build/config/compiler/BUILD.gn:2573:  cflags = []
+./v8/build/config/compiler/BUILD.gn:2575:    cflags += [ "-ftrivial-auto-var-init=pattern" ]
+./v8/build/config/compiler/pgo/BUILD.gn:18:    cflags = [ "-fprofile-generate" ]
+./v8/build/config/compiler/pgo/BUILD.gn:74:    cflags = [
+./v8/build/config/coverage/BUILD.gn:17:    cflags = [
+./v8/build/config/coverage/BUILD.gn:31:      cflags += [ "-fno-use-cxa-atexit" ]
+./v8/build/config/fuchsia/BUILD.gn:24:    cflags_cc = [ "-fexperimental-relative-c++-abi-vtables" ]
+./v8/build/config/gcc/BUILD.gn:34:  cflags = [ "-fvisibility=hidden" ]
+./v8/build/config/gcc/BUILD.gn:38:    cflags_cc = [ "-fvisibility-inlines-hidden" ]
+./v8/build/config/gcc/BUILD.gn:39:    cflags_objcc = cflags_cc
+./v8/build/config/gcc/BUILD.gn:47:  cflags = [ "-fvisibility=default" ]
+./v8/build/config/ios/BUILD.gn:60:  cflags = common_flags
+./v8/build/config/ios/BUILD.gn:70:  cflags_objcc = [ "-fobjc-call-cxx-cdtors" ]
+./v8/build/config/ios/BUILD.gn:123:  cflags = common_flags
+./v8/build/config/ios/BUILD.gn:254:  cflags_objc = [ "-Wno-implicit-retain-self" ]
+./v8/build/config/ios/BUILD.gn:255:  cflags_objcc = cflags_objc
+./v8/build/config/ios/BUILD.gn:269:  cflags = common_flags
+./v8/build/config/linux/BUILD.gn:20:    cflags = []
+./v8/build/config/linux/BUILD.gn:23:      cflags += [ "-mbranch-protection=standard" ]
+./v8/build/config/linux/BUILD.gn:26:      cflags += [ "-mbranch-protection=pac-ret" ]
+./v8/build/config/linux/pkg-config.py:18:# The result will be [ <includes>, <cflags>, <libs>, <lib_dirs>, <ldflags> ]
+./v8/build/config/linux/pkg-config.py:193:  cmd = [options.pkg_config, "--cflags", "--libs"] + args
+./v8/build/config/linux/pkg-config.py:214:  cflags = []
+./v8/build/config/linux/pkg-config.py:238:      cflags.append(flag)
+./v8/build/config/linux/pkg-config.py:240:  # Output a GN array, the first one is the cflags, the second are the libs. The
+./v8/build/config/linux/pkg-config.py:243:  print(json.dumps([includes, cflags, libs, lib_dirs]))
+./v8/build/config/linux/pkg_config.gni:23:# To ignore libs and ldflags (only cflags/defines will be set, which is useful
+./v8/build/config/linux/pkg_config.gni:105:    cflags = pkgresult[1]
+./v8/build/config/linux/pkg_config.gni:112:        cflags += [ "-isystem$include_relativized" ]
+./v8/build/config/linux/pkg_config.gni:114:        cflags += [ "-I$include" ]
+./v8/build/config/mac/BUILD.gn:43:  cflags = common_mac_flags
+./v8/build/config/mac/BUILD.gn:47:  cflags_objcc = [ "-fobjc-call-cxx-cdtors" ]
+./v8/build/config/mac/BUILD.gn:72:  cflags = common_flags
+./v8/build/config/nacl/BUILD.gn:42:    cflags = [ "/wd4132" ]
+./v8/build/config/nacl/BUILD.gn:75:  cflags = []
+./v8/build/config/nacl/BUILD.gn:86:    cflags += [ "-integrated-as" ]
+./v8/build/config/nacl/BUILD.gn:89:  asmflags = cflags
+./v8/build/config/nacl/BUILD.gn:93:  cflags = []
+./v8/build/config/nacl/BUILD.gn:96:    cflags += [
+./v8/build/config/nacl/BUILD.gn:110:      cflags += [
+./v8/build/config/nacl/BUILD.gn:117:  asmflags = cflags
+./v8/build/config/nacl/BUILD.gn:121:  cflags = [
+./v8/build/config/posix/BUILD.gn:20:  cflags = []
+./v8/build/config/posix/BUILD.gn:21:  cflags_c = []
+./v8/build/config/posix/BUILD.gn:22:  cflags_cc = []
+./v8/build/config/posix/BUILD.gn:23:  cflags_objc = []
+./v8/build/config/posix/BUILD.gn:24:  cflags_objcc = []
+./v8/build/config/posix/BUILD.gn:47:    # cflags_cc to set up libc++ include paths.  We want to make sure
+./v8/build/config/posix/BUILD.gn:51:    # cflags* will be appended on the compiler command line after
+./v8/build/config/posix/BUILD.gn:52:    # 'cflags'."  Because of this, we must set the sysroot flags for
+./v8/build/config/posix/BUILD.gn:53:    # all cflags variants instead of using 'cflags' directly.
+./v8/build/config/posix/BUILD.gn:54:    cflags_c += sysroot_flags
+./v8/build/config/posix/BUILD.gn:55:    cflags_cc += sysroot_flags
+./v8/build/config/posix/BUILD.gn:56:    cflags_objc += sysroot_flags
+./v8/build/config/posix/BUILD.gn:57:    cflags_objcc += sysroot_flags
+./v8/build/config/sanitizers/BUILD.gn:248:  cflags = []
+./v8/build/config/sanitizers/BUILD.gn:258:    cflags += [
+./v8/build/config/sanitizers/BUILD.gn:270:  cflags = []
+./v8/build/config/sanitizers/BUILD.gn:272:    cflags += [ "-fsanitize=address" ]
+./v8/build/config/sanitizers/BUILD.gn:278:      cflags += [ "-fsanitize-ignorelist=$asan_win_blocklist_path" ]
+./v8/build/config/sanitizers/BUILD.gn:306:  cflags = []
+./v8/build/config/sanitizers/BUILD.gn:312:    cflags += [
+./v8/build/config/sanitizers/BUILD.gn:318:      cflags += [
+./v8/build/config/sanitizers/BUILD.gn:325:      cflags += [ "-fsanitize=cfi-icall" ]
+./v8/build/config/sanitizers/BUILD.gn:329:      cflags += [ "-fno-sanitize-trap=cfi" ]
+./v8/build/config/sanitizers/BUILD.gn:331:        cflags += [
+./v8/build/config/sanitizers/BUILD.gn:336:        cflags += [
+./v8/build/config/sanitizers/BUILD.gn:344:        cflags += [ "-fsanitize-recover=cfi" ]
+./v8/build/config/sanitizers/BUILD.gn:354:    cflags = [ "-fsanitize-cfi-icall-generalize-pointers" ]
+./v8/build/config/sanitizers/BUILD.gn:360:    cflags = [ "-fno-sanitize=cfi-icall" ]
+./v8/build/config/sanitizers/BUILD.gn:365:  cflags = []
+./v8/build/config/sanitizers/BUILD.gn:371:      cflags += [ "-fsanitize=fuzzer-no-link" ]
+./v8/build/config/sanitizers/BUILD.gn:375:        cflags += [ "-fno-sanitize-coverage=pc-table" ]
+./v8/build/config/sanitizers/BUILD.gn:378:      cflags += [
+./v8/build/config/sanitizers/BUILD.gn:385:        cflags += [
+./v8/build/config/sanitizers/BUILD.gn:397:    cflags = [ "-fsanitize=hwaddress" ]
+./v8/build/config/sanitizers/BUILD.gn:403:    cflags = [ "-fsanitize=leak" ]
+./v8/build/config/sanitizers/BUILD.gn:415:    cflags = [
+./v8/build/config/sanitizers/BUILD.gn:430:    cflags = [
+./v8/build/config/sanitizers/BUILD.gn:438:  cflags = []
+./v8/build/config/sanitizers/BUILD.gn:444:    cflags += [
+./v8/build/config/sanitizers/BUILD.gn:464:      cflags += [
+./v8/build/config/sanitizers/BUILD.gn:482:    cflags = [ "-fno-sanitize-recover=undefined" ]
+./v8/build/config/sanitizers/BUILD.gn:492:    cflags = [
+./v8/build/config/sanitizers/BUILD.gn:504:    cflags = [ "-fsanitize=null" ]
+./v8/build/config/sanitizers/BUILD.gn:514:    cflags = [
+./v8/build/config/sanitizers/BUILD.gn:598:    cflags = [ "-O2" ]
+./v8/build/config/win/BUILD.gn:66:  cflags = [
+./v8/build/config/win/BUILD.gn:74:    cflags += [ "/Zc:twoPhase" ]
+./v8/build/config/win/BUILD.gn:80:  cflags_c = [ "/TC" ]
+./v8/build/config/win/BUILD.gn:81:  cflags_cc = [ "/TP" ]
+./v8/build/config/win/BUILD.gn:83:  cflags += [
+./v8/build/config/win/BUILD.gn:91:    cflags += [ "/D__WRL_ENABLE_FUNCTION_STATICS__" ]
+./v8/build/config/win/BUILD.gn:94:    cflags += [ "-fmsc-version=1916" ]
+./v8/build/config/win/BUILD.gn:97:      cflags += [
+./v8/build/config/win/BUILD.gn:106:        cflags += [ "-m32" ]
+./v8/build/config/win/BUILD.gn:108:        cflags += [ "--target=i386-windows" ]
+./v8/build/config/win/BUILD.gn:112:        cflags += [ "-m64" ]
+./v8/build/config/win/BUILD.gn:114:        cflags += [ "--target=x86_64-windows" ]
+./v8/build/config/win/BUILD.gn:117:      cflags += [ "--target=arm64-windows" ]
+./v8/build/config/win/BUILD.gn:126:      cflags += [ "-msse3" ]
+./v8/build/config/win/BUILD.gn:131:      cflags += [
+./v8/build/config/win/BUILD.gn:139:      cflags += [ "/clang:-fdiagnostics-format=clang" ]
+./v8/build/config/win/BUILD.gn:151:    cflags += [ "/Brepro" ]
+./v8/build/config/win/BUILD.gn:164:    # Don't look for libpaths in %LIB%, similar to /X in cflags above.
+./v8/build/config/win/BUILD.gn:217:  cflags = []
+./v8/build/config/win/BUILD.gn:218:  cflags_cc = []
+./v8/build/config/win/BUILD.gn:256:    cflags_cc += [ "/EHsc" ]
+./v8/build/config/win/BUILD.gn:336:      cflags = [ "/guard:cf" ]
+./v8/build/config/win/BUILD.gn:338:      cflags = [ "/guard:cf,nochecks" ]
+./v8/build/config/win/BUILD.gn:350:    cflags = [ "/guard:cf,nochecks" ]
+./v8/build/config/win/BUILD.gn:477:    cflags = [ "/MD" ]
+./v8/build/config/win/BUILD.gn:485:    cflags = [ "/MT" ]
+./v8/build/config/win/BUILD.gn:495:    cflags = [ "/MDd" ]
+./v8/build/config/win/BUILD.gn:500:    cflags = [ "/MD" ]
+./v8/build/config/win/BUILD.gn:510:    cflags = [ "/MTd" ]
+./v8/build/config/win/BUILD.gn:515:    cflags = [ "/MT" ]
+./v8/build/config/zos/BUILD.gn:30:  cflags = [
+./v8/build/config/zos/BUILD.gn:48:  cflags_cc = [
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/lib/pkgconfig/gpg-error.pc:6:mtcflags=
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/libpng16-config:41:  --cflags        print preprocessor flags, I_opts, and compiler options
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/libpng16-config:83:    --cflags)
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/curl-config:38:  --cflags    pre-processor and compiler flags
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/curl-config:143:    --cflags)
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/gpg-error-config:37:	[--cflags]
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/gpg-error-config:75:		mtcflags) echo "" ;;
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/gpg-error-config:80:        --cflags)
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/ncursesw6-config:148:	--cflags)
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/ncursesw6-config:259:  --cflags           echos the C compiler flags needed to compile with ${THIS}
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/pcre-config:7:cflags="[--cflags]"
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/pcre-config:25:  cflags="$cflags [--cflags-posix]"
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/pcre-config:28:usage="Usage: pcre-config [--prefix] [--exec-prefix] [--version] $libs $cflags"
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/pcre-config:76:    --cflags)
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/pcre-config:82:    --cflags-posix)
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/nss-config:20:	[--cflags]
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/nss-config:73:    --cflags)
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/nss-config:74:      echo_cflags=yes
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/nss-config:125:if test "$echo_cflags" = "yes"; then
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/libgcrypt-config:21:gpg_error_cflags=""
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/libgcrypt-config:25:cflags=""
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/libgcrypt-config:40:echo_cflags=no
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/libgcrypt-config:59:	[--cflags]
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/libgcrypt-config:105:	--cflags)
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/libgcrypt-config:106:	    echo_cflags=yes
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/libgcrypt-config:132:if test "$echo_cflags" = "yes"; then
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/libgcrypt-config:134:    cflags_final="$cflags"
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/libgcrypt-config:140:    # Set up `cflags_final'.
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/libgcrypt-config:141:    cflags_final="$cflags_final $gpg_error_cflags"
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/libgcrypt-config:144:    for i in $includes $cflags_final; do
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/ncurses6-config:148:	--cflags)
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/ncurses6-config:259:  --cflags           echos the C compiler flags needed to compile with ${THIS}
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/nspr-config:24:	[--cflags]
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/nspr-config:75:    --cflags)
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/nspr-config:76:      echo_cflags=yes
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/nspr-config:124:if test "$echo_cflags" = "yes"; then
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/cups-config:57:    echo "       cups-config --cflags"
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/cups-config:84:	--cflags)
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/xml2-config:18:  --cflags		print pre-processor and compiler flags
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/xml2-config:66:    --cflags)
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/xml2-config:67:        cflags="-I${includedir}/libxml2 "
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/xml2-config:93:if test "$cflags" -o "$libs"; then
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/xml2-config:94:    echo $cflags $libs
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/xslt-config:18:  --cflags		print pre-processor and compiler flags
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/xslt-config:69:    --cflags)
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/xslt-config:70:        cflags="-I/usr/include/libxml2"
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/xslt-config:72:            cflags="$cflags -I${includedir}"
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/xslt-config:90:all_flags="$cflags $libs"
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/gpgrt-config:437:	[--cflags]
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/gpgrt-config:505:want_cflags=""
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/gpgrt-config:510:cflags=""
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/gpgrt-config:512:mtcflags=""
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/gpgrt-config:553:	    # In future, use --variable=mtcflags or --variable=mtlibs.
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/gpgrt-config:565:	--cflags)
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/gpgrt-config:566:	    want_cflags=yes
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/gpgrt-config:611:	cflags="$cflags${cflags:+ }$(get_attr Cflags)"
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/gpgrt-config:618:	    mtcflags="$(get_var mtcflags)"
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/gpgrt-config:626:    if [ -n "$want_cflags" ]; then
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/gpgrt-config:627:	output="$output${output:+ }$(sysroot -I $(list_only_once $cflags))"
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/gpgrt-config:629:	if [ $mt = yes -a -n "$mtcflags" ]; then
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/gpgrt-config:630:	    output="$output${output:+ }$mtcflags"
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/krb5-config.mit:68:	--cflags)
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/krb5-config.mit:69:	    do_cflags=1
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/krb5-config.mit:130:    -z "$do_cflags" -a -z "$do_libs"; then
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/krb5-config.mit:147:    echo "        [--cflags]        Compile time CFLAGS"
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/krb5-config.mit:209:if test -n "$do_cflags"; then
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/pcre2-config:7:cflags="[--cflags]"
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/pcre2-config:20:  cflags="$cflags [--cflags-posix]"
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/pcre2-config:23:usage="Usage: pcre2-config [--prefix] [--exec-prefix] [--version] $libs $cflags"
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/pcre2-config:60:    --cflags)
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/bin/pcre2-config:66:    --cflags-posix)
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/include/regex.h:306:/* POSIX 'cflags' bits (i.e., information for 'regcomp').  */
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/include/regex.h:641:		    int __cflags);
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/include/pcre2posix.h:107:  int re_cflags;
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/include/nss/keythi.h:196:/* bit flag definitions for staticflags */
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/include/nss/keythi.h:203:    (0 != (key->staticflags & SECKEY_Attributes_Cached))
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/include/nss/keythi.h:206:    (0 != (key->staticflags & SECKEY_##attribute))
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/include/nss/keythi.h:209:    (0 != (key->staticflags & SECKEY_Attributes_Cached)) ? (0 != (key->staticflags & SECKEY_##attribute)) : PK11_HasAttributeSet(key->pkcs11Slot, key->pkcs11ID, attribute, PR_FALSE)
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/include/nss/keythi.h:212:    (0 != (key->staticflags & SECKEY_Attributes_Cached)) ? (0 != (key->staticflags & SECKEY_##attribute)) : pk11_HasAttributeSet_Lock(key->pkcs11Slot, key->pkcs11ID, attribute, haslock)
+./v8/build/linux/debian_bullseye_i386-sysroot/usr/include/nss/keythi.h:224:    PRUint32 staticflags;      /* bit flag of cached PKCS#11 attributes */
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/lib/pkgconfig/gpg-error.pc:6:mtcflags=
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/libpng16-config:41:  --cflags        print preprocessor flags, I_opts, and compiler options
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/libpng16-config:83:    --cflags)
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/curl-config:38:  --cflags    pre-processor and compiler flags
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/curl-config:143:    --cflags)
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/gpg-error-config:37:	[--cflags]
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/gpg-error-config:75:		mtcflags) echo "" ;;
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/gpg-error-config:80:        --cflags)
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/ncursesw6-config:148:	--cflags)
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/ncursesw6-config:259:  --cflags           echos the C compiler flags needed to compile with ${THIS}
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/pcre-config:7:cflags="[--cflags]"
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/pcre-config:25:  cflags="$cflags [--cflags-posix]"
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/pcre-config:28:usage="Usage: pcre-config [--prefix] [--exec-prefix] [--version] $libs $cflags"
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/pcre-config:76:    --cflags)
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/pcre-config:82:    --cflags-posix)
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/nss-config:20:	[--cflags]
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/nss-config:73:    --cflags)
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/nss-config:74:      echo_cflags=yes
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/nss-config:125:if test "$echo_cflags" = "yes"; then
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/libgcrypt-config:21:gpg_error_cflags=""
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/libgcrypt-config:25:cflags=""
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/libgcrypt-config:40:echo_cflags=no
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/libgcrypt-config:59:	[--cflags]
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/libgcrypt-config:105:	--cflags)
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/libgcrypt-config:106:	    echo_cflags=yes
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/libgcrypt-config:132:if test "$echo_cflags" = "yes"; then
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/libgcrypt-config:134:    cflags_final="$cflags"
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/libgcrypt-config:140:    # Set up `cflags_final'.
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/libgcrypt-config:141:    cflags_final="$cflags_final $gpg_error_cflags"
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/libgcrypt-config:144:    for i in $includes $cflags_final; do
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/ncurses6-config:148:	--cflags)
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/ncurses6-config:259:  --cflags           echos the C compiler flags needed to compile with ${THIS}
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/nspr-config:24:	[--cflags]
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/nspr-config:75:    --cflags)
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/nspr-config:76:      echo_cflags=yes
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/nspr-config:124:if test "$echo_cflags" = "yes"; then
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/cups-config:57:    echo "       cups-config --cflags"
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/cups-config:84:	--cflags)
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/xml2-config:18:  --cflags		print pre-processor and compiler flags
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/xml2-config:66:    --cflags)
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/xml2-config:67:        cflags="-I${includedir}/libxml2 "
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/xml2-config:93:if test "$cflags" -o "$libs"; then
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/xml2-config:94:    echo $cflags $libs
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/xslt-config:18:  --cflags		print pre-processor and compiler flags
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/xslt-config:69:    --cflags)
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/xslt-config:70:        cflags="-I/usr/include/libxml2"
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/xslt-config:72:            cflags="$cflags -I${includedir}"
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/xslt-config:90:all_flags="$cflags $libs"
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/gpgrt-config:437:	[--cflags]
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/gpgrt-config:505:want_cflags=""
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/gpgrt-config:510:cflags=""
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/gpgrt-config:512:mtcflags=""
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/gpgrt-config:553:	    # In future, use --variable=mtcflags or --variable=mtlibs.
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/gpgrt-config:565:	--cflags)
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/gpgrt-config:566:	    want_cflags=yes
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/gpgrt-config:611:	cflags="$cflags${cflags:+ }$(get_attr Cflags)"
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/gpgrt-config:618:	    mtcflags="$(get_var mtcflags)"
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/gpgrt-config:626:    if [ -n "$want_cflags" ]; then
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/gpgrt-config:627:	output="$output${output:+ }$(sysroot -I $(list_only_once $cflags))"
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/gpgrt-config:629:	if [ $mt = yes -a -n "$mtcflags" ]; then
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/gpgrt-config:630:	    output="$output${output:+ }$mtcflags"
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/krb5-config.mit:68:	--cflags)
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/krb5-config.mit:69:	    do_cflags=1
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/krb5-config.mit:130:    -z "$do_cflags" -a -z "$do_libs"; then
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/krb5-config.mit:147:    echo "        [--cflags]        Compile time CFLAGS"
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/krb5-config.mit:209:if test -n "$do_cflags"; then
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/pcre2-config:7:cflags="[--cflags]"
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/pcre2-config:20:  cflags="$cflags [--cflags-posix]"
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/pcre2-config:23:usage="Usage: pcre2-config [--prefix] [--exec-prefix] [--version] $libs $cflags"
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/pcre2-config:60:    --cflags)
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/bin/pcre2-config:66:    --cflags-posix)
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/include/regex.h:306:/* POSIX 'cflags' bits (i.e., information for 'regcomp').  */
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/include/regex.h:641:		    int __cflags);
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/include/pcre2posix.h:107:  int re_cflags;
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/include/nss/keythi.h:196:/* bit flag definitions for staticflags */
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/include/nss/keythi.h:203:    (0 != (key->staticflags & SECKEY_Attributes_Cached))
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/include/nss/keythi.h:206:    (0 != (key->staticflags & SECKEY_##attribute))
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/include/nss/keythi.h:209:    (0 != (key->staticflags & SECKEY_Attributes_Cached)) ? (0 != (key->staticflags & SECKEY_##attribute)) : PK11_HasAttributeSet(key->pkcs11Slot, key->pkcs11ID, attribute, PR_FALSE)
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/include/nss/keythi.h:212:    (0 != (key->staticflags & SECKEY_Attributes_Cached)) ? (0 != (key->staticflags & SECKEY_##attribute)) : pk11_HasAttributeSet_Lock(key->pkcs11Slot, key->pkcs11ID, attribute, haslock)
+./v8/build/linux/debian_bullseye_amd64-sysroot/usr/include/nss/keythi.h:224:    PRUint32 staticflags;      /* bit flag of cached PKCS#11 attributes */
+./v8/build/rust/rust_autocxx.gni:168:    # TODO(crbug.com/1306841): solve by passing cflags (and similar) to action
+./v8/build/rust/rust_bindgen.gni:98:      "{{cflags}}",
+./v8/build/rust/rust_bindgen.gni:100:      # Despite passing {{cflags}} this is still necessary for some standard C
+./v8/build/toolchain/apple/toolchain.gni:295:      command = "$cc -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} -c {{source}} -o {{output}}"
+./v8/build/toolchain/apple/toolchain.gni:304:      command = "$cxx -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} -c {{source}} -o {{output}}"
+./v8/build/toolchain/apple/toolchain.gni:322:      command = "$cc -MMD -MF $depfile {{defines}} {{include_dirs}} {{framework_dirs}} {{cflags}} {{cflags_objc}} -c {{source}} -o {{output}}"
+./v8/build/toolchain/apple/toolchain.gni:331:      command = "$cxx -MMD -MF $depfile {{defines}} {{include_dirs}} {{framework_dirs}} {{cflags}} {{cflags_objcc}} -c {{source}} -o {{output}}"
+./v8/build/toolchain/cros/BUILD.gn:85:    extra_cflags = cros_target_extra_cflags
+./v8/build/toolchain/cros/BUILD.gn:119:    extra_cflags = cros_nacl_bootstrap_extra_cflags
+./v8/build/toolchain/cros/BUILD.gn:148:    extra_cflags = cros_host_extra_cflags
+./v8/build/toolchain/cros/BUILD.gn:182:    extra_cflags = cros_v8_snapshot_extra_cflags
+./v8/build/toolchain/cros/BUILD.gn:252:      extra_cflags = lacros_args.cros_target_extra_cflags
+./v8/build/toolchain/cros_toolchain.gni:48:  cros_target_extra_cflags = ""
+./v8/build/toolchain/cros_toolchain.gni:58:  cros_host_extra_cflags = ""
+./v8/build/toolchain/cros_toolchain.gni:69:  cros_v8_snapshot_extra_cflags = ""
+./v8/build/toolchain/cros_toolchain.gni:75:  cros_nacl_bootstrap_extra_cflags = ""
+./v8/build/toolchain/gcc_toolchain.gni:67:#  - extra_cflags
+./v8/build/toolchain/gcc_toolchain.gni:248:    # remove coverage cflags from files that should not have them.
+./v8/build/toolchain/gcc_toolchain.gni:321:    if (defined(invoker.extra_cflags) && invoker.extra_cflags != "") {
+./v8/build/toolchain/gcc_toolchain.gni:322:      extra_cflags = " " + invoker.extra_cflags
+./v8/build/toolchain/gcc_toolchain.gni:324:      extra_cflags = ""
+./v8/build/toolchain/gcc_toolchain.gni:370:      command = "$cc $md -MF $depfile ${rebuild_string}{{defines}} {{include_dirs}} {{cflags}} {{cflags_c}}${extra_cppflags}${extra_cflags} -c {{source}} -o {{output}}"
+./v8/build/toolchain/gcc_toolchain.gni:379:      command = "$cxx $md -MF $depfile ${rebuild_string}{{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}}${extra_cppflags}${extra_cxxflags} -c {{source}} -o {{output}}"
+./v8/build/toolchain/linux/unbundle/BUILD.gn:14:  extra_cflags = getenv("CFLAGS")
+./v8/build/toolchain/linux/unbundle/BUILD.gn:32:  extra_cflags = getenv("BUILD_CFLAGS")
+./v8/build/toolchain/win/BUILD.gn:213:      command = "$coverage_wrapper$env_wrapper$cl /c {{source}} /nologo $show_includes $sys_include_flags{{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} /Fo{{output}} /Fd\"$pdbname\""
+./v8/build/toolchain/win/BUILD.gn:229:      command = "$coverage_wrapper$env_wrapper$cl /c {{source}} /Fo{{output}} /nologo $show_includes $sys_include_flags{{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} /Fd\"$pdbname\""
+./v8/build/toolchain/zos/BUILD.gn:24:  extra_cflags = ""
+./v8/build/toolchain/zos/BUILD.gn:39:    command = "$cc -MF $depfile ${rebuild_string}{{defines}} {{include_dirs}} {{cflags}} {{cflags_c}}${extra_cflags} -c {{source}} -o {{output}}"
+./v8/build/toolchain/zos/BUILD.gn:47:    command = "$cxx -MF $depfile ${rebuild_string}{{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}}${extra_cppflags}${extra_cxxflags} -c {{source}} -o {{output}}"
+./v8/BUILD.gn:1009:  cflags = []
+./v8/BUILD.gn:1049:        cflags += [ "-mbranch-protection=standard" ]
+./v8/BUILD.gn:1054:        cflags += [ "-mbranch-protection=pac-ret" ]
+./v8/BUILD.gn:1141:    cflags += [ "-ffp-contract=off" ]
+./v8/BUILD.gn:1148:      cflags += [ "-march=z196" ]
+./v8/BUILD.gn:1156:      cflags += [ "-ffp-contract=off" ]
+./v8/BUILD.gn:1163:        cflags += [
+./v8/BUILD.gn:1191:      cflags += [ "/arch:SSE2" ]
+./v8/BUILD.gn:1202:      #cflags += [ "-no-pie" ]
+./v8/BUILD.gn:1260:      cflags += [ "/Ob0" ]
+./v8/BUILD.gn:1262:      cflags += [
+./v8/BUILD.gn:1270:    cflags += [
+./v8/BUILD.gn:1279:      cflags += [ "-Wunreachable-code" ]
+./v8/BUILD.gn:1284:      cflags += [ "-Wshorten-64-to-32" ]
+./v8/BUILD.gn:1289:    cflags += [
+./v8/BUILD.gn:1311:    cflags += [
+./v8/BUILD.gn:1452:    cflags += [
+./v8/BUILD.gn:1474:    cflags += [ "-fsanitize=undefined" ]
+./v8/BUILD.gn:1492:# Configs for code coverage with gcov. Separate configs for cflags and ldflags
+./v8/BUILD.gn:1493:# to selectively influde cflags in non-test targets only.
+./v8/BUILD.gn:1494:config("v8_gcov_coverage_cflags") {
+./v8/BUILD.gn:1495:  cflags = [
+./v8/BUILD.gn:6611:    cflags = [
+./v8/BUILD.gn:6630:      cflags = [
+./v8/BUILD.gn:6641:      cflags += [ "-Wno-microsoft-unqualified-friend" ]
