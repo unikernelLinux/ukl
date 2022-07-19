@@ -39,34 +39,21 @@ AM_CFLAGS   = -no-pie -fno-pic -ggdb -mno-red-zone -mcmodel=kernel -static
 
 noinst_DATA = UKL.a
 
-UKL.a: stamp-depot_tools-dir stamp-v8-dir v8.o buildcc undefined_sys_hack.o
+UKL.a: stamp-depot_tools-dir stamp-v8-dir out.gn/x64.release.sample/obj/libv8_monolith.a buildcc undefined_sys_hack.o
 	rm -f $@ temp.o
-	ld -r -plugin -static -o temp.o \
+	ld -r -static -o temp.o -allow-multiple-definition \
 	$(CRT_STARTS) \
 	hello-world.o \
 	/home/jonocameron/Documents/ukl/v8/v8/out.gn/x64.release.sample/obj/libv8_monolith.a \
-	--start-group --whole-archive C++_LIB MATH_LIB PTHREAD_LIB C_LIB --no-whole-archive \
-	GCC_LIBS  --end-group CRT_ENDS 
+	--start-group --whole-archive $(C++_LIB) $(MATH_LIB) $(PTHREAD_LIB) $(C_LIB) --no-whole-archive \
+	$(GCC_LIBS)  --end-group $(CRT_ENDS) 
 	ar cr UKL.a temp.o undefined_sys_hack.o
 	rm temp.o
 	objcopy --prefix-symbols=ukl_ $@
 	objcopy --redefine-syms=$(top_srcdir)/redef_sym_names $@
 
 
-buildcc:
-	g++ -c -D_GNU_SOURCE -D_REENTRANT -D V8_COMPRESS_POINTERS -D V8_ENABLE_SANDBOX \
-	samples/hello-world.cc -quiet -dumpdir hello_world- -dumpbase v8/samples/hello-world.cc \
-	-dumpbase-ext .cc -mtune=generic -march=x86-64 -O0 -Wall -std=c++17 -version -o hello-world.o 
 
-# Build v8.
-v8.o: stamp-depot_tools-dir stamp-v8-dir out.gn/x64.release.sample/obj/libv8_monolith.a
-	rm -f $@
-	if ! test -d v8.o; then \
-		cp support/theotherMakefile v8/Makefile;\
-		cd v8; make; \
-		cd ..; cp v8/v8.o .; \
-	fi
-	touch $@
 
 # Check out a local copy of depot_tools.
 stamp-depot_tools-dir:
@@ -86,15 +73,30 @@ stamp-v8-dir:
 
 # Produce v8_monolith static library. out.gn/x64.release.sample/obj/libv8_monolith.a
 out.gn/x64.release.sample/obj/libv8_monolith.a:
-	rm -f $@
+	rm -f $@ 
 	if ! test -d out.gn/x64.release.sample/obj/libv8_monolith.a; then \
 		export PATH=/home/jonocameron/Documents/ukl/v8/depot_tools:$(PATH); gclient sync -D; \
-		cd v8; export PATH=/home/jonocameron/Documents/ukl/v8/depot_tools:$(PATH); gn gen out.gn/x64.release.sample --args='dcheck_always_on=false is_component_build=false is_debug=false target_cpu="x64" use_custom_libcxx=false v8_monolithic=true v8_use_external_startup_data=false is_clang=false use_sysroot=false'; \
-		cd ..; cp v8_base_without_compiler.ninja v8/out.gn/x64.release.sample/obj/v8_base_without_compiler.ninja; \
+		cp support/gcc_link_wrapper.py v8/build/toolchain/gcc_link_wrapper.py; \
+		cp support/run.py v8/tools/run.py; \
+		cp support/v8.gni v8/gni/v8.gni; \
+		cp support/gcc/BUILD.gn v8/build/config/gcc/BUILD.gn; \
 		cp support/BUILD.gn v8; \
-		export PATH=/home/jonocameron/Documents/ukl/v8/depot_tools:$(PATH); cd v8; ninja -C out.gn/x64.release.sample v8_monolith; \
-	fi
+		cp support/compiler/BUILD.gn v8/build/config/compiler/BUILD.gn; \
+		cd v8; export PATH=/home/jonocameron/Documents/ukl/v8/depot_tools:$(PATH); gn gen out.gn/x64.release.sample \
+		--args='dcheck_always_on=false is_component_build=false is_debug=false target_cpu="x64" use_custom_libcxx=false v8_monolithic=true v8_use_external_startup_data=false is_clang=false use_sysroot=false'; \
+		cd ..; cp support/v8_base_without_compiler.ninja v8/out.gn/x64.release.sample/obj/v8_base_without_compiler.ninja; \
+		cp -r support/gen v8/out.gn/x64.release.sample; \
+		cp support/zlib_slide_hash_simd.ninja v8/out.gn/x64.release.sample/obj/third_party/zlib/zlib_slide_hash_simd.ninja; \
+		touch v8/out.gn/x64.release.sample/obj/third_party/zlib/zlib_slide_hash_simd.stamp; \
+		export PATH=/home/jonocameron/Documents/ukl/v8/depot_tools:$(PATH); cd v8/out.gn/x64.release.sample; ninja -v v8_monolith |& tee full_build_output; \
+		fi
 #	touch $@
+
+# Compile, but don't link, hello-world.o
+buildcc: stamp-depot_tools-dir stamp-v8-dir 
+	g++ -I. -Iv8 -c -D_GNU_SOURCE -D_REENTRANT -DV8_COMPRESS_POINTERS -DV8_ENABLE_SANDBOX \
+	/home/jonocameron/Documents/ukl/v8/v8/samples/hello-world.cc -dumpdir hello_world- -dumpbase hello-world.cc \
+	-dumpbase-ext .cc -mtune=generic -march=x86-64 -O0 -Wall -std=c++17 -o hello-world.o 
 
 undefined_sys_hack.c: $(top_builddir)/undefined_sys_hack.c
 	cp $< $@

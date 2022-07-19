@@ -1,0 +1,1517 @@
+defines = -DUSE_UDEV -DUSE_AURA=1 -DUSE_GLIB=1 -DUSE_OZONE=1 -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D_FORTIFY_SOURCE=2 -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DV8_TYPED_ARRAY_MAX_SIZE_IN_HEAP=64 -DENABLE_GDB_JIT_INTERFACE -DV8_INTL_SUPPORT -DENABLE_HANDLE_ZAPPING -DV8_ATOMIC_OBJECT_FIELD_WRITES -DV8_ENABLE_LAZY_SOURCE_POSITIONS -DV8_SHARED_RO_HEAP -DV8_WIN64_UNWINDING_INFO -DV8_ENABLE_REGEXP_INTERPRETER_THREADED_DISPATCH -DV8_SHORT_BUILTIN_CALLS -DV8_EXTERNAL_CODE_SPACE -DV8_ENABLE_MAGLEV -DV8_ENABLE_WEBASSEMBLY -DV8_ALLOCATION_FOLDING -DV8_ALLOCATION_SITE_TRACKING -DV8_ADVANCED_BIGINT_ALGORITHMS -DV8_COMPRESS_POINTERS -DV8_COMPRESS_POINTERS_IN_SHARED_CAGE -DV8_31BIT_SMIS_ON_64BIT_ARCH -DV8_DEPRECATION_WARNINGS -DV8_IMMINENT_DEPRECATION_WARNINGS -DCPPGC_CAGED_HEAP -DV8_TARGET_ARCH_X64 -DV8_HAVE_TARGET_OS -DV8_TARGET_OS_LINUX -DV8_RUNTIME_CALL_STATS -DU_USING_ICU_NAMESPACE=0 -DU_ENABLE_DYLOAD=0 -DUSE_CHROMIUM_ICU=1 -DU_ENABLE_TRACING=1 -DU_ENABLE_RESOURCE_TRACING=0 -DU_STATIC_IMPLEMENTATION -DICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE
+include_dirs = -I../.. -Igen -I../../include -Igen/include -I../../third_party/icu/source/common -I../../third_party/icu/source/i18n -I../../third_party/zlib
+cflags = -Wall -Wno-unused-local-typedefs -Wno-maybe-uninitialized -Wno-deprecated-declarations -Wno-comments -Wno-packed-not-aligned -Wno-missing-field-initializers -Wno-unused-parameter -fno-ident -fno-strict-aliasing --param=ssp-buffer-size=4 -fstack-protector -funwind-tables -fPIC -pipe -pthread -m64 -msse3 -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -fno-omit-frame-pointer -g0 -Wno-strict-overflow -Wno-return-type -Wno-int-in-bool-context -O3 -fdata-sections -ffunction-sections -fvisibility=default
+cflags_cc = -Wno-narrowing -Wno-class-memaccess -std=gnu++17 -fno-exceptions -fno-rtti
+label_name = v8_base_without_compiler
+target_out_dir = obj
+target_output_name = v8_base_without_compiler
+
+build obj/v8_base_without_compiler.inputdeps.stamp: stamp obj/generate_bytecode_builtins_list.stamp obj/run_gen-regexp-special-case.stamp obj/run_torque.stamp obj/src/inspector/protocol_generated_sources.stamp obj/third_party/icu/icudata.stamp
+build obj/v8_base_without_compiler/api-arguments.o: cxx ../../src/api/api-arguments.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = api-arguments.cc
+  source_name_part = api-arguments
+build obj/v8_base_without_compiler/api-natives.o: cxx ../../src/api/api-natives.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = api-natives.cc
+  source_name_part = api-natives
+build obj/v8_base_without_compiler/api.o: cxx ../../src/api/api.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = api.cc
+  source_name_part = api
+build obj/v8_base_without_compiler/ast-function-literal-id-reindexer.o: cxx ../../src/ast/ast-function-literal-id-reindexer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = ast-function-literal-id-reindexer.cc
+  source_name_part = ast-function-literal-id-reindexer
+build obj/v8_base_without_compiler/ast-value-factory.o: cxx ../../src/ast/ast-value-factory.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = ast-value-factory.cc
+  source_name_part = ast-value-factory
+build obj/v8_base_without_compiler/ast.o: cxx ../../src/ast/ast.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = ast.cc
+  source_name_part = ast
+build obj/v8_base_without_compiler/modules.o: cxx ../../src/ast/modules.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = modules.cc
+  source_name_part = modules
+build obj/v8_base_without_compiler/prettyprinter.o: cxx ../../src/ast/prettyprinter.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = prettyprinter.cc
+  source_name_part = prettyprinter
+build obj/v8_base_without_compiler/scopes.o: cxx ../../src/ast/scopes.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = scopes.cc
+  source_name_part = scopes
+build obj/v8_base_without_compiler/source-range-ast-visitor.o: cxx ../../src/ast/source-range-ast-visitor.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = source-range-ast-visitor.cc
+  source_name_part = source-range-ast-visitor
+build obj/v8_base_without_compiler/variables.o: cxx ../../src/ast/variables.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = variables.cc
+  source_name_part = variables
+build obj/v8_base_without_compiler/baseline-batch-compiler.o: cxx ../../src/baseline/baseline-batch-compiler.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = baseline-batch-compiler.cc
+  source_name_part = baseline-batch-compiler
+build obj/v8_base_without_compiler/baseline-compiler.o: cxx ../../src/baseline/baseline-compiler.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = baseline-compiler.cc
+  source_name_part = baseline-compiler
+build obj/v8_base_without_compiler/baseline.o: cxx ../../src/baseline/baseline.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = baseline.cc
+  source_name_part = baseline
+build obj/v8_base_without_compiler/bytecode-offset-iterator.o: cxx ../../src/baseline/bytecode-offset-iterator.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = bytecode-offset-iterator.cc
+  source_name_part = bytecode-offset-iterator
+build obj/v8_base_without_compiler/accessors.o: cxx ../../src/builtins/accessors.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = accessors.cc
+  source_name_part = accessors
+build obj/v8_base_without_compiler/builtins-api.o: cxx ../../src/builtins/builtins-api.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = builtins-api.cc
+  source_name_part = builtins-api
+build obj/v8_base_without_compiler/builtins-array.o: cxx ../../src/builtins/builtins-array.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = builtins-array.cc
+  source_name_part = builtins-array
+build obj/v8_base_without_compiler/builtins-arraybuffer.o: cxx ../../src/builtins/builtins-arraybuffer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = builtins-arraybuffer.cc
+  source_name_part = builtins-arraybuffer
+build obj/v8_base_without_compiler/builtins-async-module.o: cxx ../../src/builtins/builtins-async-module.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = builtins-async-module.cc
+  source_name_part = builtins-async-module
+build obj/v8_base_without_compiler/builtins-bigint.o: cxx ../../src/builtins/builtins-bigint.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = builtins-bigint.cc
+  source_name_part = builtins-bigint
+build obj/v8_base_without_compiler/builtins-callsite.o: cxx ../../src/builtins/builtins-callsite.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = builtins-callsite.cc
+  source_name_part = builtins-callsite
+build obj/v8_base_without_compiler/builtins-collections.o: cxx ../../src/builtins/builtins-collections.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = builtins-collections.cc
+  source_name_part = builtins-collections
+build obj/v8_base_without_compiler/builtins-console.o: cxx ../../src/builtins/builtins-console.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = builtins-console.cc
+  source_name_part = builtins-console
+build obj/v8_base_without_compiler/builtins-dataview.o: cxx ../../src/builtins/builtins-dataview.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = builtins-dataview.cc
+  source_name_part = builtins-dataview
+build obj/v8_base_without_compiler/builtins-date.o: cxx ../../src/builtins/builtins-date.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = builtins-date.cc
+  source_name_part = builtins-date
+build obj/v8_base_without_compiler/builtins-error.o: cxx ../../src/builtins/builtins-error.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = builtins-error.cc
+  source_name_part = builtins-error
+build obj/v8_base_without_compiler/builtins-function.o: cxx ../../src/builtins/builtins-function.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = builtins-function.cc
+  source_name_part = builtins-function
+build obj/v8_base_without_compiler/builtins-global.o: cxx ../../src/builtins/builtins-global.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = builtins-global.cc
+  source_name_part = builtins-global
+build obj/v8_base_without_compiler/builtins-internal.o: cxx ../../src/builtins/builtins-internal.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = builtins-internal.cc
+  source_name_part = builtins-internal
+build obj/v8_base_without_compiler/builtins-intl.o: cxx ../../src/builtins/builtins-intl.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = builtins-intl.cc
+  source_name_part = builtins-intl
+build obj/v8_base_without_compiler/builtins-json.o: cxx ../../src/builtins/builtins-json.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = builtins-json.cc
+  source_name_part = builtins-json
+build obj/v8_base_without_compiler/builtins-number.o: cxx ../../src/builtins/builtins-number.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = builtins-number.cc
+  source_name_part = builtins-number
+build obj/v8_base_without_compiler/builtins-object.o: cxx ../../src/builtins/builtins-object.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = builtins-object.cc
+  source_name_part = builtins-object
+build obj/v8_base_without_compiler/builtins-reflect.o: cxx ../../src/builtins/builtins-reflect.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = builtins-reflect.cc
+  source_name_part = builtins-reflect
+build obj/v8_base_without_compiler/builtins-regexp.o: cxx ../../src/builtins/builtins-regexp.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = builtins-regexp.cc
+  source_name_part = builtins-regexp
+build obj/v8_base_without_compiler/builtins-shadow-realms.o: cxx ../../src/builtins/builtins-shadow-realms.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = builtins-shadow-realms.cc
+  source_name_part = builtins-shadow-realms
+build obj/v8_base_without_compiler/builtins-sharedarraybuffer.o: cxx ../../src/builtins/builtins-sharedarraybuffer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = builtins-sharedarraybuffer.cc
+  source_name_part = builtins-sharedarraybuffer
+build obj/v8_base_without_compiler/builtins-string.o: cxx ../../src/builtins/builtins-string.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = builtins-string.cc
+  source_name_part = builtins-string
+build obj/v8_base_without_compiler/builtins-struct.o: cxx ../../src/builtins/builtins-struct.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = builtins-struct.cc
+  source_name_part = builtins-struct
+build obj/v8_base_without_compiler/builtins-symbol.o: cxx ../../src/builtins/builtins-symbol.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = builtins-symbol.cc
+  source_name_part = builtins-symbol
+build obj/v8_base_without_compiler/builtins-temporal.o: cxx ../../src/builtins/builtins-temporal.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = builtins-temporal.cc
+  source_name_part = builtins-temporal
+build obj/v8_base_without_compiler/builtins-trace.o: cxx ../../src/builtins/builtins-trace.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = builtins-trace.cc
+  source_name_part = builtins-trace
+build obj/v8_base_without_compiler/builtins-typed-array.o: cxx ../../src/builtins/builtins-typed-array.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = builtins-typed-array.cc
+  source_name_part = builtins-typed-array
+build obj/v8_base_without_compiler/builtins-weak-refs.o: cxx ../../src/builtins/builtins-weak-refs.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = builtins-weak-refs.cc
+  source_name_part = builtins-weak-refs
+build obj/v8_base_without_compiler/builtins.o: cxx ../../src/builtins/builtins.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = builtins.cc
+  source_name_part = builtins
+build obj/v8_base_without_compiler/constants-table-builder.o: cxx ../../src/builtins/constants-table-builder.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = constants-table-builder.cc
+  source_name_part = constants-table-builder
+build obj/v8_base_without_compiler/aligned-slot-allocator.o: cxx ../../src/codegen/aligned-slot-allocator.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = aligned-slot-allocator.cc
+  source_name_part = aligned-slot-allocator
+build obj/v8_base_without_compiler/assembler.o: cxx ../../src/codegen/assembler.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = assembler.cc
+  source_name_part = assembler
+build obj/v8_base_without_compiler/bailout-reason.o: cxx ../../src/codegen/bailout-reason.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = bailout-reason.cc
+  source_name_part = bailout-reason
+build obj/v8_base_without_compiler/code-comments.o: cxx ../../src/codegen/code-comments.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = code-comments.cc
+  source_name_part = code-comments
+build obj/v8_base_without_compiler/code-desc.o: cxx ../../src/codegen/code-desc.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = code-desc.cc
+  source_name_part = code-desc
+build obj/v8_base_without_compiler/code-factory.o: cxx ../../src/codegen/code-factory.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = code-factory.cc
+  source_name_part = code-factory
+build obj/v8_base_without_compiler/code-reference.o: cxx ../../src/codegen/code-reference.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = code-reference.cc
+  source_name_part = code-reference
+build obj/v8_base_without_compiler/compilation-cache.o: cxx ../../src/codegen/compilation-cache.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = compilation-cache.cc
+  source_name_part = compilation-cache
+build obj/v8_base_without_compiler/compiler.o: cxx ../../src/codegen/compiler.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = compiler.cc
+  source_name_part = compiler
+build obj/v8_base_without_compiler/constant-pool.o: cxx ../../src/codegen/constant-pool.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = constant-pool.cc
+  source_name_part = constant-pool
+build obj/v8_base_without_compiler/external-reference-encoder.o: cxx ../../src/codegen/external-reference-encoder.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = external-reference-encoder.cc
+  source_name_part = external-reference-encoder
+build obj/v8_base_without_compiler/external-reference-table.o: cxx ../../src/codegen/external-reference-table.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = external-reference-table.cc
+  source_name_part = external-reference-table
+build obj/v8_base_without_compiler/external-reference.o: cxx ../../src/codegen/external-reference.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = external-reference.cc
+  source_name_part = external-reference
+build obj/v8_base_without_compiler/flush-instruction-cache.o: cxx ../../src/codegen/flush-instruction-cache.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = flush-instruction-cache.cc
+  source_name_part = flush-instruction-cache
+build obj/v8_base_without_compiler/handler-table.o: cxx ../../src/codegen/handler-table.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = handler-table.cc
+  source_name_part = handler-table
+build obj/v8_base_without_compiler/interface-descriptors.o: cxx ../../src/codegen/interface-descriptors.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = interface-descriptors.cc
+  source_name_part = interface-descriptors
+build obj/v8_base_without_compiler/machine-type.o: cxx ../../src/codegen/machine-type.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = machine-type.cc
+  source_name_part = machine-type
+build obj/v8_base_without_compiler/optimized-compilation-info.o: cxx ../../src/codegen/optimized-compilation-info.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = optimized-compilation-info.cc
+  source_name_part = optimized-compilation-info
+build obj/v8_base_without_compiler/pending-optimization-table.o: cxx ../../src/codegen/pending-optimization-table.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = pending-optimization-table.cc
+  source_name_part = pending-optimization-table
+build obj/v8_base_without_compiler/register-configuration.o: cxx ../../src/codegen/register-configuration.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = register-configuration.cc
+  source_name_part = register-configuration
+build obj/v8_base_without_compiler/reloc-info.o: cxx ../../src/codegen/reloc-info.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = reloc-info.cc
+  source_name_part = reloc-info
+build obj/v8_base_without_compiler/safepoint-table.o: cxx ../../src/codegen/safepoint-table.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = safepoint-table.cc
+  source_name_part = safepoint-table
+build obj/v8_base_without_compiler/source-position-table.o: cxx ../../src/codegen/source-position-table.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = source-position-table.cc
+  source_name_part = source-position-table
+build obj/v8_base_without_compiler/source-position.o: cxx ../../src/codegen/source-position.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = source-position.cc
+  source_name_part = source-position
+build obj/v8_base_without_compiler/string-constants.o: cxx ../../src/codegen/string-constants.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = string-constants.cc
+  source_name_part = string-constants
+build obj/v8_base_without_compiler/tick-counter.o: cxx ../../src/codegen/tick-counter.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = tick-counter.cc
+  source_name_part = tick-counter
+build obj/v8_base_without_compiler/tnode.o: cxx ../../src/codegen/tnode.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = tnode.cc
+  source_name_part = tnode
+build obj/v8_base_without_compiler/turbo-assembler.o: cxx ../../src/codegen/turbo-assembler.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = turbo-assembler.cc
+  source_name_part = turbo-assembler
+build obj/v8_base_without_compiler/unoptimized-compilation-info.o: cxx ../../src/codegen/unoptimized-compilation-info.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = unoptimized-compilation-info.cc
+  source_name_part = unoptimized-compilation-info
+build obj/v8_base_without_compiler/assert-scope.o: cxx ../../src/common/assert-scope.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = assert-scope.cc
+  source_name_part = assert-scope
+build obj/v8_base_without_compiler/lazy-compile-dispatcher.o: cxx ../../src/compiler-dispatcher/lazy-compile-dispatcher.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = lazy-compile-dispatcher.cc
+  source_name_part = lazy-compile-dispatcher
+build obj/v8_base_without_compiler/optimizing-compile-dispatcher.o: cxx ../../src/compiler-dispatcher/optimizing-compile-dispatcher.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = optimizing-compile-dispatcher.cc
+  source_name_part = optimizing-compile-dispatcher
+build obj/v8_base_without_compiler/date.o: cxx ../../src/date/date.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = date.cc
+  source_name_part = date
+build obj/v8_base_without_compiler/dateparser.o: cxx ../../src/date/dateparser.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = dateparser.cc
+  source_name_part = dateparser
+build obj/v8_base_without_compiler/debug-coverage.o: cxx ../../src/debug/debug-coverage.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = debug-coverage.cc
+  source_name_part = debug-coverage
+build obj/v8_base_without_compiler/debug-evaluate.o: cxx ../../src/debug/debug-evaluate.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = debug-evaluate.cc
+  source_name_part = debug-evaluate
+build obj/v8_base_without_compiler/debug-frames.o: cxx ../../src/debug/debug-frames.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = debug-frames.cc
+  source_name_part = debug-frames
+build obj/v8_base_without_compiler/debug-interface.o: cxx ../../src/debug/debug-interface.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = debug-interface.cc
+  source_name_part = debug-interface
+build obj/v8_base_without_compiler/debug-property-iterator.o: cxx ../../src/debug/debug-property-iterator.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = debug-property-iterator.cc
+  source_name_part = debug-property-iterator
+build obj/v8_base_without_compiler/debug-scope-iterator.o: cxx ../../src/debug/debug-scope-iterator.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = debug-scope-iterator.cc
+  source_name_part = debug-scope-iterator
+build obj/v8_base_without_compiler/debug-scopes.o: cxx ../../src/debug/debug-scopes.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = debug-scopes.cc
+  source_name_part = debug-scopes
+build obj/v8_base_without_compiler/debug-stack-trace-iterator.o: cxx ../../src/debug/debug-stack-trace-iterator.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = debug-stack-trace-iterator.cc
+  source_name_part = debug-stack-trace-iterator
+build obj/v8_base_without_compiler/debug-type-profile.o: cxx ../../src/debug/debug-type-profile.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = debug-type-profile.cc
+  source_name_part = debug-type-profile
+build obj/v8_base_without_compiler/debug.o: cxx ../../src/debug/debug.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = debug.cc
+  source_name_part = debug
+build obj/v8_base_without_compiler/liveedit.o: cxx ../../src/debug/liveedit.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = liveedit.cc
+  source_name_part = liveedit
+build obj/v8_base_without_compiler/deoptimize-reason.o: cxx ../../src/deoptimizer/deoptimize-reason.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = deoptimize-reason.cc
+  source_name_part = deoptimize-reason
+build obj/v8_base_without_compiler/deoptimized-frame-info.o: cxx ../../src/deoptimizer/deoptimized-frame-info.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = deoptimized-frame-info.cc
+  source_name_part = deoptimized-frame-info
+build obj/v8_base_without_compiler/deoptimizer.o: cxx ../../src/deoptimizer/deoptimizer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = deoptimizer.cc
+  source_name_part = deoptimizer
+build obj/v8_base_without_compiler/materialized-object-store.o: cxx ../../src/deoptimizer/materialized-object-store.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = materialized-object-store.cc
+  source_name_part = materialized-object-store
+build obj/v8_base_without_compiler/translated-state.o: cxx ../../src/deoptimizer/translated-state.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = translated-state.cc
+  source_name_part = translated-state
+build obj/v8_base_without_compiler/translation-array.o: cxx ../../src/deoptimizer/translation-array.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = translation-array.cc
+  source_name_part = translation-array
+build obj/v8_base_without_compiler/basic-block-profiler.o: cxx ../../src/diagnostics/basic-block-profiler.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = basic-block-profiler.cc
+  source_name_part = basic-block-profiler
+build obj/v8_base_without_compiler/compilation-statistics.o: cxx ../../src/diagnostics/compilation-statistics.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = compilation-statistics.cc
+  source_name_part = compilation-statistics
+build obj/v8_base_without_compiler/disassembler.o: cxx ../../src/diagnostics/disassembler.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = disassembler.cc
+  source_name_part = disassembler
+build obj/v8_base_without_compiler/eh-frame.o: cxx ../../src/diagnostics/eh-frame.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = eh-frame.cc
+  source_name_part = eh-frame
+build obj/v8_base_without_compiler/gdb-jit.o: cxx ../../src/diagnostics/gdb-jit.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = gdb-jit.cc
+  source_name_part = gdb-jit
+build obj/v8_base_without_compiler/objects-debug.o: cxx ../../src/diagnostics/objects-debug.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = objects-debug.cc
+  source_name_part = objects-debug
+build obj/v8_base_without_compiler/objects-printer.o: cxx ../../src/diagnostics/objects-printer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = objects-printer.cc
+  source_name_part = objects-printer
+build obj/v8_base_without_compiler/perf-jit.o: cxx ../../src/diagnostics/perf-jit.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = perf-jit.cc
+  source_name_part = perf-jit
+build obj/v8_base_without_compiler/unwinder.o: cxx ../../src/diagnostics/unwinder.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = unwinder.cc
+  source_name_part = unwinder
+build obj/v8_base_without_compiler/arguments.o: cxx ../../src/execution/arguments.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = arguments.cc
+  source_name_part = arguments
+build obj/v8_base_without_compiler/clobber-registers.o: cxx ../../src/execution/clobber-registers.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = clobber-registers.cc
+  source_name_part = clobber-registers
+build obj/v8_base_without_compiler/embedder-state.o: cxx ../../src/execution/embedder-state.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = embedder-state.cc
+  source_name_part = embedder-state
+build obj/v8_base_without_compiler/encoded-c-signature.o: cxx ../../src/execution/encoded-c-signature.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = encoded-c-signature.cc
+  source_name_part = encoded-c-signature
+build obj/v8_base_without_compiler/execution.o: cxx ../../src/execution/execution.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = execution.cc
+  source_name_part = execution
+build obj/v8_base_without_compiler/frames.o: cxx ../../src/execution/frames.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = frames.cc
+  source_name_part = frames
+build obj/v8_base_without_compiler/futex-emulation.o: cxx ../../src/execution/futex-emulation.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = futex-emulation.cc
+  source_name_part = futex-emulation
+build obj/v8_base_without_compiler/interrupts-scope.o: cxx ../../src/execution/interrupts-scope.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = interrupts-scope.cc
+  source_name_part = interrupts-scope
+build obj/v8_base_without_compiler/isolate.o: cxx ../../src/execution/isolate.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = isolate.cc
+  source_name_part = isolate
+build obj/v8_base_without_compiler/local-isolate.o: cxx ../../src/execution/local-isolate.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = local-isolate.cc
+  source_name_part = local-isolate
+build obj/v8_base_without_compiler/messages.o: cxx ../../src/execution/messages.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = messages.cc
+  source_name_part = messages
+build obj/v8_base_without_compiler/microtask-queue.o: cxx ../../src/execution/microtask-queue.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = microtask-queue.cc
+  source_name_part = microtask-queue
+build obj/v8_base_without_compiler/protectors.o: cxx ../../src/execution/protectors.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = protectors.cc
+  source_name_part = protectors
+build obj/v8_base_without_compiler/simulator-base.o: cxx ../../src/execution/simulator-base.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = simulator-base.cc
+  source_name_part = simulator-base
+build obj/v8_base_without_compiler/stack-guard.o: cxx ../../src/execution/stack-guard.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = stack-guard.cc
+  source_name_part = stack-guard
+build obj/v8_base_without_compiler/thread-id.o: cxx ../../src/execution/thread-id.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = thread-id.cc
+  source_name_part = thread-id
+build obj/v8_base_without_compiler/thread-local-top.o: cxx ../../src/execution/thread-local-top.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = thread-local-top.cc
+  source_name_part = thread-local-top
+build obj/v8_base_without_compiler/tiering-manager.o: cxx ../../src/execution/tiering-manager.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = tiering-manager.cc
+  source_name_part = tiering-manager
+build obj/v8_base_without_compiler/v8threads.o: cxx ../../src/execution/v8threads.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = v8threads.cc
+  source_name_part = v8threads
+build obj/v8_base_without_compiler/cputracemark-extension.o: cxx ../../src/extensions/cputracemark-extension.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = cputracemark-extension.cc
+  source_name_part = cputracemark-extension
+build obj/v8_base_without_compiler/externalize-string-extension.o: cxx ../../src/extensions/externalize-string-extension.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = externalize-string-extension.cc
+  source_name_part = externalize-string-extension
+build obj/v8_base_without_compiler/gc-extension.o: cxx ../../src/extensions/gc-extension.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = gc-extension.cc
+  source_name_part = gc-extension
+build obj/v8_base_without_compiler/ignition-statistics-extension.o: cxx ../../src/extensions/ignition-statistics-extension.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = ignition-statistics-extension.cc
+  source_name_part = ignition-statistics-extension
+build obj/v8_base_without_compiler/statistics-extension.o: cxx ../../src/extensions/statistics-extension.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = statistics-extension.cc
+  source_name_part = statistics-extension
+build obj/v8_base_without_compiler/trigger-failure-extension.o: cxx ../../src/extensions/trigger-failure-extension.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = trigger-failure-extension.cc
+  source_name_part = trigger-failure-extension
+build obj/v8_base_without_compiler/flags.o: cxx ../../src/flags/flags.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = flags.cc
+  source_name_part = flags
+build obj/v8_base_without_compiler/global-handles.o: cxx ../../src/handles/global-handles.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = global-handles.cc
+  source_name_part = global-handles
+build obj/v8_base_without_compiler/handles.o: cxx ../../src/handles/handles.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = handles.cc
+  source_name_part = handles
+build obj/v8_base_without_compiler/local-handles.o: cxx ../../src/handles/local-handles.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = local-handles.cc
+  source_name_part = local-handles
+build obj/v8_base_without_compiler/persistent-handles.o: cxx ../../src/handles/persistent-handles.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = persistent-handles.cc
+  source_name_part = persistent-handles
+build obj/v8_base_without_compiler/allocation-observer.o: cxx ../../src/heap/allocation-observer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = allocation-observer.cc
+  source_name_part = allocation-observer
+build obj/v8_base_without_compiler/array-buffer-sweeper.o: cxx ../../src/heap/array-buffer-sweeper.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = array-buffer-sweeper.cc
+  source_name_part = array-buffer-sweeper
+build obj/v8_base_without_compiler/base-space.o: cxx ../../src/heap/base-space.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = base-space.cc
+  source_name_part = base-space
+build obj/v8_base_without_compiler/basic-memory-chunk.o: cxx ../../src/heap/basic-memory-chunk.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = basic-memory-chunk.cc
+  source_name_part = basic-memory-chunk
+build obj/v8_base_without_compiler/code-object-registry.o: cxx ../../src/heap/code-object-registry.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = code-object-registry.cc
+  source_name_part = code-object-registry
+build obj/v8_base_without_compiler/code-range.o: cxx ../../src/heap/code-range.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = code-range.cc
+  source_name_part = code-range
+build obj/v8_base_without_compiler/code-stats.o: cxx ../../src/heap/code-stats.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = code-stats.cc
+  source_name_part = code-stats
+build obj/v8_base_without_compiler/collection-barrier.o: cxx ../../src/heap/collection-barrier.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = collection-barrier.cc
+  source_name_part = collection-barrier
+build obj/v8_base_without_compiler/combined-heap.o: cxx ../../src/heap/combined-heap.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = combined-heap.cc
+  source_name_part = combined-heap
+build obj/v8_base_without_compiler/concurrent-allocator.o: cxx ../../src/heap/concurrent-allocator.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = concurrent-allocator.cc
+  source_name_part = concurrent-allocator
+build obj/v8_base_without_compiler/concurrent-marking.o: cxx ../../src/heap/concurrent-marking.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = concurrent-marking.cc
+  source_name_part = concurrent-marking
+build obj/v8_base_without_compiler/cpp-heap.o: cxx ../../src/heap/cppgc-js/cpp-heap.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = cpp-heap.cc
+  source_name_part = cpp-heap
+build obj/v8_base_without_compiler/cpp-snapshot.o: cxx ../../src/heap/cppgc-js/cpp-snapshot.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = cpp-snapshot.cc
+  source_name_part = cpp-snapshot
+build obj/v8_base_without_compiler/unified-heap-marking-state.o: cxx ../../src/heap/cppgc-js/unified-heap-marking-state.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = unified-heap-marking-state.cc
+  source_name_part = unified-heap-marking-state
+build obj/v8_base_without_compiler/unified-heap-marking-verifier.o: cxx ../../src/heap/cppgc-js/unified-heap-marking-verifier.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = unified-heap-marking-verifier.cc
+  source_name_part = unified-heap-marking-verifier
+build obj/v8_base_without_compiler/unified-heap-marking-visitor.o: cxx ../../src/heap/cppgc-js/unified-heap-marking-visitor.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = unified-heap-marking-visitor.cc
+  source_name_part = unified-heap-marking-visitor
+build obj/v8_base_without_compiler/embedder-tracing.o: cxx ../../src/heap/embedder-tracing.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = embedder-tracing.cc
+  source_name_part = embedder-tracing
+build obj/v8_base_without_compiler/factory-base.o: cxx ../../src/heap/factory-base.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = factory-base.cc
+  source_name_part = factory-base
+build obj/v8_base_without_compiler/factory.o: cxx ../../src/heap/factory.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = factory.cc
+  source_name_part = factory
+build obj/v8_base_without_compiler/finalization-registry-cleanup-task.o: cxx ../../src/heap/finalization-registry-cleanup-task.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = finalization-registry-cleanup-task.cc
+  source_name_part = finalization-registry-cleanup-task
+build obj/v8_base_without_compiler/free-list.o: cxx ../../src/heap/free-list.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = free-list.cc
+  source_name_part = free-list
+build obj/v8_base_without_compiler/gc-idle-time-handler.o: cxx ../../src/heap/gc-idle-time-handler.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = gc-idle-time-handler.cc
+  source_name_part = gc-idle-time-handler
+build obj/v8_base_without_compiler/gc-tracer.o: cxx ../../src/heap/gc-tracer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = gc-tracer.cc
+  source_name_part = gc-tracer
+build obj/v8_base_without_compiler/heap-allocator.o: cxx ../../src/heap/heap-allocator.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = heap-allocator.cc
+  source_name_part = heap-allocator
+build obj/v8_base_without_compiler/heap-controller.o: cxx ../../src/heap/heap-controller.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = heap-controller.cc
+  source_name_part = heap-controller
+build obj/v8_base_without_compiler/heap-layout-tracer.o: cxx ../../src/heap/heap-layout-tracer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = heap-layout-tracer.cc
+  source_name_part = heap-layout-tracer
+build obj/v8_base_without_compiler/heap-write-barrier.o: cxx ../../src/heap/heap-write-barrier.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = heap-write-barrier.cc
+  source_name_part = heap-write-barrier
+build obj/v8_base_without_compiler/heap.o: cxx ../../src/heap/heap.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = heap.cc
+  source_name_part = heap
+build obj/v8_base_without_compiler/incremental-marking-job.o: cxx ../../src/heap/incremental-marking-job.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = incremental-marking-job.cc
+  source_name_part = incremental-marking-job
+build obj/v8_base_without_compiler/incremental-marking.o: cxx ../../src/heap/incremental-marking.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = incremental-marking.cc
+  source_name_part = incremental-marking
+build obj/v8_base_without_compiler/index-generator.o: cxx ../../src/heap/index-generator.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = index-generator.cc
+  source_name_part = index-generator
+build obj/v8_base_without_compiler/invalidated-slots.o: cxx ../../src/heap/invalidated-slots.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = invalidated-slots.cc
+  source_name_part = invalidated-slots
+build obj/v8_base_without_compiler/large-spaces.o: cxx ../../src/heap/large-spaces.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = large-spaces.cc
+  source_name_part = large-spaces
+build obj/v8_base_without_compiler/local-factory.o: cxx ../../src/heap/local-factory.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = local-factory.cc
+  source_name_part = local-factory
+build obj/v8_base_without_compiler/local-heap.o: cxx ../../src/heap/local-heap.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = local-heap.cc
+  source_name_part = local-heap
+build obj/v8_base_without_compiler/mark-compact.o: cxx ../../src/heap/mark-compact.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = mark-compact.cc
+  source_name_part = mark-compact
+build obj/v8_base_without_compiler/marking-barrier.o: cxx ../../src/heap/marking-barrier.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = marking-barrier.cc
+  source_name_part = marking-barrier
+build obj/v8_base_without_compiler/marking-worklist.o: cxx ../../src/heap/marking-worklist.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = marking-worklist.cc
+  source_name_part = marking-worklist
+build obj/v8_base_without_compiler/marking.o: cxx ../../src/heap/marking.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = marking.cc
+  source_name_part = marking
+build obj/v8_base_without_compiler/memory-allocator.o: cxx ../../src/heap/memory-allocator.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = memory-allocator.cc
+  source_name_part = memory-allocator
+build obj/v8_base_without_compiler/memory-chunk-layout.o: cxx ../../src/heap/memory-chunk-layout.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = memory-chunk-layout.cc
+  source_name_part = memory-chunk-layout
+build obj/v8_base_without_compiler/memory-chunk.o: cxx ../../src/heap/memory-chunk.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = memory-chunk.cc
+  source_name_part = memory-chunk
+build obj/v8_base_without_compiler/memory-measurement.o: cxx ../../src/heap/memory-measurement.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = memory-measurement.cc
+  source_name_part = memory-measurement
+build obj/v8_base_without_compiler/memory-reducer.o: cxx ../../src/heap/memory-reducer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = memory-reducer.cc
+  source_name_part = memory-reducer
+build obj/v8_base_without_compiler/new-spaces.o: cxx ../../src/heap/new-spaces.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = new-spaces.cc
+  source_name_part = new-spaces
+build obj/v8_base_without_compiler/object-stats.o: cxx ../../src/heap/object-stats.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = object-stats.cc
+  source_name_part = object-stats
+build obj/v8_base_without_compiler/objects-visiting.o: cxx ../../src/heap/objects-visiting.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = objects-visiting.cc
+  source_name_part = objects-visiting
+build obj/v8_base_without_compiler/paged-spaces.o: cxx ../../src/heap/paged-spaces.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = paged-spaces.cc
+  source_name_part = paged-spaces
+build obj/v8_base_without_compiler/read-only-heap.o: cxx ../../src/heap/read-only-heap.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = read-only-heap.cc
+  source_name_part = read-only-heap
+build obj/v8_base_without_compiler/read-only-spaces.o: cxx ../../src/heap/read-only-spaces.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = read-only-spaces.cc
+  source_name_part = read-only-spaces
+build obj/v8_base_without_compiler/safepoint.o: cxx ../../src/heap/safepoint.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = safepoint.cc
+  source_name_part = safepoint
+build obj/v8_base_without_compiler/scavenge-job.o: cxx ../../src/heap/scavenge-job.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = scavenge-job.cc
+  source_name_part = scavenge-job
+build obj/v8_base_without_compiler/scavenger.o: cxx ../../src/heap/scavenger.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = scavenger.cc
+  source_name_part = scavenger
+build obj/v8_base_without_compiler/slot-set.o: cxx ../../src/heap/slot-set.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = slot-set.cc
+  source_name_part = slot-set
+build obj/v8_base_without_compiler/spaces.o: cxx ../../src/heap/spaces.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = spaces.cc
+  source_name_part = spaces
+build obj/v8_base_without_compiler/stress-marking-observer.o: cxx ../../src/heap/stress-marking-observer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = stress-marking-observer.cc
+  source_name_part = stress-marking-observer
+build obj/v8_base_without_compiler/stress-scavenge-observer.o: cxx ../../src/heap/stress-scavenge-observer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = stress-scavenge-observer.cc
+  source_name_part = stress-scavenge-observer
+build obj/v8_base_without_compiler/sweeper.o: cxx ../../src/heap/sweeper.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = sweeper.cc
+  source_name_part = sweeper
+build obj/v8_base_without_compiler/weak-object-worklists.o: cxx ../../src/heap/weak-object-worklists.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = weak-object-worklists.cc
+  source_name_part = weak-object-worklists
+build obj/v8_base_without_compiler/call-optimization.o: cxx ../../src/ic/call-optimization.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = call-optimization.cc
+  source_name_part = call-optimization
+build obj/v8_base_without_compiler/handler-configuration.o: cxx ../../src/ic/handler-configuration.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = handler-configuration.cc
+  source_name_part = handler-configuration
+build obj/v8_base_without_compiler/ic-stats.o: cxx ../../src/ic/ic-stats.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = ic-stats.cc
+  source_name_part = ic-stats
+build obj/v8_base_without_compiler/ic.o: cxx ../../src/ic/ic.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = ic.cc
+  source_name_part = ic
+build obj/v8_base_without_compiler/stub-cache.o: cxx ../../src/ic/stub-cache.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = stub-cache.cc
+  source_name_part = stub-cache
+build obj/v8_base_without_compiler/bootstrapper.o: cxx ../../src/init/bootstrapper.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = bootstrapper.cc
+  source_name_part = bootstrapper
+build obj/v8_base_without_compiler/icu_util.o: cxx ../../src/init/icu_util.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = icu_util.cc
+  source_name_part = icu_util
+build obj/v8_base_without_compiler/isolate-allocator.o: cxx ../../src/init/isolate-allocator.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = isolate-allocator.cc
+  source_name_part = isolate-allocator
+build obj/v8_base_without_compiler/startup-data-util.o: cxx ../../src/init/startup-data-util.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = startup-data-util.cc
+  source_name_part = startup-data-util
+build obj/v8_base_without_compiler/v8.o: cxx ../../src/init/v8.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = v8.cc
+  source_name_part = v8
+build obj/v8_base_without_compiler/bytecode-array-builder.o: cxx ../../src/interpreter/bytecode-array-builder.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = bytecode-array-builder.cc
+  source_name_part = bytecode-array-builder
+build obj/v8_base_without_compiler/bytecode-array-iterator.o: cxx ../../src/interpreter/bytecode-array-iterator.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = bytecode-array-iterator.cc
+  source_name_part = bytecode-array-iterator
+build obj/v8_base_without_compiler/bytecode-array-random-iterator.o: cxx ../../src/interpreter/bytecode-array-random-iterator.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = bytecode-array-random-iterator.cc
+  source_name_part = bytecode-array-random-iterator
+build obj/v8_base_without_compiler/bytecode-array-writer.o: cxx ../../src/interpreter/bytecode-array-writer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = bytecode-array-writer.cc
+  source_name_part = bytecode-array-writer
+build obj/v8_base_without_compiler/bytecode-decoder.o: cxx ../../src/interpreter/bytecode-decoder.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = bytecode-decoder.cc
+  source_name_part = bytecode-decoder
+build obj/v8_base_without_compiler/bytecode-flags.o: cxx ../../src/interpreter/bytecode-flags.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = bytecode-flags.cc
+  source_name_part = bytecode-flags
+build obj/v8_base_without_compiler/bytecode-generator.o: cxx ../../src/interpreter/bytecode-generator.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = bytecode-generator.cc
+  source_name_part = bytecode-generator
+build obj/v8_base_without_compiler/bytecode-label.o: cxx ../../src/interpreter/bytecode-label.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = bytecode-label.cc
+  source_name_part = bytecode-label
+build obj/v8_base_without_compiler/bytecode-node.o: cxx ../../src/interpreter/bytecode-node.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = bytecode-node.cc
+  source_name_part = bytecode-node
+build obj/v8_base_without_compiler/bytecode-operands.o: cxx ../../src/interpreter/bytecode-operands.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = bytecode-operands.cc
+  source_name_part = bytecode-operands
+build obj/v8_base_without_compiler/bytecode-register-optimizer.o: cxx ../../src/interpreter/bytecode-register-optimizer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = bytecode-register-optimizer.cc
+  source_name_part = bytecode-register-optimizer
+build obj/v8_base_without_compiler/bytecode-register.o: cxx ../../src/interpreter/bytecode-register.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = bytecode-register.cc
+  source_name_part = bytecode-register
+build obj/v8_base_without_compiler/bytecode-source-info.o: cxx ../../src/interpreter/bytecode-source-info.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = bytecode-source-info.cc
+  source_name_part = bytecode-source-info
+build obj/v8_base_without_compiler/bytecodes.o: cxx ../../src/interpreter/bytecodes.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = bytecodes.cc
+  source_name_part = bytecodes
+build obj/v8_base_without_compiler/constant-array-builder.o: cxx ../../src/interpreter/constant-array-builder.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = constant-array-builder.cc
+  source_name_part = constant-array-builder
+build obj/v8_base_without_compiler/control-flow-builders.o: cxx ../../src/interpreter/control-flow-builders.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = control-flow-builders.cc
+  source_name_part = control-flow-builders
+build obj/v8_base_without_compiler/handler-table-builder.o: cxx ../../src/interpreter/handler-table-builder.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = handler-table-builder.cc
+  source_name_part = handler-table-builder
+build obj/v8_base_without_compiler/interpreter-intrinsics.o: cxx ../../src/interpreter/interpreter-intrinsics.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = interpreter-intrinsics.cc
+  source_name_part = interpreter-intrinsics
+build obj/v8_base_without_compiler/interpreter.o: cxx ../../src/interpreter/interpreter.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = interpreter.cc
+  source_name_part = interpreter
+build obj/v8_base_without_compiler/json-parser.o: cxx ../../src/json/json-parser.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = json-parser.cc
+  source_name_part = json-parser
+build obj/v8_base_without_compiler/json-stringifier.o: cxx ../../src/json/json-stringifier.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = json-stringifier.cc
+  source_name_part = json-stringifier
+build obj/v8_base_without_compiler/sampler.o: cxx ../../src/libsampler/sampler.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = sampler.cc
+  source_name_part = sampler
+build obj/v8_base_without_compiler/counters.o: cxx ../../src/logging/counters.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = counters.cc
+  source_name_part = counters
+build obj/v8_base_without_compiler/local-logger.o: cxx ../../src/logging/local-logger.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = local-logger.cc
+  source_name_part = local-logger
+build obj/v8_base_without_compiler/log-utils.o: cxx ../../src/logging/log-utils.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = log-utils.cc
+  source_name_part = log-utils
+build obj/v8_base_without_compiler/log.o: cxx ../../src/logging/log.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = log.cc
+  source_name_part = log
+build obj/v8_base_without_compiler/metrics.o: cxx ../../src/logging/metrics.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = metrics.cc
+  source_name_part = metrics
+build obj/v8_base_without_compiler/runtime-call-stats.o: cxx ../../src/logging/runtime-call-stats.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-call-stats.cc
+  source_name_part = runtime-call-stats
+build obj/v8_base_without_compiler/tracing-flags.o: cxx ../../src/logging/tracing-flags.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = tracing-flags.cc
+  source_name_part = tracing-flags
+build obj/v8_base_without_compiler/conversions.o: cxx ../../src/numbers/conversions.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = conversions.cc
+  source_name_part = conversions
+build obj/v8_base_without_compiler/math-random.o: cxx ../../src/numbers/math-random.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = math-random.cc
+  source_name_part = math-random
+build obj/v8_base_without_compiler/backing-store.o: cxx ../../src/objects/backing-store.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = backing-store.cc
+  source_name_part = backing-store
+build obj/v8_base_without_compiler/bigint.o: cxx ../../src/objects/bigint.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = bigint.cc
+  source_name_part = bigint
+build obj/v8_base_without_compiler/call-site-info.o: cxx ../../src/objects/call-site-info.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = call-site-info.cc
+  source_name_part = call-site-info
+build obj/v8_base_without_compiler/code-kind.o: cxx ../../src/objects/code-kind.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = code-kind.cc
+  source_name_part = code-kind
+build obj/v8_base_without_compiler/code.o: cxx ../../src/objects/code.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = code.cc
+  source_name_part = code
+build obj/v8_base_without_compiler/compilation-cache-table.o: cxx ../../src/objects/compilation-cache-table.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = compilation-cache-table.cc
+  source_name_part = compilation-cache-table
+build obj/v8_base_without_compiler/contexts.o: cxx ../../src/objects/contexts.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = contexts.cc
+  source_name_part = contexts
+build obj/v8_base_without_compiler/debug-objects.o: cxx ../../src/objects/debug-objects.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = debug-objects.cc
+  source_name_part = debug-objects
+build obj/v8_base_without_compiler/elements-kind.o: cxx ../../src/objects/elements-kind.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = elements-kind.cc
+  source_name_part = elements-kind
+build obj/v8_base_without_compiler/elements.o: cxx ../../src/objects/elements.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = elements.cc
+  source_name_part = elements
+build obj/v8_base_without_compiler/embedder-data-array.o: cxx ../../src/objects/embedder-data-array.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = embedder-data-array.cc
+  source_name_part = embedder-data-array
+build obj/v8_base_without_compiler/feedback-vector.o: cxx ../../src/objects/feedback-vector.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = feedback-vector.cc
+  source_name_part = feedback-vector
+build obj/v8_base_without_compiler/field-type.o: cxx ../../src/objects/field-type.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = field-type.cc
+  source_name_part = field-type
+build obj/v8_base_without_compiler/intl-objects.o: cxx ../../src/objects/intl-objects.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = intl-objects.cc
+  source_name_part = intl-objects
+build obj/v8_base_without_compiler/js-array-buffer.o: cxx ../../src/objects/js-array-buffer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = js-array-buffer.cc
+  source_name_part = js-array-buffer
+build obj/v8_base_without_compiler/js-break-iterator.o: cxx ../../src/objects/js-break-iterator.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = js-break-iterator.cc
+  source_name_part = js-break-iterator
+build obj/v8_base_without_compiler/js-collator.o: cxx ../../src/objects/js-collator.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = js-collator.cc
+  source_name_part = js-collator
+build obj/v8_base_without_compiler/js-date-time-format.o: cxx ../../src/objects/js-date-time-format.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = js-date-time-format.cc
+  source_name_part = js-date-time-format
+build obj/v8_base_without_compiler/js-display-names.o: cxx ../../src/objects/js-display-names.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = js-display-names.cc
+  source_name_part = js-display-names
+build obj/v8_base_without_compiler/js-function.o: cxx ../../src/objects/js-function.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = js-function.cc
+  source_name_part = js-function
+build obj/v8_base_without_compiler/js-list-format.o: cxx ../../src/objects/js-list-format.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = js-list-format.cc
+  source_name_part = js-list-format
+build obj/v8_base_without_compiler/js-locale.o: cxx ../../src/objects/js-locale.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = js-locale.cc
+  source_name_part = js-locale
+build obj/v8_base_without_compiler/js-number-format.o: cxx ../../src/objects/js-number-format.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = js-number-format.cc
+  source_name_part = js-number-format
+build obj/v8_base_without_compiler/js-objects.o: cxx ../../src/objects/js-objects.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = js-objects.cc
+  source_name_part = js-objects
+build obj/v8_base_without_compiler/js-plural-rules.o: cxx ../../src/objects/js-plural-rules.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = js-plural-rules.cc
+  source_name_part = js-plural-rules
+build obj/v8_base_without_compiler/js-regexp.o: cxx ../../src/objects/js-regexp.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = js-regexp.cc
+  source_name_part = js-regexp
+build obj/v8_base_without_compiler/js-relative-time-format.o: cxx ../../src/objects/js-relative-time-format.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = js-relative-time-format.cc
+  source_name_part = js-relative-time-format
+build obj/v8_base_without_compiler/js-segment-iterator.o: cxx ../../src/objects/js-segment-iterator.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = js-segment-iterator.cc
+  source_name_part = js-segment-iterator
+build obj/v8_base_without_compiler/js-segmenter.o: cxx ../../src/objects/js-segmenter.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = js-segmenter.cc
+  source_name_part = js-segmenter
+build obj/v8_base_without_compiler/js-segments.o: cxx ../../src/objects/js-segments.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = js-segments.cc
+  source_name_part = js-segments
+build obj/v8_base_without_compiler/js-temporal-objects.o: cxx ../../src/objects/js-temporal-objects.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = js-temporal-objects.cc
+  source_name_part = js-temporal-objects
+build obj/v8_base_without_compiler/keys.o: cxx ../../src/objects/keys.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = keys.cc
+  source_name_part = keys
+build obj/v8_base_without_compiler/literal-objects.o: cxx ../../src/objects/literal-objects.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = literal-objects.cc
+  source_name_part = literal-objects
+build obj/v8_base_without_compiler/lookup-cache.o: cxx ../../src/objects/lookup-cache.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = lookup-cache.cc
+  source_name_part = lookup-cache
+build obj/v8_base_without_compiler/lookup.o: cxx ../../src/objects/lookup.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = lookup.cc
+  source_name_part = lookup
+build obj/v8_base_without_compiler/managed.o: cxx ../../src/objects/managed.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = managed.cc
+  source_name_part = managed
+build obj/v8_base_without_compiler/map-updater.o: cxx ../../src/objects/map-updater.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = map-updater.cc
+  source_name_part = map-updater
+build obj/v8_base_without_compiler/map.o: cxx ../../src/objects/map.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = map.cc
+  source_name_part = map
+build obj/v8_base_without_compiler/module.o: cxx ../../src/objects/module.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = module.cc
+  source_name_part = module
+build obj/v8_base_without_compiler/object-type.o: cxx ../../src/objects/object-type.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = object-type.cc
+  source_name_part = object-type
+build obj/v8_base_without_compiler/objects.o: cxx ../../src/objects/objects.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = objects.cc
+  source_name_part = objects
+build obj/v8_base_without_compiler/option-utils.o: cxx ../../src/objects/option-utils.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = option-utils.cc
+  source_name_part = option-utils
+build obj/v8_base_without_compiler/ordered-hash-table.o: cxx ../../src/objects/ordered-hash-table.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = ordered-hash-table.cc
+  source_name_part = ordered-hash-table
+build obj/v8_base_without_compiler/osr-optimized-code-cache.o: cxx ../../src/objects/osr-optimized-code-cache.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = osr-optimized-code-cache.cc
+  source_name_part = osr-optimized-code-cache
+build obj/v8_base_without_compiler/property-descriptor.o: cxx ../../src/objects/property-descriptor.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = property-descriptor.cc
+  source_name_part = property-descriptor
+build obj/v8_base_without_compiler/property.o: cxx ../../src/objects/property.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = property.cc
+  source_name_part = property
+build obj/v8_base_without_compiler/scope-info.o: cxx ../../src/objects/scope-info.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = scope-info.cc
+  source_name_part = scope-info
+build obj/v8_base_without_compiler/shared-function-info.o: cxx ../../src/objects/shared-function-info.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = shared-function-info.cc
+  source_name_part = shared-function-info
+build obj/v8_base_without_compiler/source-text-module.o: cxx ../../src/objects/source-text-module.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = source-text-module.cc
+  source_name_part = source-text-module
+build obj/v8_base_without_compiler/string-comparator.o: cxx ../../src/objects/string-comparator.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = string-comparator.cc
+  source_name_part = string-comparator
+build obj/v8_base_without_compiler/string-table.o: cxx ../../src/objects/string-table.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = string-table.cc
+  source_name_part = string-table
+build obj/v8_base_without_compiler/string.o: cxx ../../src/objects/string.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = string.cc
+  source_name_part = string
+build obj/v8_base_without_compiler/swiss-name-dictionary.o: cxx ../../src/objects/swiss-name-dictionary.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = swiss-name-dictionary.cc
+  source_name_part = swiss-name-dictionary
+build obj/v8_base_without_compiler/symbol-table.o: cxx ../../src/objects/symbol-table.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = symbol-table.cc
+  source_name_part = symbol-table
+build obj/v8_base_without_compiler/synthetic-module.o: cxx ../../src/objects/synthetic-module.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = synthetic-module.cc
+  source_name_part = synthetic-module
+build obj/v8_base_without_compiler/tagged-impl.o: cxx ../../src/objects/tagged-impl.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = tagged-impl.cc
+  source_name_part = tagged-impl
+build obj/v8_base_without_compiler/template-objects.o: cxx ../../src/objects/template-objects.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = template-objects.cc
+  source_name_part = template-objects
+build obj/v8_base_without_compiler/templates.o: cxx ../../src/objects/templates.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = templates.cc
+  source_name_part = templates
+build obj/v8_base_without_compiler/transitions.o: cxx ../../src/objects/transitions.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = transitions.cc
+  source_name_part = transitions
+build obj/v8_base_without_compiler/type-hints.o: cxx ../../src/objects/type-hints.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = type-hints.cc
+  source_name_part = type-hints
+build obj/v8_base_without_compiler/value-serializer.o: cxx ../../src/objects/value-serializer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = value-serializer.cc
+  source_name_part = value-serializer
+build obj/v8_base_without_compiler/visitors.o: cxx ../../src/objects/visitors.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = visitors.cc
+  source_name_part = visitors
+build obj/v8_base_without_compiler/func-name-inferrer.o: cxx ../../src/parsing/func-name-inferrer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = func-name-inferrer.cc
+  source_name_part = func-name-inferrer
+build obj/v8_base_without_compiler/import-assertions.o: cxx ../../src/parsing/import-assertions.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = import-assertions.cc
+  source_name_part = import-assertions
+build obj/v8_base_without_compiler/literal-buffer.o: cxx ../../src/parsing/literal-buffer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = literal-buffer.cc
+  source_name_part = literal-buffer
+build obj/v8_base_without_compiler/parse-info.o: cxx ../../src/parsing/parse-info.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = parse-info.cc
+  source_name_part = parse-info
+build obj/v8_base_without_compiler/parser.o: cxx ../../src/parsing/parser.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = parser.cc
+  source_name_part = parser
+build obj/v8_base_without_compiler/parsing.o: cxx ../../src/parsing/parsing.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = parsing.cc
+  source_name_part = parsing
+build obj/v8_base_without_compiler/pending-compilation-error-handler.o: cxx ../../src/parsing/pending-compilation-error-handler.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = pending-compilation-error-handler.cc
+  source_name_part = pending-compilation-error-handler
+build obj/v8_base_without_compiler/preparse-data.o: cxx ../../src/parsing/preparse-data.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = preparse-data.cc
+  source_name_part = preparse-data
+build obj/v8_base_without_compiler/preparser.o: cxx ../../src/parsing/preparser.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = preparser.cc
+  source_name_part = preparser
+build obj/v8_base_without_compiler/rewriter.o: cxx ../../src/parsing/rewriter.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = rewriter.cc
+  source_name_part = rewriter
+build obj/v8_base_without_compiler/scanner-character-streams.o: cxx ../../src/parsing/scanner-character-streams.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = scanner-character-streams.cc
+  source_name_part = scanner-character-streams
+build obj/v8_base_without_compiler/scanner.o: cxx ../../src/parsing/scanner.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = scanner.cc
+  source_name_part = scanner
+build obj/v8_base_without_compiler/token.o: cxx ../../src/parsing/token.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = token.cc
+  source_name_part = token
+build obj/v8_base_without_compiler/allocation-tracker.o: cxx ../../src/profiler/allocation-tracker.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = allocation-tracker.cc
+  source_name_part = allocation-tracker
+build obj/v8_base_without_compiler/cpu-profiler.o: cxx ../../src/profiler/cpu-profiler.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = cpu-profiler.cc
+  source_name_part = cpu-profiler
+build obj/v8_base_without_compiler/heap-profiler.o: cxx ../../src/profiler/heap-profiler.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = heap-profiler.cc
+  source_name_part = heap-profiler
+build obj/v8_base_without_compiler/heap-snapshot-generator.o: cxx ../../src/profiler/heap-snapshot-generator.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = heap-snapshot-generator.cc
+  source_name_part = heap-snapshot-generator
+build obj/v8_base_without_compiler/profile-generator.o: cxx ../../src/profiler/profile-generator.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = profile-generator.cc
+  source_name_part = profile-generator
+build obj/v8_base_without_compiler/profiler-listener.o: cxx ../../src/profiler/profiler-listener.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = profiler-listener.cc
+  source_name_part = profiler-listener
+build obj/v8_base_without_compiler/profiler-stats.o: cxx ../../src/profiler/profiler-stats.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = profiler-stats.cc
+  source_name_part = profiler-stats
+build obj/v8_base_without_compiler/sampling-heap-profiler.o: cxx ../../src/profiler/sampling-heap-profiler.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = sampling-heap-profiler.cc
+  source_name_part = sampling-heap-profiler
+build obj/v8_base_without_compiler/strings-storage.o: cxx ../../src/profiler/strings-storage.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = strings-storage.cc
+  source_name_part = strings-storage
+build obj/v8_base_without_compiler/symbolizer.o: cxx ../../src/profiler/symbolizer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = symbolizer.cc
+  source_name_part = symbolizer
+build obj/v8_base_without_compiler/tick-sample.o: cxx ../../src/profiler/tick-sample.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = tick-sample.cc
+  source_name_part = tick-sample
+build obj/v8_base_without_compiler/tracing-cpu-profiler.o: cxx ../../src/profiler/tracing-cpu-profiler.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = tracing-cpu-profiler.cc
+  source_name_part = tracing-cpu-profiler
+build obj/v8_base_without_compiler/weak-code-registry.o: cxx ../../src/profiler/weak-code-registry.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = weak-code-registry.cc
+  source_name_part = weak-code-registry
+build obj/v8_base_without_compiler/experimental-bytecode.o: cxx ../../src/regexp/experimental/experimental-bytecode.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = experimental-bytecode.cc
+  source_name_part = experimental-bytecode
+build obj/v8_base_without_compiler/experimental-compiler.o: cxx ../../src/regexp/experimental/experimental-compiler.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = experimental-compiler.cc
+  source_name_part = experimental-compiler
+build obj/v8_base_without_compiler/experimental-interpreter.o: cxx ../../src/regexp/experimental/experimental-interpreter.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = experimental-interpreter.cc
+  source_name_part = experimental-interpreter
+build obj/v8_base_without_compiler/experimental.o: cxx ../../src/regexp/experimental/experimental.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = experimental.cc
+  source_name_part = experimental
+build obj/v8_base_without_compiler/property-sequences.o: cxx ../../src/regexp/property-sequences.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = property-sequences.cc
+  source_name_part = property-sequences
+build obj/v8_base_without_compiler/regexp-ast.o: cxx ../../src/regexp/regexp-ast.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = regexp-ast.cc
+  source_name_part = regexp-ast
+build obj/v8_base_without_compiler/regexp-bytecode-generator.o: cxx ../../src/regexp/regexp-bytecode-generator.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = regexp-bytecode-generator.cc
+  source_name_part = regexp-bytecode-generator
+build obj/v8_base_without_compiler/regexp-bytecode-peephole.o: cxx ../../src/regexp/regexp-bytecode-peephole.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = regexp-bytecode-peephole.cc
+  source_name_part = regexp-bytecode-peephole
+build obj/v8_base_without_compiler/regexp-bytecodes.o: cxx ../../src/regexp/regexp-bytecodes.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = regexp-bytecodes.cc
+  source_name_part = regexp-bytecodes
+build obj/v8_base_without_compiler/regexp-compiler-tonode.o: cxx ../../src/regexp/regexp-compiler-tonode.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = regexp-compiler-tonode.cc
+  source_name_part = regexp-compiler-tonode
+build obj/v8_base_without_compiler/regexp-compiler.o: cxx ../../src/regexp/regexp-compiler.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = regexp-compiler.cc
+  source_name_part = regexp-compiler
+build obj/v8_base_without_compiler/regexp-dotprinter.o: cxx ../../src/regexp/regexp-dotprinter.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = regexp-dotprinter.cc
+  source_name_part = regexp-dotprinter
+build obj/v8_base_without_compiler/regexp-error.o: cxx ../../src/regexp/regexp-error.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = regexp-error.cc
+  source_name_part = regexp-error
+build obj/v8_base_without_compiler/regexp-interpreter.o: cxx ../../src/regexp/regexp-interpreter.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = regexp-interpreter.cc
+  source_name_part = regexp-interpreter
+build obj/v8_base_without_compiler/regexp-macro-assembler-tracer.o: cxx ../../src/regexp/regexp-macro-assembler-tracer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = regexp-macro-assembler-tracer.cc
+  source_name_part = regexp-macro-assembler-tracer
+build obj/v8_base_without_compiler/regexp-macro-assembler.o: cxx ../../src/regexp/regexp-macro-assembler.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = regexp-macro-assembler.cc
+  source_name_part = regexp-macro-assembler
+build obj/v8_base_without_compiler/regexp-parser.o: cxx ../../src/regexp/regexp-parser.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = regexp-parser.cc
+  source_name_part = regexp-parser
+build obj/v8_base_without_compiler/regexp-stack.o: cxx ../../src/regexp/regexp-stack.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = regexp-stack.cc
+  source_name_part = regexp-stack
+build obj/v8_base_without_compiler/regexp-utils.o: cxx ../../src/regexp/regexp-utils.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = regexp-utils.cc
+  source_name_part = regexp-utils
+build obj/v8_base_without_compiler/regexp.o: cxx ../../src/regexp/regexp.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = regexp.cc
+  source_name_part = regexp
+build obj/v8_base_without_compiler/roots.o: cxx ../../src/roots/roots.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = roots.cc
+  source_name_part = roots
+build obj/v8_base_without_compiler/runtime-array.o: cxx ../../src/runtime/runtime-array.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-array.cc
+  source_name_part = runtime-array
+build obj/v8_base_without_compiler/runtime-atomics.o: cxx ../../src/runtime/runtime-atomics.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-atomics.cc
+  source_name_part = runtime-atomics
+build obj/v8_base_without_compiler/runtime-bigint.o: cxx ../../src/runtime/runtime-bigint.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-bigint.cc
+  source_name_part = runtime-bigint
+build obj/v8_base_without_compiler/runtime-classes.o: cxx ../../src/runtime/runtime-classes.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-classes.cc
+  source_name_part = runtime-classes
+build obj/v8_base_without_compiler/runtime-collections.o: cxx ../../src/runtime/runtime-collections.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-collections.cc
+  source_name_part = runtime-collections
+build obj/v8_base_without_compiler/runtime-compiler.o: cxx ../../src/runtime/runtime-compiler.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-compiler.cc
+  source_name_part = runtime-compiler
+build obj/v8_base_without_compiler/runtime-date.o: cxx ../../src/runtime/runtime-date.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-date.cc
+  source_name_part = runtime-date
+build obj/v8_base_without_compiler/runtime-debug.o: cxx ../../src/runtime/runtime-debug.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-debug.cc
+  source_name_part = runtime-debug
+build obj/v8_base_without_compiler/runtime-forin.o: cxx ../../src/runtime/runtime-forin.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-forin.cc
+  source_name_part = runtime-forin
+build obj/v8_base_without_compiler/runtime-function.o: cxx ../../src/runtime/runtime-function.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-function.cc
+  source_name_part = runtime-function
+build obj/v8_base_without_compiler/runtime-futex.o: cxx ../../src/runtime/runtime-futex.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-futex.cc
+  source_name_part = runtime-futex
+build obj/v8_base_without_compiler/runtime-generator.o: cxx ../../src/runtime/runtime-generator.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-generator.cc
+  source_name_part = runtime-generator
+build obj/v8_base_without_compiler/runtime-internal.o: cxx ../../src/runtime/runtime-internal.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-internal.cc
+  source_name_part = runtime-internal
+build obj/v8_base_without_compiler/runtime-intl.o: cxx ../../src/runtime/runtime-intl.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-intl.cc
+  source_name_part = runtime-intl
+build obj/v8_base_without_compiler/runtime-literals.o: cxx ../../src/runtime/runtime-literals.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-literals.cc
+  source_name_part = runtime-literals
+build obj/v8_base_without_compiler/runtime-module.o: cxx ../../src/runtime/runtime-module.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-module.cc
+  source_name_part = runtime-module
+build obj/v8_base_without_compiler/runtime-numbers.o: cxx ../../src/runtime/runtime-numbers.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-numbers.cc
+  source_name_part = runtime-numbers
+build obj/v8_base_without_compiler/runtime-object.o: cxx ../../src/runtime/runtime-object.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-object.cc
+  source_name_part = runtime-object
+build obj/v8_base_without_compiler/runtime-operators.o: cxx ../../src/runtime/runtime-operators.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-operators.cc
+  source_name_part = runtime-operators
+build obj/v8_base_without_compiler/runtime-promise.o: cxx ../../src/runtime/runtime-promise.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-promise.cc
+  source_name_part = runtime-promise
+build obj/v8_base_without_compiler/runtime-proxy.o: cxx ../../src/runtime/runtime-proxy.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-proxy.cc
+  source_name_part = runtime-proxy
+build obj/v8_base_without_compiler/runtime-regexp.o: cxx ../../src/runtime/runtime-regexp.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-regexp.cc
+  source_name_part = runtime-regexp
+build obj/v8_base_without_compiler/runtime-scopes.o: cxx ../../src/runtime/runtime-scopes.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-scopes.cc
+  source_name_part = runtime-scopes
+build obj/v8_base_without_compiler/runtime-shadow-realm.o: cxx ../../src/runtime/runtime-shadow-realm.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-shadow-realm.cc
+  source_name_part = runtime-shadow-realm
+build obj/v8_base_without_compiler/runtime-strings.o: cxx ../../src/runtime/runtime-strings.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-strings.cc
+  source_name_part = runtime-strings
+build obj/v8_base_without_compiler/runtime-symbol.o: cxx ../../src/runtime/runtime-symbol.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-symbol.cc
+  source_name_part = runtime-symbol
+build obj/v8_base_without_compiler/runtime-test.o: cxx ../../src/runtime/runtime-test.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-test.cc
+  source_name_part = runtime-test
+build obj/v8_base_without_compiler/runtime-trace.o: cxx ../../src/runtime/runtime-trace.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-trace.cc
+  source_name_part = runtime-trace
+build obj/v8_base_without_compiler/runtime-typedarray.o: cxx ../../src/runtime/runtime-typedarray.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-typedarray.cc
+  source_name_part = runtime-typedarray
+build obj/v8_base_without_compiler/runtime-weak-refs.o: cxx ../../src/runtime/runtime-weak-refs.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-weak-refs.cc
+  source_name_part = runtime-weak-refs
+build obj/v8_base_without_compiler/runtime.o: cxx ../../src/runtime/runtime.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime.cc
+  source_name_part = runtime
+build obj/v8_base_without_compiler/external-pointer-table.o: cxx ../../src/sandbox/external-pointer-table.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = external-pointer-table.cc
+  source_name_part = external-pointer-table
+build obj/v8_base_without_compiler/sandbox.o: cxx ../../src/sandbox/sandbox.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = sandbox.cc
+  source_name_part = sandbox
+build obj/v8_base_without_compiler/code-serializer.o: cxx ../../src/snapshot/code-serializer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = code-serializer.cc
+  source_name_part = code-serializer
+build obj/v8_base_without_compiler/context-deserializer.o: cxx ../../src/snapshot/context-deserializer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = context-deserializer.cc
+  source_name_part = context-deserializer
+build obj/v8_base_without_compiler/context-serializer.o: cxx ../../src/snapshot/context-serializer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = context-serializer.cc
+  source_name_part = context-serializer
+build obj/v8_base_without_compiler/deserializer.o: cxx ../../src/snapshot/deserializer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = deserializer.cc
+  source_name_part = deserializer
+build obj/v8_base_without_compiler/embedded-data.o: cxx ../../src/snapshot/embedded/embedded-data.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = embedded-data.cc
+  source_name_part = embedded-data
+build obj/v8_base_without_compiler/object-deserializer.o: cxx ../../src/snapshot/object-deserializer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = object-deserializer.cc
+  source_name_part = object-deserializer
+build obj/v8_base_without_compiler/read-only-deserializer.o: cxx ../../src/snapshot/read-only-deserializer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = read-only-deserializer.cc
+  source_name_part = read-only-deserializer
+build obj/v8_base_without_compiler/read-only-serializer.o: cxx ../../src/snapshot/read-only-serializer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = read-only-serializer.cc
+  source_name_part = read-only-serializer
+build obj/v8_base_without_compiler/roots-serializer.o: cxx ../../src/snapshot/roots-serializer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = roots-serializer.cc
+  source_name_part = roots-serializer
+build obj/v8_base_without_compiler/serializer-deserializer.o: cxx ../../src/snapshot/serializer-deserializer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = serializer-deserializer.cc
+  source_name_part = serializer-deserializer
+build obj/v8_base_without_compiler/serializer.o: cxx ../../src/snapshot/serializer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = serializer.cc
+  source_name_part = serializer
+build obj/v8_base_without_compiler/shared-heap-deserializer.o: cxx ../../src/snapshot/shared-heap-deserializer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = shared-heap-deserializer.cc
+  source_name_part = shared-heap-deserializer
+build obj/v8_base_without_compiler/shared-heap-serializer.o: cxx ../../src/snapshot/shared-heap-serializer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = shared-heap-serializer.cc
+  source_name_part = shared-heap-serializer
+build obj/v8_base_without_compiler/snapshot-compression.o: cxx ../../src/snapshot/snapshot-compression.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = snapshot-compression.cc
+  source_name_part = snapshot-compression
+build obj/v8_base_without_compiler/snapshot-data.o: cxx ../../src/snapshot/snapshot-data.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = snapshot-data.cc
+  source_name_part = snapshot-data
+build obj/v8_base_without_compiler/snapshot-source-sink.o: cxx ../../src/snapshot/snapshot-source-sink.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = snapshot-source-sink.cc
+  source_name_part = snapshot-source-sink
+build obj/v8_base_without_compiler/snapshot-utils.o: cxx ../../src/snapshot/snapshot-utils.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = snapshot-utils.cc
+  source_name_part = snapshot-utils
+build obj/v8_base_without_compiler/snapshot.o: cxx ../../src/snapshot/snapshot.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = snapshot.cc
+  source_name_part = snapshot
+build obj/v8_base_without_compiler/startup-deserializer.o: cxx ../../src/snapshot/startup-deserializer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = startup-deserializer.cc
+  source_name_part = startup-deserializer
+build obj/v8_base_without_compiler/startup-serializer.o: cxx ../../src/snapshot/startup-serializer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = startup-serializer.cc
+  source_name_part = startup-serializer
+build obj/v8_base_without_compiler/char-predicates.o: cxx ../../src/strings/char-predicates.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = char-predicates.cc
+  source_name_part = char-predicates
+build obj/v8_base_without_compiler/string-builder.o: cxx ../../src/strings/string-builder.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = string-builder.cc
+  source_name_part = string-builder
+build obj/v8_base_without_compiler/string-case.o: cxx ../../src/strings/string-case.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = string-case.cc
+  source_name_part = string-case
+build obj/v8_base_without_compiler/string-stream.o: cxx ../../src/strings/string-stream.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = string-stream.cc
+  source_name_part = string-stream
+build obj/v8_base_without_compiler/unicode-decoder.o: cxx ../../src/strings/unicode-decoder.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = unicode-decoder.cc
+  source_name_part = unicode-decoder
+build obj/v8_base_without_compiler/unicode.o: cxx ../../src/strings/unicode.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = unicode.cc
+  source_name_part = unicode
+build obj/v8_base_without_compiler/uri.o: cxx ../../src/strings/uri.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = uri.cc
+  source_name_part = uri
+build obj/v8_base_without_compiler/cancelable-task.o: cxx ../../src/tasks/cancelable-task.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = cancelable-task.cc
+  source_name_part = cancelable-task
+build obj/v8_base_without_compiler/operations-barrier.o: cxx ../../src/tasks/operations-barrier.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = operations-barrier.cc
+  source_name_part = operations-barrier
+build obj/v8_base_without_compiler/task-utils.o: cxx ../../src/tasks/task-utils.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = task-utils.cc
+  source_name_part = task-utils
+build obj/v8_base_without_compiler/temporal-parser.o: cxx ../../src/temporal/temporal-parser.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = temporal-parser.cc
+  source_name_part = temporal-parser
+build obj/v8_base_without_compiler/halfsiphash.o: cxx ../../src/third_party/siphash/halfsiphash.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = halfsiphash.cc
+  source_name_part = halfsiphash
+build obj/v8_base_without_compiler/trace-event.o: cxx ../../src/tracing/trace-event.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = trace-event.cc
+  source_name_part = trace-event
+build obj/v8_base_without_compiler/traced-value.o: cxx ../../src/tracing/traced-value.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = traced-value.cc
+  source_name_part = traced-value
+build obj/v8_base_without_compiler/tracing-category-observer.o: cxx ../../src/tracing/tracing-category-observer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = tracing-category-observer.cc
+  source_name_part = tracing-category-observer
+build obj/v8_base_without_compiler/address-map.o: cxx ../../src/utils/address-map.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = address-map.cc
+  source_name_part = address-map
+build obj/v8_base_without_compiler/allocation.o: cxx ../../src/utils/allocation.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = allocation.cc
+  source_name_part = allocation
+build obj/v8_base_without_compiler/bit-vector.o: cxx ../../src/utils/bit-vector.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = bit-vector.cc
+  source_name_part = bit-vector
+build obj/v8_base_without_compiler/detachable-vector.o: cxx ../../src/utils/detachable-vector.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = detachable-vector.cc
+  source_name_part = detachable-vector
+build obj/v8_base_without_compiler/identity-map.o: cxx ../../src/utils/identity-map.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = identity-map.cc
+  source_name_part = identity-map
+build obj/v8_base_without_compiler/memcopy.o: cxx ../../src/utils/memcopy.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = memcopy.cc
+  source_name_part = memcopy
+build obj/v8_base_without_compiler/ostreams.o: cxx ../../src/utils/ostreams.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = ostreams.cc
+  source_name_part = ostreams
+build obj/v8_base_without_compiler/utils.o: cxx ../../src/utils/utils.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = utils.cc
+  source_name_part = utils
+build obj/v8_base_without_compiler/version.o: cxx ../../src/utils/version.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = version.cc
+  source_name_part = version
+build obj/v8_base_without_compiler/web-snapshot.o: cxx ../../src/web-snapshot/web-snapshot.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = web-snapshot.cc
+  source_name_part = web-snapshot
+build obj/v8_base_without_compiler/accounting-allocator.o: cxx ../../src/zone/accounting-allocator.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = accounting-allocator.cc
+  source_name_part = accounting-allocator
+build obj/v8_base_without_compiler/type-stats.o: cxx ../../src/zone/type-stats.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = type-stats.cc
+  source_name_part = type-stats
+build obj/v8_base_without_compiler/zone-segment.o: cxx ../../src/zone/zone-segment.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = zone-segment.cc
+  source_name_part = zone-segment
+build obj/v8_base_without_compiler/zone.o: cxx ../../src/zone/zone.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = zone.cc
+  source_name_part = zone
+build obj/v8_base_without_compiler/maglev-code-generator.o: cxx ../../src/maglev/maglev-code-generator.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = maglev-code-generator.cc
+  source_name_part = maglev-code-generator
+build obj/v8_base_without_compiler/maglev-compilation-info.o: cxx ../../src/maglev/maglev-compilation-info.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = maglev-compilation-info.cc
+  source_name_part = maglev-compilation-info
+build obj/v8_base_without_compiler/maglev-compilation-unit.o: cxx ../../src/maglev/maglev-compilation-unit.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = maglev-compilation-unit.cc
+  source_name_part = maglev-compilation-unit
+build obj/v8_base_without_compiler/maglev-compiler.o: cxx ../../src/maglev/maglev-compiler.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = maglev-compiler.cc
+  source_name_part = maglev-compiler
+build obj/v8_base_without_compiler/maglev-concurrent-dispatcher.o: cxx ../../src/maglev/maglev-concurrent-dispatcher.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = maglev-concurrent-dispatcher.cc
+  source_name_part = maglev-concurrent-dispatcher
+build obj/v8_base_without_compiler/maglev-graph-builder.o: cxx ../../src/maglev/maglev-graph-builder.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = maglev-graph-builder.cc
+  source_name_part = maglev-graph-builder
+build obj/v8_base_without_compiler/maglev-graph-printer.o: cxx ../../src/maglev/maglev-graph-printer.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = maglev-graph-printer.cc
+  source_name_part = maglev-graph-printer
+build obj/v8_base_without_compiler/maglev-ir.o: cxx ../../src/maglev/maglev-ir.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = maglev-ir.cc
+  source_name_part = maglev-ir
+build obj/v8_base_without_compiler/maglev-regalloc.o: cxx ../../src/maglev/maglev-regalloc.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = maglev-regalloc.cc
+  source_name_part = maglev-regalloc
+build obj/v8_base_without_compiler/maglev.o: cxx ../../src/maglev/maglev.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = maglev.cc
+  source_name_part = maglev
+build obj/v8_base_without_compiler/asm-js.o: cxx ../../src/asmjs/asm-js.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = asm-js.cc
+  source_name_part = asm-js
+build obj/v8_base_without_compiler/asm-parser.o: cxx ../../src/asmjs/asm-parser.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = asm-parser.cc
+  source_name_part = asm-parser
+build obj/v8_base_without_compiler/asm-scanner.o: cxx ../../src/asmjs/asm-scanner.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = asm-scanner.cc
+  source_name_part = asm-scanner
+build obj/v8_base_without_compiler/asm-types.o: cxx ../../src/asmjs/asm-types.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = asm-types.cc
+  source_name_part = asm-types
+build obj/v8_base_without_compiler/debug-wasm-objects.o: cxx ../../src/debug/debug-wasm-objects.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = debug-wasm-objects.cc
+  source_name_part = debug-wasm-objects
+build obj/v8_base_without_compiler/runtime-test-wasm.o: cxx ../../src/runtime/runtime-test-wasm.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-test-wasm.cc
+  source_name_part = runtime-test-wasm
+build obj/v8_base_without_compiler/runtime-wasm.o: cxx ../../src/runtime/runtime-wasm.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = runtime-wasm.cc
+  source_name_part = runtime-wasm
+build obj/v8_base_without_compiler/handler-inside.o: cxx ../../src/trap-handler/handler-inside.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = handler-inside.cc
+  source_name_part = handler-inside
+build obj/v8_base_without_compiler/handler-outside.o: cxx ../../src/trap-handler/handler-outside.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = handler-outside.cc
+  source_name_part = handler-outside
+build obj/v8_base_without_compiler/handler-shared.o: cxx ../../src/trap-handler/handler-shared.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = handler-shared.cc
+  source_name_part = handler-shared
+build obj/v8_base_without_compiler/liftoff-assembler.o: cxx ../../src/wasm/baseline/liftoff-assembler.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = liftoff-assembler.cc
+  source_name_part = liftoff-assembler
+build obj/v8_base_without_compiler/liftoff-compiler.o: cxx ../../src/wasm/baseline/liftoff-compiler.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = liftoff-compiler.cc
+  source_name_part = liftoff-compiler
+build obj/v8_base_without_compiler/canonical-types.o: cxx ../../src/wasm/canonical-types.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = canonical-types.cc
+  source_name_part = canonical-types
+build obj/v8_base_without_compiler/code-space-access.o: cxx ../../src/wasm/code-space-access.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = code-space-access.cc
+  source_name_part = code-space-access
+build obj/v8_base_without_compiler/function-body-decoder.o: cxx ../../src/wasm/function-body-decoder.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = function-body-decoder.cc
+  source_name_part = function-body-decoder
+build obj/v8_base_without_compiler/function-compiler.o: cxx ../../src/wasm/function-compiler.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = function-compiler.cc
+  source_name_part = function-compiler
+build obj/v8_base_without_compiler/graph-builder-interface.o: cxx ../../src/wasm/graph-builder-interface.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = graph-builder-interface.cc
+  source_name_part = graph-builder-interface
+build obj/v8_base_without_compiler/init-expr-interface.o: cxx ../../src/wasm/init-expr-interface.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = init-expr-interface.cc
+  source_name_part = init-expr-interface
+build obj/v8_base_without_compiler/jump-table-assembler.o: cxx ../../src/wasm/jump-table-assembler.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = jump-table-assembler.cc
+  source_name_part = jump-table-assembler
+build obj/v8_base_without_compiler/local-decl-encoder.o: cxx ../../src/wasm/local-decl-encoder.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = local-decl-encoder.cc
+  source_name_part = local-decl-encoder
+build obj/v8_base_without_compiler/memory-protection-key.o: cxx ../../src/wasm/memory-protection-key.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = memory-protection-key.cc
+  source_name_part = memory-protection-key
+build obj/v8_base_without_compiler/memory-tracing.o: cxx ../../src/wasm/memory-tracing.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = memory-tracing.cc
+  source_name_part = memory-tracing
+build obj/v8_base_without_compiler/module-compiler.o: cxx ../../src/wasm/module-compiler.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = module-compiler.cc
+  source_name_part = module-compiler
+build obj/v8_base_without_compiler/module-decoder.o: cxx ../../src/wasm/module-decoder.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = module-decoder.cc
+  source_name_part = module-decoder
+build obj/v8_base_without_compiler/module-instantiate.o: cxx ../../src/wasm/module-instantiate.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = module-instantiate.cc
+  source_name_part = module-instantiate
+build obj/v8_base_without_compiler/signature-map.o: cxx ../../src/wasm/signature-map.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = signature-map.cc
+  source_name_part = signature-map
+build obj/v8_base_without_compiler/simd-shuffle.o: cxx ../../src/wasm/simd-shuffle.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = simd-shuffle.cc
+  source_name_part = simd-shuffle
+build obj/v8_base_without_compiler/streaming-decoder.o: cxx ../../src/wasm/streaming-decoder.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = streaming-decoder.cc
+  source_name_part = streaming-decoder
+build obj/v8_base_without_compiler/sync-streaming-decoder.o: cxx ../../src/wasm/sync-streaming-decoder.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = sync-streaming-decoder.cc
+  source_name_part = sync-streaming-decoder
+build obj/v8_base_without_compiler/value-type.o: cxx ../../src/wasm/value-type.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = value-type.cc
+  source_name_part = value-type
+build obj/v8_base_without_compiler/wasm-code-manager.o: cxx ../../src/wasm/wasm-code-manager.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = wasm-code-manager.cc
+  source_name_part = wasm-code-manager
+build obj/v8_base_without_compiler/wasm-debug.o: cxx ../../src/wasm/wasm-debug.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = wasm-debug.cc
+  source_name_part = wasm-debug
+build obj/v8_base_without_compiler/wasm-engine.o: cxx ../../src/wasm/wasm-engine.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = wasm-engine.cc
+  source_name_part = wasm-engine
+build obj/v8_base_without_compiler/wasm-external-refs.o: cxx ../../src/wasm/wasm-external-refs.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = wasm-external-refs.cc
+  source_name_part = wasm-external-refs
+build obj/v8_base_without_compiler/wasm-features.o: cxx ../../src/wasm/wasm-features.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = wasm-features.cc
+  source_name_part = wasm-features
+build obj/v8_base_without_compiler/wasm-import-wrapper-cache.o: cxx ../../src/wasm/wasm-import-wrapper-cache.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = wasm-import-wrapper-cache.cc
+  source_name_part = wasm-import-wrapper-cache
+build obj/v8_base_without_compiler/wasm-init-expr.o: cxx ../../src/wasm/wasm-init-expr.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = wasm-init-expr.cc
+  source_name_part = wasm-init-expr
+build obj/v8_base_without_compiler/wasm-js.o: cxx ../../src/wasm/wasm-js.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = wasm-js.cc
+  source_name_part = wasm-js
+build obj/v8_base_without_compiler/wasm-module-builder.o: cxx ../../src/wasm/wasm-module-builder.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = wasm-module-builder.cc
+  source_name_part = wasm-module-builder
+build obj/v8_base_without_compiler/wasm-module-sourcemap.o: cxx ../../src/wasm/wasm-module-sourcemap.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = wasm-module-sourcemap.cc
+  source_name_part = wasm-module-sourcemap
+build obj/v8_base_without_compiler/wasm-module.o: cxx ../../src/wasm/wasm-module.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = wasm-module.cc
+  source_name_part = wasm-module
+build obj/v8_base_without_compiler/wasm-objects.o: cxx ../../src/wasm/wasm-objects.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = wasm-objects.cc
+  source_name_part = wasm-objects
+build obj/v8_base_without_compiler/wasm-opcodes.o: cxx ../../src/wasm/wasm-opcodes.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = wasm-opcodes.cc
+  source_name_part = wasm-opcodes
+build obj/v8_base_without_compiler/wasm-result.o: cxx ../../src/wasm/wasm-result.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = wasm-result.cc
+  source_name_part = wasm-result
+build obj/v8_base_without_compiler/wasm-serialization.o: cxx ../../src/wasm/wasm-serialization.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = wasm-serialization.cc
+  source_name_part = wasm-serialization
+build obj/v8_base_without_compiler/wasm-subtyping.o: cxx ../../src/wasm/wasm-subtyping.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = wasm-subtyping.cc
+  source_name_part = wasm-subtyping
+build obj/v8_base_without_compiler/heap-api-stub.o: cxx ../../src/heap/third-party/heap-api-stub.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = heap-api-stub.cc
+  source_name_part = heap-api-stub
+build obj/v8_base_without_compiler/macro-assembler-shared-ia32-x64.o: cxx ../../src/codegen/shared-ia32-x64/macro-assembler-shared-ia32-x64.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = macro-assembler-shared-ia32-x64.cc
+  source_name_part = macro-assembler-shared-ia32-x64
+build obj/v8_base_without_compiler/assembler-x64.o: cxx ../../src/codegen/x64/assembler-x64.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = assembler-x64.cc
+  source_name_part = assembler-x64
+build obj/v8_base_without_compiler/cpu-x64.o: cxx ../../src/codegen/x64/cpu-x64.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = cpu-x64.cc
+  source_name_part = cpu-x64
+build obj/v8_base_without_compiler/macro-assembler-x64.o: cxx ../../src/codegen/x64/macro-assembler-x64.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = macro-assembler-x64.cc
+  source_name_part = macro-assembler-x64
+build obj/v8_base_without_compiler/code-generator-x64.o: cxx ../../src/compiler/backend/x64/code-generator-x64.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = code-generator-x64.cc
+  source_name_part = code-generator-x64
+build obj/v8_base_without_compiler/instruction-scheduler-x64.o: cxx ../../src/compiler/backend/x64/instruction-scheduler-x64.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = instruction-scheduler-x64.cc
+  source_name_part = instruction-scheduler-x64
+build obj/v8_base_without_compiler/instruction-selector-x64.o: cxx ../../src/compiler/backend/x64/instruction-selector-x64.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = instruction-selector-x64.cc
+  source_name_part = instruction-selector-x64
+build obj/v8_base_without_compiler/unwinding-info-writer-x64.o: cxx ../../src/compiler/backend/x64/unwinding-info-writer-x64.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = unwinding-info-writer-x64.cc
+  source_name_part = unwinding-info-writer-x64
+build obj/v8_base_without_compiler/deoptimizer-x64.o: cxx ../../src/deoptimizer/x64/deoptimizer-x64.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = deoptimizer-x64.cc
+  source_name_part = deoptimizer-x64
+build obj/v8_base_without_compiler/disasm-x64.o: cxx ../../src/diagnostics/x64/disasm-x64.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = disasm-x64.cc
+  source_name_part = disasm-x64
+build obj/v8_base_without_compiler/eh-frame-x64.o: cxx ../../src/diagnostics/x64/eh-frame-x64.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = eh-frame-x64.cc
+  source_name_part = eh-frame-x64
+build obj/v8_base_without_compiler/unwinder-x64.o: cxx ../../src/diagnostics/x64/unwinder-x64.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = unwinder-x64.cc
+  source_name_part = unwinder-x64
+build obj/v8_base_without_compiler/frame-constants-x64.o: cxx ../../src/execution/x64/frame-constants-x64.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = frame-constants-x64.cc
+  source_name_part = frame-constants-x64
+build obj/v8_base_without_compiler/regexp-macro-assembler-x64.o: cxx ../../src/regexp/x64/regexp-macro-assembler-x64.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = regexp-macro-assembler-x64.cc
+  source_name_part = regexp-macro-assembler-x64
+build obj/v8_base_without_compiler/handler-inside-posix.o: cxx ../../src/trap-handler/handler-inside-posix.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = handler-inside-posix.cc
+  source_name_part = handler-inside-posix
+build obj/v8_base_without_compiler/handler-outside-posix.o: cxx ../../src/trap-handler/handler-outside-posix.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = handler-outside-posix.cc
+  source_name_part = handler-outside-posix
+build obj/v8_base_without_compiler/special-case.o: cxx gen/src/regexp/special-case.cc || obj/v8_base_without_compiler.inputdeps.stamp
+  source_file_part = special-case.cc
+  source_name_part = special-case
+
+build obj/v8_base_without_compiler.stamp: stamp obj/v8_base_without_compiler/api-arguments.o obj/v8_base_without_compiler/api-natives.o obj/v8_base_without_compiler/api.o obj/v8_base_without_compiler/ast-function-literal-id-reindexer.o obj/v8_base_without_compiler/ast-value-factory.o obj/v8_base_without_compiler/ast.o obj/v8_base_without_compiler/modules.o obj/v8_base_without_compiler/prettyprinter.o obj/v8_base_without_compiler/scopes.o obj/v8_base_without_compiler/source-range-ast-visitor.o obj/v8_base_without_compiler/variables.o obj/v8_base_without_compiler/baseline-batch-compiler.o obj/v8_base_without_compiler/baseline-compiler.o obj/v8_base_without_compiler/baseline.o obj/v8_base_without_compiler/bytecode-offset-iterator.o obj/v8_base_without_compiler/accessors.o obj/v8_base_without_compiler/builtins-api.o obj/v8_base_without_compiler/builtins-array.o obj/v8_base_without_compiler/builtins-arraybuffer.o obj/v8_base_without_compiler/builtins-async-module.o obj/v8_base_without_compiler/builtins-bigint.o obj/v8_base_without_compiler/builtins-callsite.o obj/v8_base_without_compiler/builtins-collections.o obj/v8_base_without_compiler/builtins-console.o obj/v8_base_without_compiler/builtins-dataview.o obj/v8_base_without_compiler/builtins-date.o obj/v8_base_without_compiler/builtins-error.o obj/v8_base_without_compiler/builtins-function.o obj/v8_base_without_compiler/builtins-global.o obj/v8_base_without_compiler/builtins-internal.o obj/v8_base_without_compiler/builtins-intl.o obj/v8_base_without_compiler/builtins-json.o obj/v8_base_without_compiler/builtins-number.o obj/v8_base_without_compiler/builtins-object.o obj/v8_base_without_compiler/builtins-reflect.o obj/v8_base_without_compiler/builtins-regexp.o obj/v8_base_without_compiler/builtins-shadow-realms.o obj/v8_base_without_compiler/builtins-sharedarraybuffer.o obj/v8_base_without_compiler/builtins-string.o obj/v8_base_without_compiler/builtins-struct.o obj/v8_base_without_compiler/builtins-symbol.o obj/v8_base_without_compiler/builtins-temporal.o obj/v8_base_without_compiler/builtins-trace.o obj/v8_base_without_compiler/builtins-typed-array.o obj/v8_base_without_compiler/builtins-weak-refs.o obj/v8_base_without_compiler/builtins.o obj/v8_base_without_compiler/constants-table-builder.o obj/v8_base_without_compiler/aligned-slot-allocator.o obj/v8_base_without_compiler/assembler.o obj/v8_base_without_compiler/bailout-reason.o obj/v8_base_without_compiler/code-comments.o obj/v8_base_without_compiler/code-desc.o obj/v8_base_without_compiler/code-factory.o obj/v8_base_without_compiler/code-reference.o obj/v8_base_without_compiler/compilation-cache.o obj/v8_base_without_compiler/compiler.o obj/v8_base_without_compiler/constant-pool.o obj/v8_base_without_compiler/external-reference-encoder.o obj/v8_base_without_compiler/external-reference-table.o obj/v8_base_without_compiler/external-reference.o obj/v8_base_without_compiler/flush-instruction-cache.o obj/v8_base_without_compiler/handler-table.o obj/v8_base_without_compiler/interface-descriptors.o obj/v8_base_without_compiler/machine-type.o obj/v8_base_without_compiler/optimized-compilation-info.o obj/v8_base_without_compiler/pending-optimization-table.o obj/v8_base_without_compiler/register-configuration.o obj/v8_base_without_compiler/reloc-info.o obj/v8_base_without_compiler/safepoint-table.o obj/v8_base_without_compiler/source-position-table.o obj/v8_base_without_compiler/source-position.o obj/v8_base_without_compiler/string-constants.o obj/v8_base_without_compiler/tick-counter.o obj/v8_base_without_compiler/tnode.o obj/v8_base_without_compiler/turbo-assembler.o obj/v8_base_without_compiler/unoptimized-compilation-info.o obj/v8_base_without_compiler/assert-scope.o obj/v8_base_without_compiler/lazy-compile-dispatcher.o obj/v8_base_without_compiler/optimizing-compile-dispatcher.o obj/v8_base_without_compiler/date.o obj/v8_base_without_compiler/dateparser.o obj/v8_base_without_compiler/debug-coverage.o obj/v8_base_without_compiler/debug-evaluate.o obj/v8_base_without_compiler/debug-frames.o obj/v8_base_without_compiler/debug-interface.o obj/v8_base_without_compiler/debug-property-iterator.o obj/v8_base_without_compiler/debug-scope-iterator.o obj/v8_base_without_compiler/debug-scopes.o obj/v8_base_without_compiler/debug-stack-trace-iterator.o obj/v8_base_without_compiler/debug-type-profile.o obj/v8_base_without_compiler/debug.o obj/v8_base_without_compiler/liveedit.o obj/v8_base_without_compiler/deoptimize-reason.o obj/v8_base_without_compiler/deoptimized-frame-info.o obj/v8_base_without_compiler/deoptimizer.o obj/v8_base_without_compiler/materialized-object-store.o obj/v8_base_without_compiler/translated-state.o obj/v8_base_without_compiler/translation-array.o obj/v8_base_without_compiler/basic-block-profiler.o obj/v8_base_without_compiler/compilation-statistics.o obj/v8_base_without_compiler/disassembler.o obj/v8_base_without_compiler/eh-frame.o obj/v8_base_without_compiler/gdb-jit.o obj/v8_base_without_compiler/objects-debug.o obj/v8_base_without_compiler/objects-printer.o obj/v8_base_without_compiler/perf-jit.o obj/v8_base_without_compiler/unwinder.o obj/v8_base_without_compiler/arguments.o obj/v8_base_without_compiler/clobber-registers.o obj/v8_base_without_compiler/embedder-state.o obj/v8_base_without_compiler/encoded-c-signature.o obj/v8_base_without_compiler/execution.o obj/v8_base_without_compiler/frames.o obj/v8_base_without_compiler/futex-emulation.o obj/v8_base_without_compiler/interrupts-scope.o obj/v8_base_without_compiler/isolate.o obj/v8_base_without_compiler/local-isolate.o obj/v8_base_without_compiler/messages.o obj/v8_base_without_compiler/microtask-queue.o obj/v8_base_without_compiler/protectors.o obj/v8_base_without_compiler/simulator-base.o obj/v8_base_without_compiler/stack-guard.o obj/v8_base_without_compiler/thread-id.o obj/v8_base_without_compiler/thread-local-top.o obj/v8_base_without_compiler/tiering-manager.o obj/v8_base_without_compiler/v8threads.o obj/v8_base_without_compiler/cputracemark-extension.o obj/v8_base_without_compiler/externalize-string-extension.o obj/v8_base_without_compiler/gc-extension.o obj/v8_base_without_compiler/ignition-statistics-extension.o obj/v8_base_without_compiler/statistics-extension.o obj/v8_base_without_compiler/trigger-failure-extension.o obj/v8_base_without_compiler/flags.o obj/v8_base_without_compiler/global-handles.o obj/v8_base_without_compiler/handles.o obj/v8_base_without_compiler/local-handles.o obj/v8_base_without_compiler/persistent-handles.o obj/v8_base_without_compiler/allocation-observer.o obj/v8_base_without_compiler/array-buffer-sweeper.o obj/v8_base_without_compiler/base-space.o obj/v8_base_without_compiler/basic-memory-chunk.o obj/v8_base_without_compiler/code-object-registry.o obj/v8_base_without_compiler/code-range.o obj/v8_base_without_compiler/code-stats.o obj/v8_base_without_compiler/collection-barrier.o obj/v8_base_without_compiler/combined-heap.o obj/v8_base_without_compiler/concurrent-allocator.o obj/v8_base_without_compiler/concurrent-marking.o obj/v8_base_without_compiler/cpp-heap.o obj/v8_base_without_compiler/cpp-snapshot.o obj/v8_base_without_compiler/unified-heap-marking-state.o obj/v8_base_without_compiler/unified-heap-marking-verifier.o obj/v8_base_without_compiler/unified-heap-marking-visitor.o obj/v8_base_without_compiler/embedder-tracing.o obj/v8_base_without_compiler/factory-base.o obj/v8_base_without_compiler/factory.o obj/v8_base_without_compiler/finalization-registry-cleanup-task.o obj/v8_base_without_compiler/free-list.o obj/v8_base_without_compiler/gc-idle-time-handler.o obj/v8_base_without_compiler/gc-tracer.o obj/v8_base_without_compiler/heap-allocator.o obj/v8_base_without_compiler/heap-controller.o obj/v8_base_without_compiler/heap-layout-tracer.o obj/v8_base_without_compiler/heap-write-barrier.o obj/v8_base_without_compiler/heap.o obj/v8_base_without_compiler/incremental-marking-job.o obj/v8_base_without_compiler/incremental-marking.o obj/v8_base_without_compiler/index-generator.o obj/v8_base_without_compiler/invalidated-slots.o obj/v8_base_without_compiler/large-spaces.o obj/v8_base_without_compiler/local-factory.o obj/v8_base_without_compiler/local-heap.o obj/v8_base_without_compiler/mark-compact.o obj/v8_base_without_compiler/marking-barrier.o obj/v8_base_without_compiler/marking-worklist.o obj/v8_base_without_compiler/marking.o obj/v8_base_without_compiler/memory-allocator.o obj/v8_base_without_compiler/memory-chunk-layout.o obj/v8_base_without_compiler/memory-chunk.o obj/v8_base_without_compiler/memory-measurement.o obj/v8_base_without_compiler/memory-reducer.o obj/v8_base_without_compiler/new-spaces.o obj/v8_base_without_compiler/object-stats.o obj/v8_base_without_compiler/objects-visiting.o obj/v8_base_without_compiler/paged-spaces.o obj/v8_base_without_compiler/read-only-heap.o obj/v8_base_without_compiler/read-only-spaces.o obj/v8_base_without_compiler/safepoint.o obj/v8_base_without_compiler/scavenge-job.o obj/v8_base_without_compiler/scavenger.o obj/v8_base_without_compiler/slot-set.o obj/v8_base_without_compiler/spaces.o obj/v8_base_without_compiler/stress-marking-observer.o obj/v8_base_without_compiler/stress-scavenge-observer.o obj/v8_base_without_compiler/sweeper.o obj/v8_base_without_compiler/weak-object-worklists.o obj/v8_base_without_compiler/call-optimization.o obj/v8_base_without_compiler/handler-configuration.o obj/v8_base_without_compiler/ic-stats.o obj/v8_base_without_compiler/ic.o obj/v8_base_without_compiler/stub-cache.o obj/v8_base_without_compiler/bootstrapper.o obj/v8_base_without_compiler/icu_util.o obj/v8_base_without_compiler/isolate-allocator.o obj/v8_base_without_compiler/startup-data-util.o obj/v8_base_without_compiler/v8.o obj/v8_base_without_compiler/bytecode-array-builder.o obj/v8_base_without_compiler/bytecode-array-iterator.o obj/v8_base_without_compiler/bytecode-array-random-iterator.o obj/v8_base_without_compiler/bytecode-array-writer.o obj/v8_base_without_compiler/bytecode-decoder.o obj/v8_base_without_compiler/bytecode-flags.o obj/v8_base_without_compiler/bytecode-generator.o obj/v8_base_without_compiler/bytecode-label.o obj/v8_base_without_compiler/bytecode-node.o obj/v8_base_without_compiler/bytecode-operands.o obj/v8_base_without_compiler/bytecode-register-optimizer.o obj/v8_base_without_compiler/bytecode-register.o obj/v8_base_without_compiler/bytecode-source-info.o obj/v8_base_without_compiler/bytecodes.o obj/v8_base_without_compiler/constant-array-builder.o obj/v8_base_without_compiler/control-flow-builders.o obj/v8_base_without_compiler/handler-table-builder.o obj/v8_base_without_compiler/interpreter-intrinsics.o obj/v8_base_without_compiler/interpreter.o obj/v8_base_without_compiler/json-parser.o obj/v8_base_without_compiler/json-stringifier.o obj/v8_base_without_compiler/sampler.o obj/v8_base_without_compiler/counters.o obj/v8_base_without_compiler/local-logger.o obj/v8_base_without_compiler/log-utils.o obj/v8_base_without_compiler/log.o obj/v8_base_without_compiler/metrics.o obj/v8_base_without_compiler/runtime-call-stats.o obj/v8_base_without_compiler/tracing-flags.o obj/v8_base_without_compiler/conversions.o obj/v8_base_without_compiler/math-random.o obj/v8_base_without_compiler/backing-store.o obj/v8_base_without_compiler/bigint.o obj/v8_base_without_compiler/call-site-info.o obj/v8_base_without_compiler/code-kind.o obj/v8_base_without_compiler/code.o obj/v8_base_without_compiler/compilation-cache-table.o obj/v8_base_without_compiler/contexts.o obj/v8_base_without_compiler/debug-objects.o obj/v8_base_without_compiler/elements-kind.o obj/v8_base_without_compiler/elements.o obj/v8_base_without_compiler/embedder-data-array.o obj/v8_base_without_compiler/feedback-vector.o obj/v8_base_without_compiler/field-type.o obj/v8_base_without_compiler/intl-objects.o obj/v8_base_without_compiler/js-array-buffer.o obj/v8_base_without_compiler/js-break-iterator.o obj/v8_base_without_compiler/js-collator.o obj/v8_base_without_compiler/js-date-time-format.o obj/v8_base_without_compiler/js-display-names.o obj/v8_base_without_compiler/js-function.o obj/v8_base_without_compiler/js-list-format.o obj/v8_base_without_compiler/js-locale.o obj/v8_base_without_compiler/js-number-format.o obj/v8_base_without_compiler/js-objects.o obj/v8_base_without_compiler/js-plural-rules.o obj/v8_base_without_compiler/js-regexp.o obj/v8_base_without_compiler/js-relative-time-format.o obj/v8_base_without_compiler/js-segment-iterator.o obj/v8_base_without_compiler/js-segmenter.o obj/v8_base_without_compiler/js-segments.o obj/v8_base_without_compiler/js-temporal-objects.o obj/v8_base_without_compiler/keys.o obj/v8_base_without_compiler/literal-objects.o obj/v8_base_without_compiler/lookup-cache.o obj/v8_base_without_compiler/lookup.o obj/v8_base_without_compiler/managed.o obj/v8_base_without_compiler/map-updater.o obj/v8_base_without_compiler/map.o obj/v8_base_without_compiler/module.o obj/v8_base_without_compiler/object-type.o obj/v8_base_without_compiler/objects.o obj/v8_base_without_compiler/option-utils.o obj/v8_base_without_compiler/ordered-hash-table.o obj/v8_base_without_compiler/osr-optimized-code-cache.o obj/v8_base_without_compiler/property-descriptor.o obj/v8_base_without_compiler/property.o obj/v8_base_without_compiler/scope-info.o obj/v8_base_without_compiler/shared-function-info.o obj/v8_base_without_compiler/source-text-module.o obj/v8_base_without_compiler/string-comparator.o obj/v8_base_without_compiler/string-table.o obj/v8_base_without_compiler/string.o obj/v8_base_without_compiler/swiss-name-dictionary.o obj/v8_base_without_compiler/symbol-table.o obj/v8_base_without_compiler/synthetic-module.o obj/v8_base_without_compiler/tagged-impl.o obj/v8_base_without_compiler/template-objects.o obj/v8_base_without_compiler/templates.o obj/v8_base_without_compiler/transitions.o obj/v8_base_without_compiler/type-hints.o obj/v8_base_without_compiler/value-serializer.o obj/v8_base_without_compiler/visitors.o obj/v8_base_without_compiler/func-name-inferrer.o obj/v8_base_without_compiler/import-assertions.o obj/v8_base_without_compiler/literal-buffer.o obj/v8_base_without_compiler/parse-info.o obj/v8_base_without_compiler/parser.o obj/v8_base_without_compiler/parsing.o obj/v8_base_without_compiler/pending-compilation-error-handler.o obj/v8_base_without_compiler/preparse-data.o obj/v8_base_without_compiler/preparser.o obj/v8_base_without_compiler/rewriter.o obj/v8_base_without_compiler/scanner-character-streams.o obj/v8_base_without_compiler/scanner.o obj/v8_base_without_compiler/token.o obj/v8_base_without_compiler/allocation-tracker.o obj/v8_base_without_compiler/cpu-profiler.o obj/v8_base_without_compiler/heap-profiler.o obj/v8_base_without_compiler/heap-snapshot-generator.o obj/v8_base_without_compiler/profile-generator.o obj/v8_base_without_compiler/profiler-listener.o obj/v8_base_without_compiler/profiler-stats.o obj/v8_base_without_compiler/sampling-heap-profiler.o obj/v8_base_without_compiler/strings-storage.o obj/v8_base_without_compiler/symbolizer.o obj/v8_base_without_compiler/tick-sample.o obj/v8_base_without_compiler/tracing-cpu-profiler.o obj/v8_base_without_compiler/weak-code-registry.o obj/v8_base_without_compiler/experimental-bytecode.o obj/v8_base_without_compiler/experimental-compiler.o obj/v8_base_without_compiler/experimental-interpreter.o obj/v8_base_without_compiler/experimental.o obj/v8_base_without_compiler/property-sequences.o obj/v8_base_without_compiler/regexp-ast.o obj/v8_base_without_compiler/regexp-bytecode-generator.o obj/v8_base_without_compiler/regexp-bytecode-peephole.o obj/v8_base_without_compiler/regexp-bytecodes.o obj/v8_base_without_compiler/regexp-compiler-tonode.o obj/v8_base_without_compiler/regexp-compiler.o obj/v8_base_without_compiler/regexp-dotprinter.o obj/v8_base_without_compiler/regexp-error.o obj/v8_base_without_compiler/regexp-interpreter.o obj/v8_base_without_compiler/regexp-macro-assembler-tracer.o obj/v8_base_without_compiler/regexp-macro-assembler.o obj/v8_base_without_compiler/regexp-parser.o obj/v8_base_without_compiler/regexp-stack.o obj/v8_base_without_compiler/regexp-utils.o obj/v8_base_without_compiler/regexp.o obj/v8_base_without_compiler/roots.o obj/v8_base_without_compiler/runtime-array.o obj/v8_base_without_compiler/runtime-atomics.o obj/v8_base_without_compiler/runtime-bigint.o obj/v8_base_without_compiler/runtime-classes.o obj/v8_base_without_compiler/runtime-collections.o obj/v8_base_without_compiler/runtime-compiler.o obj/v8_base_without_compiler/runtime-date.o obj/v8_base_without_compiler/runtime-debug.o obj/v8_base_without_compiler/runtime-forin.o obj/v8_base_without_compiler/runtime-function.o obj/v8_base_without_compiler/runtime-futex.o obj/v8_base_without_compiler/runtime-generator.o obj/v8_base_without_compiler/runtime-internal.o obj/v8_base_without_compiler/runtime-intl.o obj/v8_base_without_compiler/runtime-literals.o obj/v8_base_without_compiler/runtime-module.o obj/v8_base_without_compiler/runtime-numbers.o obj/v8_base_without_compiler/runtime-object.o obj/v8_base_without_compiler/runtime-operators.o obj/v8_base_without_compiler/runtime-promise.o obj/v8_base_without_compiler/runtime-proxy.o obj/v8_base_without_compiler/runtime-regexp.o obj/v8_base_without_compiler/runtime-scopes.o obj/v8_base_without_compiler/runtime-shadow-realm.o obj/v8_base_without_compiler/runtime-strings.o obj/v8_base_without_compiler/runtime-symbol.o obj/v8_base_without_compiler/runtime-test.o obj/v8_base_without_compiler/runtime-trace.o obj/v8_base_without_compiler/runtime-typedarray.o obj/v8_base_without_compiler/runtime-weak-refs.o obj/v8_base_without_compiler/runtime.o obj/v8_base_without_compiler/external-pointer-table.o obj/v8_base_without_compiler/sandbox.o obj/v8_base_without_compiler/code-serializer.o obj/v8_base_without_compiler/context-deserializer.o obj/v8_base_without_compiler/context-serializer.o obj/v8_base_without_compiler/deserializer.o obj/v8_base_without_compiler/embedded-data.o obj/v8_base_without_compiler/object-deserializer.o obj/v8_base_without_compiler/read-only-deserializer.o obj/v8_base_without_compiler/read-only-serializer.o obj/v8_base_without_compiler/roots-serializer.o obj/v8_base_without_compiler/serializer-deserializer.o obj/v8_base_without_compiler/serializer.o obj/v8_base_without_compiler/shared-heap-deserializer.o obj/v8_base_without_compiler/shared-heap-serializer.o obj/v8_base_without_compiler/snapshot-compression.o obj/v8_base_without_compiler/snapshot-data.o obj/v8_base_without_compiler/snapshot-source-sink.o obj/v8_base_without_compiler/snapshot-utils.o obj/v8_base_without_compiler/snapshot.o obj/v8_base_without_compiler/startup-deserializer.o obj/v8_base_without_compiler/startup-serializer.o obj/v8_base_without_compiler/char-predicates.o obj/v8_base_without_compiler/string-builder.o obj/v8_base_without_compiler/string-case.o obj/v8_base_without_compiler/string-stream.o obj/v8_base_without_compiler/unicode-decoder.o obj/v8_base_without_compiler/unicode.o obj/v8_base_without_compiler/uri.o obj/v8_base_without_compiler/cancelable-task.o obj/v8_base_without_compiler/operations-barrier.o obj/v8_base_without_compiler/task-utils.o obj/v8_base_without_compiler/temporal-parser.o obj/v8_base_without_compiler/halfsiphash.o obj/v8_base_without_compiler/trace-event.o obj/v8_base_without_compiler/traced-value.o obj/v8_base_without_compiler/tracing-category-observer.o obj/v8_base_without_compiler/address-map.o obj/v8_base_without_compiler/allocation.o obj/v8_base_without_compiler/bit-vector.o obj/v8_base_without_compiler/detachable-vector.o obj/v8_base_without_compiler/identity-map.o obj/v8_base_without_compiler/memcopy.o obj/v8_base_without_compiler/ostreams.o obj/v8_base_without_compiler/utils.o obj/v8_base_without_compiler/version.o obj/v8_base_without_compiler/web-snapshot.o obj/v8_base_without_compiler/accounting-allocator.o obj/v8_base_without_compiler/type-stats.o obj/v8_base_without_compiler/zone-segment.o obj/v8_base_without_compiler/zone.o obj/v8_base_without_compiler/maglev-code-generator.o obj/v8_base_without_compiler/maglev-compilation-info.o obj/v8_base_without_compiler/maglev-compilation-unit.o obj/v8_base_without_compiler/maglev-compiler.o obj/v8_base_without_compiler/maglev-concurrent-dispatcher.o obj/v8_base_without_compiler/maglev-graph-builder.o obj/v8_base_without_compiler/maglev-graph-printer.o obj/v8_base_without_compiler/maglev-ir.o obj/v8_base_without_compiler/maglev-regalloc.o obj/v8_base_without_compiler/maglev.o obj/v8_base_without_compiler/asm-js.o obj/v8_base_without_compiler/asm-parser.o obj/v8_base_without_compiler/asm-scanner.o obj/v8_base_without_compiler/asm-types.o obj/v8_base_without_compiler/debug-wasm-objects.o obj/v8_base_without_compiler/runtime-test-wasm.o obj/v8_base_without_compiler/runtime-wasm.o obj/v8_base_without_compiler/handler-inside.o obj/v8_base_without_compiler/handler-outside.o obj/v8_base_without_compiler/handler-shared.o obj/v8_base_without_compiler/liftoff-assembler.o obj/v8_base_without_compiler/liftoff-compiler.o obj/v8_base_without_compiler/canonical-types.o obj/v8_base_without_compiler/code-space-access.o obj/v8_base_without_compiler/function-body-decoder.o obj/v8_base_without_compiler/function-compiler.o obj/v8_base_without_compiler/graph-builder-interface.o obj/v8_base_without_compiler/init-expr-interface.o obj/v8_base_without_compiler/jump-table-assembler.o obj/v8_base_without_compiler/local-decl-encoder.o obj/v8_base_without_compiler/memory-protection-key.o obj/v8_base_without_compiler/memory-tracing.o obj/v8_base_without_compiler/module-compiler.o obj/v8_base_without_compiler/module-decoder.o obj/v8_base_without_compiler/module-instantiate.o obj/v8_base_without_compiler/signature-map.o obj/v8_base_without_compiler/simd-shuffle.o obj/v8_base_without_compiler/streaming-decoder.o obj/v8_base_without_compiler/sync-streaming-decoder.o obj/v8_base_without_compiler/value-type.o obj/v8_base_without_compiler/wasm-code-manager.o obj/v8_base_without_compiler/wasm-debug.o obj/v8_base_without_compiler/wasm-engine.o obj/v8_base_without_compiler/wasm-external-refs.o obj/v8_base_without_compiler/wasm-features.o obj/v8_base_without_compiler/wasm-import-wrapper-cache.o obj/v8_base_without_compiler/wasm-init-expr.o obj/v8_base_without_compiler/wasm-js.o obj/v8_base_without_compiler/wasm-module-builder.o obj/v8_base_without_compiler/wasm-module-sourcemap.o obj/v8_base_without_compiler/wasm-module.o obj/v8_base_without_compiler/wasm-objects.o obj/v8_base_without_compiler/wasm-opcodes.o obj/v8_base_without_compiler/wasm-result.o obj/v8_base_without_compiler/wasm-serialization.o obj/v8_base_without_compiler/wasm-subtyping.o obj/v8_base_without_compiler/heap-api-stub.o obj/v8_base_without_compiler/macro-assembler-shared-ia32-x64.o obj/v8_base_without_compiler/assembler-x64.o obj/v8_base_without_compiler/cpu-x64.o obj/v8_base_without_compiler/macro-assembler-x64.o obj/v8_base_without_compiler/code-generator-x64.o obj/v8_base_without_compiler/instruction-scheduler-x64.o obj/v8_base_without_compiler/instruction-selector-x64.o obj/v8_base_without_compiler/unwinding-info-writer-x64.o obj/v8_base_without_compiler/deoptimizer-x64.o obj/v8_base_without_compiler/disasm-x64.o obj/v8_base_without_compiler/eh-frame-x64.o obj/v8_base_without_compiler/unwinder-x64.o obj/v8_base_without_compiler/frame-constants-x64.o obj/v8_base_without_compiler/regexp-macro-assembler-x64.o obj/v8_base_without_compiler/handler-inside-posix.o obj/v8_base_without_compiler/handler-outside-posix.o obj/v8_base_without_compiler/special-case.o || obj/cppgc_base.stamp obj/generate_bytecode_builtins_list.stamp obj/run_torque.stamp obj/v8_headers.stamp obj/v8_internal_headers.stamp obj/v8_maybe_icu.stamp obj/torque_generated_definitions.stamp obj/v8_bigint.stamp obj/v8_heap_base.stamp obj/libv8_libbase.a obj/v8_shared_internal_headers.stamp obj/v8_tracing.stamp obj/v8_version.stamp obj/src/inspector/inspector.stamp obj/run_gen-regexp-special-case.stamp obj/third_party/zlib/libchrome_zlib.a obj/third_party/zlib/google/libcompression_utils_portable.a obj/cppgc_headers.stamp obj/v8_config_headers.stamp obj/libv8_libplatform.a obj/v8_heap_base_headers.stamp obj/torque_runtime_support.stamp obj/v8_flags.stamp obj/third_party/icu/libicui18n.a obj/third_party/icu/libicuuc.a obj/third_party/icu/icuuc_public.stamp obj/src/inspector/inspector_test_headers.stamp obj/src/inspector/inspector_string_conversions.stamp obj/third_party/inspector_protocol/crdtp.stamp obj/third_party/inspector_protocol/crdtp_platform.stamp obj/third_party/zlib/zlib_adler32_simd.stamp obj/third_party/zlib/zlib_common_headers.stamp obj/third_party/zlib/zlib_inflate_chunk_simd.stamp obj/third_party/zlib/zlib_slide_hash_simd.stamp obj/third_party/zlib/zlib_crc32_simd.stamp

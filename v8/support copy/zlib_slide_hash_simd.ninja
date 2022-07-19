@@ -1,0 +1,8 @@
+defines = -DUSE_UDEV -DUSE_AURA=1 -DUSE_GLIB=1 -DUSE_OZONE=1 -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D_FORTIFY_SOURCE=2 -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DZLIB_IMPLEMENTATION -DDEFLATE_SLIDE_HASH_SSE2
+include_dirs = -I../.. -Igen
+label_name = zlib_slide_hash_simd
+target_out_dir = obj/third_party/zlib
+target_output_name = zlib_slide_hash_simd
+
+
+build obj/third_party/zlib/zlib_slide_hash_simd.stamp: stamp || obj/third_party/zlib/zlib_common_headers.stamp
