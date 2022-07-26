@@ -1,0 +1,2 @@
+{"message":"invalid character `.` in crate name: `lib.rs`","code":null,"level":"error","spans":[],"children":[],"rendered":"\u001b[0m\u001b[1m\u001b[38;5;9merror\u001b[0m\u001b[0m\u001b[1m: invalid character `.` in crate name: `lib.rs`\u001b[0m\n\n"}
+{"message":"aborting due to previous error","code":null,"level":"error","spans":[],"children":[],"rendered":"\u001b[0m\u001b[1m\u001b[38;5;9merror\u001b[0m\u001b[0m\u001b[1m: aborting due to previous error\u001b[0m\n\n"}

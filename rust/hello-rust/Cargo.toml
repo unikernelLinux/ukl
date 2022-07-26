@@ -1,0 +1,13 @@
+[package]
+name = "hello-rust"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "hellolib"
+crate-type = ["staticlib"]
+path = "src/hellolib"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
