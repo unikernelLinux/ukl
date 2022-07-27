@@ -63,7 +63,7 @@ nginx.o: stamp-nginx-dir zlib.a
 	-cd nginx && $(MAKE) clean
 	cd nginx && \
 	CFLAGS='-ggdb -mno-red-zone -mcmodel=kernel' ./configure --without-pcre --without-http_rewrite_module && \
-	make --trace
+	make -i --trace
 	cd nginx && \
 	ld -r -o ../$@ --allow-multiple-definition \
 	    $(CRT_STARTS) \
