@@ -8,6 +8,9 @@ name = "hellolib"
 crate-type = ["staticlib"]
 path = "src/hellolib"
 
+[profile.release]
+lto = "off"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
