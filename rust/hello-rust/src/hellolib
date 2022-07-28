@@ -6,3 +6,4 @@
 pub extern "C" fn hello_world(){
 	println!("Hello, I am talking to you from rust, but you will call me from C code.\n");
 }
+

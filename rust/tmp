@@ -1,0 +1,220 @@
+
+hello-rust/src/hellolib.o:     file format elf64-x86-64
+
+
+Disassembly of section .text._ZN4core3fmt9Arguments6new_v117hac5af77bf3292be0E:
+
+0000000000000000 <_ZN4core3fmt9Arguments6new_v117hac5af77bf3292be0E>:
+   0:	48 83 ec 78          	sub    $0x78,%rsp
+   4:	4c 89 04 24          	mov    %r8,(%rsp)
+   8:	48 89 4c 24 08       	mov    %rcx,0x8(%rsp)
+   d:	48 89 54 24 10       	mov    %rdx,0x10(%rsp)
+  12:	48 89 74 24 18       	mov    %rsi,0x18(%rsp)
+  17:	48 89 7c 24 20       	mov    %rdi,0x20(%rsp)
+  1c:	48 89 7c 24 28       	mov    %rdi,0x28(%rsp)
+  21:	4c 39 c2             	cmp    %r8,%rdx
+  24:	72 1b                	jb     41 <_ZN4core3fmt9Arguments6new_v117hac5af77bf3292be0E+0x41>
+  26:	48 8b 44 24 10       	mov    0x10(%rsp),%rax
+  2b:	48 8b 0c 24          	mov    (%rsp),%rcx
+  2f:	48 83 c1 01          	add    $0x1,%rcx
+  33:	48 39 c8             	cmp    %rcx,%rax
+  36:	0f 97 c0             	seta   %al
+  39:	24 01                	and    $0x1,%al
+  3b:	88 44 24 37          	mov    %al,0x37(%rsp)
+  3f:	eb 05                	jmp    46 <_ZN4core3fmt9Arguments6new_v117hac5af77bf3292be0E+0x46>
+  41:	c6 44 24 37 01       	movb   $0x1,0x37(%rsp)
+  46:	f6 44 24 37 01       	testb  $0x1,0x37(%rsp)
+  4b:	75 4c                	jne    99 <_ZN4core3fmt9Arguments6new_v117hac5af77bf3292be0E+0x99>
+  4d:	48 8b 44 24 28       	mov    0x28(%rsp),%rax
+  52:	48 8b 4c 24 20       	mov    0x20(%rsp),%rcx
+  57:	48 8b 14 24          	mov    (%rsp),%rdx
+  5b:	48 8b 74 24 08       	mov    0x8(%rsp),%rsi
+  60:	48 8b 7c 24 10       	mov    0x10(%rsp),%rdi
+  65:	4c 8b 44 24 18       	mov    0x18(%rsp),%r8
+  6a:	48 c7 44 24 68 00 00 	movq   $0x0,0x68(%rsp)
+  71:	00 00 
+  73:	4c 89 01             	mov    %r8,(%rcx)
+  76:	48 89 79 08          	mov    %rdi,0x8(%rcx)
+  7a:	4c 8b 44 24 68       	mov    0x68(%rsp),%r8
+  7f:	48 8b 7c 24 70       	mov    0x70(%rsp),%rdi
+  84:	4c 89 41 10          	mov    %r8,0x10(%rcx)
+  88:	48 89 79 18          	mov    %rdi,0x18(%rcx)
+  8c:	48 89 71 20          	mov    %rsi,0x20(%rcx)
+  90:	48 89 51 28          	mov    %rdx,0x28(%rcx)
+  94:	48 83 c4 78          	add    $0x78,%rsp
+  98:	c3                   	ret    
+  99:	48 8d 7c 24 38       	lea    0x38(%rsp),%rdi
+  9e:	48 8d 35 00 00 00 00 	lea    0x0(%rip),%rsi        # a5 <_ZN4core3fmt9Arguments6new_v117hac5af77bf3292be0E+0xa5>
+  a5:	ba 01 00 00 00       	mov    $0x1,%edx
+  aa:	48 8d 0d 00 00 00 00 	lea    0x0(%rip),%rcx        # b1 <_ZN4core3fmt9Arguments6new_v117hac5af77bf3292be0E+0xb1>
+  b1:	31 c0                	xor    %eax,%eax
+  b3:	41 89 c0             	mov    %eax,%r8d
+  b6:	e8 45 ff ff ff       	call   0 <_ZN4core3fmt9Arguments6new_v117hac5af77bf3292be0E>
+  bb:	48 8d 35 00 00 00 00 	lea    0x0(%rip),%rsi        # c2 <_ZN4core3fmt9Arguments6new_v117hac5af77bf3292be0E+0xc2>
+  c2:	48 8b 05 00 00 00 00 	mov    0x0(%rip),%rax        # c9 <_ZN4core3fmt9Arguments6new_v117hac5af77bf3292be0E+0xc9>
+  c9:	48 8d 7c 24 38       	lea    0x38(%rsp),%rdi
+  ce:	ff d0                	call   *%rax
+  d0:	0f 0b                	ud2    
+
+Disassembly of section .text.hello_world:
+
+0000000000000000 <hello_world>:
+   0:	48 83 ec 38          	sub    $0x38,%rsp
+   4:	48 8d 7c 24 08       	lea    0x8(%rsp),%rdi
+   9:	48 8d 35 00 00 00 00 	lea    0x0(%rip),%rsi        # 10 <hello_world+0x10>
+  10:	ba 01 00 00 00       	mov    $0x1,%edx
+  15:	48 8d 0d 00 00 00 00 	lea    0x0(%rip),%rcx        # 1c <hello_world+0x1c>
+  1c:	31 c0                	xor    %eax,%eax
+  1e:	41 89 c0             	mov    %eax,%r8d
+  21:	e8 00 00 00 00       	call   26 <hello_world+0x26>
+  26:	48 8d 7c 24 08       	lea    0x8(%rsp),%rdi
+  2b:	ff 15 00 00 00 00    	call   *0x0(%rip)        # 31 <hello_world+0x31>
+  31:	48 83 c4 38          	add    $0x38,%rsp
+  35:	c3                   	ret    
+
+Disassembly of section .rodata..L__unnamed_5:
+
+0000000000000000 <.rodata..L__unnamed_5>:
+   0:	69 6e 76 61 6c 69 64 	imul   $0x64696c61,0x76(%rsi),%ebp
+   7:	20 61 72             	and    %ah,0x72(%rcx)
+   a:	67                   	addr32
+   b:	73                   	.byte 0x73
+
+Disassembly of section .data.rel.ro..L__unnamed_1:
+
+0000000000000000 <.data.rel.ro..L__unnamed_1>:
+	...
+   8:	0c 00                	or     $0x0,%al
+   a:	00 00                	add    %al,(%rax)
+   c:	00 00                	add    %al,(%rax)
+	...
+
+Disassembly of section .rodata..L__unnamed_6:
+
+0000000000000000 <.rodata..L__unnamed_6>:
+   0:	2f                   	(bad)  
+   1:	72 75                	jb     78 <hello_world+0x78>
+   3:	73 74                	jae    79 <hello_world+0x79>
+   5:	63 2f                	movsxd (%rdi),%ebp
+   7:	65 30 39             	xor    %bh,%gs:(%rcx)
+   a:	32 64 30 62          	xor    0x62(%rax,%rsi,1),%ah
+   e:	36 62                	ss (bad) 
+  10:	34 33                	xor    $0x33,%al
+  12:	66 32 64 65 39       	data16 xor 0x39(%rbp,%riz,2),%ah
+  17:	36 37                	ss (bad) 
+  19:	61                   	(bad)  
+  1a:	66 30 38             	data16 xor %bh,(%rax)
+  1d:	38 37                	cmp    %dh,(%rdi)
+  1f:	38 37                	cmp    %dh,(%rdi)
+  21:	33 31                	xor    (%rcx),%esi
+  23:	35 31 62 62 31       	xor    $0x31626231,%eax
+  28:	63 30                	movsxd (%rax),%esi
+  2a:	62 31                	(bad)  
+  2c:	38 64 33 2f          	cmp    %ah,0x2f(%rbx,%rsi,1)
+  30:	6c                   	insb   (%dx),%es:(%rdi)
+  31:	69 62 72 61 72 79 2f 	imul   $0x2f797261,0x72(%rdx),%esp
+  38:	63 6f 72             	movsxd 0x72(%rdi),%ebp
+  3b:	65 2f                	gs (bad) 
+  3d:	73 72                	jae    b1 <hello_world+0xb1>
+  3f:	63 2f                	movsxd (%rdi),%ebp
+  41:	66 6d                	insw   (%dx),%es:(%rdi)
+  43:	74 2f                	je     74 <hello_world+0x74>
+  45:	6d                   	insl   (%dx),%es:(%rdi)
+  46:	6f                   	outsl  %ds:(%rsi),(%dx)
+  47:	64 2e 72 73          	fs jb,pn be <hello_world+0xbe>
+
+Disassembly of section .data.rel.ro..L__unnamed_3:
+
+0000000000000000 <.data.rel.ro..L__unnamed_3>:
+	...
+   8:	4b 00 00             	rex.WXB add %al,(%r8)
+   b:	00 00                	add    %al,(%rax)
+   d:	00 00                	add    %al,(%rax)
+   f:	00 86 01 00 00 0d    	add    %al,0xd000001(%rsi)
+  15:	00 00                	add    %al,(%rax)
+	...
+
+Disassembly of section .rodata..L__unnamed_7:
+
+0000000000000000 <.rodata..L__unnamed_7>:
+   0:	48                   	rex.W
+   1:	65 6c                	gs insb (%dx),%es:(%rdi)
+   3:	6c                   	insb   (%dx),%es:(%rdi)
+   4:	6f                   	outsl  %ds:(%rsi),(%dx)
+   5:	2c 20                	sub    $0x20,%al
+   7:	49 20 61 6d          	rex.WB and %spl,0x6d(%r9)
+   b:	20 74 61 6c          	and    %dh,0x6c(%rcx,%riz,2)
+   f:	6b 69 6e 67          	imul   $0x67,0x6e(%rcx),%ebp
+  13:	20 74 6f 20          	and    %dh,0x20(%rdi,%rbp,2)
+  17:	79 6f                	jns    88 <hello_world+0x88>
+  19:	75 20                	jne    3b <.rodata..L__unnamed_7+0x3b>
+  1b:	66 72 6f             	data16 jb 8d <hello_world+0x8d>
+  1e:	6d                   	insl   (%dx),%es:(%rdi)
+  1f:	20 72 75             	and    %dh,0x75(%rdx)
+  22:	73 74                	jae    98 <hello_world+0x98>
+  24:	2c 20                	sub    $0x20,%al
+  26:	62                   	(bad)  
+  27:	75 74                	jne    9d <hello_world+0x9d>
+  29:	20 79 6f             	and    %bh,0x6f(%rcx)
+  2c:	75 20                	jne    4e <hello_world+0x4e>
+  2e:	77 69                	ja     99 <hello_world+0x99>
+  30:	6c                   	insb   (%dx),%es:(%rdi)
+  31:	6c                   	insb   (%dx),%es:(%rdi)
+  32:	20 63 61             	and    %ah,0x61(%rbx)
+  35:	6c                   	insb   (%dx),%es:(%rdi)
+  36:	6c                   	insb   (%dx),%es:(%rdi)
+  37:	20 6d 65             	and    %ch,0x65(%rbp)
+  3a:	20 66 72             	and    %ah,0x72(%rsi)
+  3d:	6f                   	outsl  %ds:(%rsi),(%dx)
+  3e:	6d                   	insl   (%dx),%es:(%rdi)
+  3f:	20 43 20             	and    %al,0x20(%rbx)
+  42:	63 6f 64             	movsxd 0x64(%rdi),%ebp
+  45:	65 2e 0a 0a          	gs or  %gs:(%rdx),%cl
+
+Disassembly of section .data.rel.ro..L__unnamed_4:
+
+0000000000000000 <.data.rel.ro..L__unnamed_4>:
+	...
+   8:	49 00 00             	rex.WB add %al,(%r8)
+   b:	00 00                	add    %al,(%rax)
+   d:	00 00                	add    %al,(%rax)
+	...
+
+Disassembly of section .eh_frame:
+
+0000000000000000 <.eh_frame>:
+   0:	14 00                	adc    $0x0,%al
+   2:	00 00                	add    %al,(%rax)
+   4:	00 00                	add    %al,(%rax)
+   6:	00 00                	add    %al,(%rax)
+   8:	01 7a 52             	add    %edi,0x52(%rdx)
+   b:	00 01                	add    %al,(%rcx)
+   d:	78 10                	js     1f <.eh_frame+0x1f>
+   f:	01 1b                	add    %ebx,(%rbx)
+  11:	0c 07                	or     $0x7,%al
+  13:	08 90 01 00 00 1c    	or     %dl,0x1c000001(%rax)
+  19:	00 00                	add    %al,(%rax)
+  1b:	00 1c 00             	add    %bl,(%rax,%rax,1)
+  1e:	00 00                	add    %al,(%rax)
+  20:	00 00                	add    %al,(%rax)
+  22:	00 00                	add    %al,(%rax)
+  24:	d2 00                	rolb   %cl,(%rax)
+  26:	00 00                	add    %al,(%rax)
+  28:	00 44 0e 80          	add    %al,-0x80(%rsi,%rcx,1)
+  2c:	01 02                	add    %eax,(%rdx)
+  2e:	94                   	xchg   %eax,%esp
+  2f:	0e                   	(bad)  
+  30:	08 41 0e             	or     %al,0xe(%rcx)
+  33:	80 01 00             	addb   $0x0,(%rcx)
+  36:	00 00                	add    %al,(%rax)
+  38:	14 00                	adc    $0x0,%al
+  3a:	00 00                	add    %al,(%rax)
+  3c:	3c 00                	cmp    $0x0,%al
+  3e:	00 00                	add    %al,(%rax)
+  40:	00 00                	add    %al,(%rax)
+  42:	00 00                	add    %al,(%rax)
+  44:	36 00 00             	ss add %al,(%rax)
+  47:	00 00                	add    %al,(%rax)
+  49:	44 0e                	rex.R (bad) 
+  4b:	40 71 0e             	rex jno 5c <hello_world+0x5c>
+  4e:	08 00                	or     %al,(%rax)

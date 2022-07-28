@@ -1,0 +1,2 @@
+execve("/usr/bin/make", ["make", "-j16"], 0x7ffebf6b20d8 /* 55 vars */) = 0
++++ exited with 2 +++
