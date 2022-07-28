@@ -1,0 +1,28 @@
+Already logging to mylog.txt.
+
+Thread 1 (Thread 0x7f5a0cda1740 (LWP 1746708)):
+#0  __pthread_kill_implementation (threadid=<optimized out>, signo=signo@entry=6, no_tid=no_tid@entry=0) at pthread_kill.c:44
+#1  0x00007f5a0ce32cb3 in __pthread_kill_internal (signo=6, threadid=<optimized out>) at pthread_kill.c:78
+#2  0x00007f5a0cde29c6 in __GI_raise (sig=sig@entry=6) at ../sysdeps/posix/raise.c:26
+#3  0x00007f5a0cdcc7f4 in __GI_abort () at abort.c:79
+#4  0x00007f59f9c4061c in llvm::report_fatal_error (Reason=..., GenCrashDiag=true) at /usr/src/debug/llvm-14.0.0-1.fc36.x86_64/lib/Support/ErrorHandling.cpp:122
+#5  0x00007f59f9c4046a in llvm::report_fatal_error (Reason=<optimized out>, GenCrashDiag=<optimized out>) at /usr/src/debug/llvm-14.0.0-1.fc36.x86_64/lib/Support/ErrorHandling.cpp:83
+#6  0x00007f59fa8558dc in llvm::BitCodeAbbrevOp::hasEncodingData (E=0) at /usr/src/debug/llvm-14.0.0-1.fc36.x86_64/include/llvm/Bitstream/BitCodes.h:137
+#7  llvm::BitstreamCursor::ReadAbbrevRecord (this=0x7fffededa4d0) at /usr/src/debug/llvm-14.0.0-1.fc36.x86_64/lib/Bitstream/Reader/BitstreamReader.cpp:371
+#8  0x00007f59fa7d8a66 in llvm::BitstreamCursor::advance (this=0x7fffededa4d0, Flags=0) at /usr/src/debug/llvm-14.0.0-1.fc36.x86_64/include/llvm/Bitstream/BitstreamReader.h:427
+#9  0x00007f59fa7dca5d in llvm::getBitcodeFileContents (Buffer=...) at /usr/src/debug/llvm-14.0.0-1.fc36.x86_64/lib/Bitcode/Reader/BitcodeReader.cpp:6757
+#10 0x00007f59fb658189 in llvm::object::readIRSymtab (MBRef=...) at /usr/src/debug/llvm-14.0.0-1.fc36.x86_64/lib/Object/IRObjectFile.cpp:143
+#11 0x00007f59fb44c5d0 in llvm::lto::InputFile::create (Object=...) at /usr/src/debug/llvm-14.0.0-1.fc36.x86_64/lib/LTO/LTO.cpp:476
+#12 0x00007f59ff7da29e in claim_file_hook (file=0x7fffededabf0, claimed=0x7fffededabec) at /usr/src/debug/llvm-14.0.0-1.fc36.x86_64/tools/gold/gold-plugin.cpp:545
+#13 0x00007f5a0d0a505b in try_claim (abfd=0x1d3bb10) at /usr/src/debug/binutils-2.37-27.fc36.x86_64/bfd/plugin.c:323
+#14 try_load_plugin (pname=0x1dd5810 "/usr/bin/../lib64/bfd-plugins/LLVMgold.so", pname@entry=0x0, plugin_list_iter=<optimized out>, plugin_list_iter@entry=0x1dd5850, abfd=abfd@entry=0x1d3bb10, build_list_p=build_list_p@entry=false) at /usr/src/debug/binutils-2.37-27.fc36.x86_64/bfd/plugin.c:427
+#15 0x00007f5a0d0a531c in load_plugin (abfd=0x1d3bb10) at /usr/src/debug/binutils-2.37-27.fc36.x86_64/bfd/plugin.c:563
+#16 bfd_plugin_object_p (abfd=0x1d3bb10) at /usr/src/debug/binutils-2.37-27.fc36.x86_64/bfd/plugin.c:576
+#17 bfd_plugin_object_p (abfd=0x1d3bb10) at /usr/src/debug/binutils-2.37-27.fc36.x86_64/bfd/plugin.c:571
+#18 0x00007f5a0d01059b in bfd_check_format_matches (abfd=abfd@entry=0x1d3bb10, format=format@entry=bfd_object, matching=matching@entry=0x0) at /usr/src/debug/binutils-2.37-27.fc36.x86_64/bfd/format.c:277
+#19 0x00007f5a0d010bcb in bfd_check_format (abfd=abfd@entry=0x1d3bb10, format=format@entry=bfd_object) at /usr/src/debug/binutils-2.37-27.fc36.x86_64/bfd/format.c:94
+#20 0x00007f5a0d010e40 in _bfd_write_archive_contents (arch=0x1d3c1d0) at /usr/src/debug/binutils-2.37-27.fc36.x86_64/bfd/archive.c:2145
+#21 0x00007f5a0d0182fe in bfd_close (abfd=abfd@entry=0x1d3c1d0) at /usr/src/debug/binutils-2.37-27.fc36.x86_64/bfd/opncls.c:810
+#22 0x00000000004068f7 in write_archive (iarch=0x1d3b820, iarch@entry=0x7f5a0ce4019b <_int_malloc+3147>) at /usr/src/debug/binutils-2.37-27.fc36.x86_64/binutils/ar.c:1299
+#23 0x0000000000406d04 in replace_members (arch=0x7f5a0ce4019b <_int_malloc+3147>, arch@entry=0x1d3b820, files_to_move=<optimized out>, files_to_move@entry=0x1d3b670, quick=false) at /usr/src/debug/binutils-2.37-27.fc36.x86_64/binutils/ar.c:1562
+#24 0x0000000000403e80 in main (argc=<optimized out>, argv=<optimized out>) at /usr/src/debug/binutils-2.37-27.fc36.x86_64/binutils/ar.c:942
