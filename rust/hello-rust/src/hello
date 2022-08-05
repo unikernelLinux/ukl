@@ -1,0 +1,12 @@
+// hellolib
+// Soon-to-be statically compiled to be linked with C code
+
+#![crate_type = "staticlib"]
+#[no_mangle]
+
+
+pub extern "C" fn hello_world(){
+	println!("Hello, I am talking to you from rust, but you will call me from C code.\nThis has been a total piece of shit to get working but I am very excited to see this text get spewed out of an executable.\n");
+	
+}
+

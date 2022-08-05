@@ -33,11 +33,11 @@ GCC_LIBS    = $(abs_top_builddir)/libgcc.a $(abs_top_builddir)/libgcc_eh.a
 AM_CFLAGS   = -ggdb -mno-red-zone -mcmodel=kernel -static
 
 
-UKL.a: main.o hello-rust/target/x84_64-unknown-linux-gnu/release/libhellolib.a undefined_sys_hack.o
+UKL.a: hello-rust/main.o hello-rust/foo.o hello-rust/target/debug/deps/libhello-5695cc53afc7ce62.a undefined_sys_hack.o
 	rm -f $@ temp.o
 	ld -r -o temp.o -allow-multiple-definition \
 		$(CRT_STARTS) \
-		$< hello-rust/target/x86_64-unknown-linux-gnu/release/libhellolib.a \
+		$< hello-rust/foo.o hello-rust/target/debug/deps/libhello-5695cc53afc7ce62.a \
 		--start-group \
 		--whole-archive \
 		$(GCC_LIBS) $(C_LIB) \
@@ -49,11 +49,26 @@ UKL.a: main.o hello-rust/target/x84_64-unknown-linux-gnu/release/libhellolib.a u
 	objcopy --prefix-symbols=ukl_ $@
 	objcopy --redefine-syms=$(top_srcdir)/redef_sym_names $@
 
-hello-rust/target/x84_64-unknown-linux-gnu/release/libhellolib.a:
+hello-rust/target/debug/deps/libhello-5695cc53afc7ce62.a:
 	rm -f $@
-	if ! test -d hello-rust/target/x84_64-unknown-linux-gnu/release/libhellolib.a; then \
-		cd hello-rust; cbindgen --config cbindgen.toml --crate hello-rust --output hello.h --lang c; \
+	if ! test -d /target/debug/deps/libhello-5695cc53afc7ce62.a; then \
+		cargo build; \
 	fi
+	touch $@
+
+hello-rust/main.o:
+	rm -f $@
+	if ! test -d /hello-rust/main.o; then \
+		gcc -c hello-rust/main.c -o hello-rust/main.o; \
+	fi
+	touch $@
+
+hello-rust/foo.o:
+	rm -f $@
+	if ! test -d /hello-rust/foo.o; then \
+		gcc -c hello-rust/foo.c -o hello-rust/foo.o; \
+	fi
+	touch $@
 
 undefined_sys_hack.c: $(top_builddir)/undefined_sys_hack.c
 	cp $< $@

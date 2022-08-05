@@ -1,6 +1,7 @@
-#include <stdarg.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdlib.h>
+//#include <stdarg.h>
+//#include <stdbool.h>
+//#include <stdint.h>
+//#include <stdlib.h>
 
-void hello_world(void);
+extern void foo(void);
+
