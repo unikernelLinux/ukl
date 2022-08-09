@@ -307,7 +307,7 @@ boot-actions:
 		-nodefaults -nographic -serial stdio \
 		-append "console=ttyS0 root=/dev/sda net.ifnames=0 biosdevname=0 nowatchdog nosmap mds=off ip=192.168.19.136:::255.255.255.0::eth0:none -- -g 20 -n 5 " \
 		-netdev tap,id=vlan1,ifname=tap0,script=no,downscript=no,vhost=on,queues=4 -device virtio-net-pci,mq=on,vectors=10,netdev=vlan1,mac=02:00:00:04:00:29 \
-		> actions.out
+		| tee actions.out
 #----------------------------------------------------------------------
 # Maintainers only!
 
