@@ -8,5 +8,16 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: recursive
-      - run: sudo apt-get install git build-essential flex bison supermin libelf-dev libssl-dev texinfo libgmp3-dev libmpc-dev libmpfr-dev qemu-kvm
+      - run: sudo apt-get install git 
+      - run: sudo apt-get install build-essential 
+      - run: sudo apt-get install flex 
+      - run: sudo apt-get install bison 
+      - run: sudo apt-get install supermin 
+      - run: sudo apt-get install libelf-dev 
+      - run: sudo apt-get install libssl-dev 
+      - run: sudo apt-get install texinfo 
+      - run: sudo apt-get install libgmp3-dev 
+      - run: sudo apt-get install libmpc-dev 
+      - run: sudo apt-get install libmpfr-dev 
+      - run: sudo apt-get install qemu-kvm
       - run: source run_boot.sh
