@@ -9,5 +9,5 @@ jobs:
         with:
           submodules: recursive
       - run: sudo apt-get update
-      - run: sudo apt-get install git build-essential flex bison supermin libelf-dev libssl-dev texinfo libgmp3-dev libmpc-dev libmpfr-dev qemu-kvm
+      - run: sudo apt install qemu-kvm
       - run: source run_boot.sh
