@@ -9,5 +9,5 @@ jobs:
         with:
           submodules: recursive
       - run: sudo apt-get update
-      - run: sudo apt install qemu-kvm
+      - run: sudo apt install supermin qemu-kvm
       - run: source run_boot.sh
