@@ -11,3 +11,10 @@ jobs:
       - run: sudo apt-get update
       - run: sudo apt install supermin qemu-kvm
       - run: source run_boot.sh
+
+      - name: Upload `config.log` on failure
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: config.log
+          path: ${{ github.workspace }}
