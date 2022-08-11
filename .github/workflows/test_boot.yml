@@ -17,4 +17,4 @@ jobs:
         if: failure()
         with:
           name: config.log
-          path: ${{ github.workspace }}
+          path: ${{ github.workspace }}/config.log
