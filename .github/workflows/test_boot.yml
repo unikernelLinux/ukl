@@ -9,7 +9,7 @@ jobs:
         with:
           submodules: recursive
       - run: sudo apt-get update
-      - run: sudo apt install supermin qemu-kvm
+      - run: sudo apt install supermin qemu-kvm libelf-dev
       - run: source run_boot.sh
 
       - name: Upload `config.log` on failure
