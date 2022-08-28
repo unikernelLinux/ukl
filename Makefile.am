@@ -115,7 +115,7 @@ LIBC_OBJS = libc.a libpthread.a libm.a librt.a libcrypt.a crt1.o crti.o crtn.o
 
 noinst_DATA += $(LIBC_OBJS)
 
-GLIBC_CFLAGS = -g -O2 -fthread-jumps -mcmodel=kernel -mno-red-zone
+GLIBC_CFLAGS = -g -O2 -fthread-jumps
 if ENABLE_BYPASS
 GLIBC_CFLAGS += -DUKL_BP
 else
@@ -161,6 +161,7 @@ stamp-glibc-configure:
 	cd glibc-build && \
 	$(abs_top_srcdir)/glibc/configure \
 	    CFLAGS="$(GLIBC_CFLAGS)" \
+	    --with-nonshared-cflags="-mcmodel=kernel -mno-red-zone" \
 	    --prefix=$(abs_builddir) \
 	    --enable-hacker-mode \
 	    --enable-timezone-tools \

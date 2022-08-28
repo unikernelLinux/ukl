@@ -30,7 +30,7 @@ RT_LIB      = $(abs_top_builddir)/librt.a
 MATH_LIB    = $(abs_top_builddir)/libm.a
 GCC_LIBS    = $(abs_top_builddir)/libgcc.a $(abs_top_builddir)/libgcc_eh.a
 
-AM_CFLAGS   = -ggdb -mno-red-zone -mcmodel=kernel -static
+AM_CFLAGS   = -ggdb -mno-red-zone -mcmodel=kernel -static -fno-PIC
 
 UKL.a: hello-world.o undefined_sys_hack.o
 	rm -f $@ temp.o
