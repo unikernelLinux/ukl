@@ -8,8 +8,13 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: recursive
+
       - run: sudo apt-get update
       - run: sudo apt install supermin qemu-kvm libelf-dev
+
+      - name: Enable virtualization
+        run: sudo modprobe kvm-intel
+
       - run: source run_boot.sh
 
       - name: Upload `config.log` on failure
