@@ -300,7 +300,7 @@ boot-priv:
 # This allows output to be read and tested
 boot-actions:
 	sudo qemu-system-x86_64 \
-		-smp cpus=2 -m 12G -s \
+		-smp cpus=2 -m 7G -s \
 		-kernel vmlinuz \
 		-initrd ./initrd/initrd \
 		-hda ./initrd/root \
