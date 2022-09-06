@@ -9,7 +9,7 @@ autoreconf -i
 make -j`nproc`
 
 # Boot the machine
-sudo timeout 10m make boot-actions
+sudo make boot-actions
 
 # Check to see that output contains magic string
 # If Test fails, print QEMU output
