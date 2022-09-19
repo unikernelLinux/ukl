@@ -47,7 +47,6 @@ size_t receive_count = 0;
 
 struct bench_config {
 	unsigned int rank;
-	unsigned int num_parties;
 	int initialized;
 	unsigned short port;
 	char **ip_list;
@@ -142,7 +141,7 @@ static int parse_opts(int argc, char **argv)
         {
             config.ip_list[i] = haystack;
             i++;
-            if (i >= config.num_parties)
+            if (i >= NUM_PARTIES)
                 break;
             next = strchr(haystack, ',');
             if (next != NULL)
