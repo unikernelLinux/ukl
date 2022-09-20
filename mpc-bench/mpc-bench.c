@@ -611,7 +611,7 @@ int main(int argc, char **argv)
 	fclose(fp);
 	if (parse_opts(argc, args))
 		return -1;
-	iters = strtol(args[6], NULL, 10);
+	iters = strtol(args[5], NULL, 10);
 #else
 	if (parse_opts(argc, argv))
 		return -1;
