@@ -34,10 +34,10 @@ AM_CFLAGS   = -ggdb -mno-red-zone -mcmodel=kernel -static -fno-PIC -DUKL
 
 if ENABLE_BYPASS
 AM_CFLAGS += -DUKL_BYPASS
-else
+endif
+
 if ENABLE_SHORTCUT
 AM_CFLAGS += -DUKL_SHORTCUT
-endif
 endif
 
 UKL.a: mpc-bench.o undefined_sys_hack.o

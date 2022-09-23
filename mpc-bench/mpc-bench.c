@@ -214,7 +214,7 @@ static int tcp_connect(int dest)
 
 	if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 	{
-		printf("\n Socket creation error \n");
+		perror("socket(): ");
 		return -1;
 	}
 
@@ -223,7 +223,7 @@ static int tcp_connect(int dest)
 
 	if (inet_pton(AF_INET, get_address(dest), &serv_addr.sin_addr) <= 0)
 	{
-		printf("\nInvalid address/ Address not supported \n");
+		perror("inet_pton(): ");
 		return -1;
 	}
 
@@ -237,9 +237,12 @@ static int tcp_connect(int dest)
 	while (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
 	{
 		if (tries < 10 &&
-			(errno == ECONNREFUSED || errno == EINTR || errno == ETIMEDOUT))
+			(errno == ECONNREFUSED || errno == EINTR || errno == ETIMEDOUT ||
+			 errno == EAGAIN || errno == ENETUNREACH || errno == ETIMEDOUT ||
+			 errno == EHOSTUNREACH))
 		{
 			// Try and exponential back-off to wait for the other side to come up
+			perror("Connection failed, retrying ");
 			sleep((int)pow(2, tries));
 			tries++;
 		}
@@ -310,9 +313,13 @@ static int tcp_accept(int source)
 }
 
 int bp_count = 0;
+static int base_send(void *buf, int count, int dest, int data_size);
+static int base_recv(void *buf, int count, int source, int data_size);
 
 static int tcp_init()
 {
+	size_t test = DEFAULT_PORT, rec = 0;
+
 	/* init party 0 last */
 	if (config.rank == 0)
 	{
@@ -338,6 +345,19 @@ static int tcp_init()
 	memset(receives, 0, sizeof(struct Record) * RECORDS);
 #endif
 
+	if (base_send(&test, 1, get_succ(), sizeof(size_t)))
+	{
+		printf("Failed to send test value, connection failed\n");
+		exit(1);
+	}
+
+	if (base_recv(&rec, 1, get_pred(), sizeof(size_t)) || rec != DEFAULT_PORT)
+	{
+		printf("Failed to receive test value, expected %lu got %lu\n",
+			DEFAULT_PORT, rec);
+		exit(1);
+	}
+
 	set_bypass_limit(10);
 
 	return 0;
@@ -348,7 +368,6 @@ static int base_send(void *buf, int count, int dest, int data_size)
 	ssize_t n;
 	void *p = buf;
 
-	set_bypass_syscall(1);
 	count = count * data_size;
 	while (count > 0)
 	{
@@ -371,7 +390,6 @@ static int base_send(void *buf, int count, int dest, int data_size)
 			}
 			else
 			{
-				set_bypass_syscall(0);
 				perror("Failed to send");
 				return -1;
 			}
@@ -389,7 +407,6 @@ static int base_send(void *buf, int count, int dest, int data_size)
 		count -= n;
 	}
 
-	set_bypass_syscall(0);
 	return 0;
 }
 
@@ -400,7 +417,7 @@ extern int shortcut_tcp_sendmsg(int fd, struct iovec *iov);
 static int tcp_send(void *buf, int count, int dest, int data_size)
 {
 #ifdef UKL_SHORTCUT
-	ssize_t n;
+	ssize_t n = 0;
 	void *p = buf;
 	struct iovec iov;
 
@@ -421,6 +438,11 @@ static int tcp_send(void *buf, int count, int dest, int data_size)
 		iov.iov_len  = count;
 		n = shortcut_tcp_sendmsg(get_socket(dest), &iov);
 
+		if (n == -EAGAIN)
+		{
+			return base_send(p, 1, dest, count);
+		}
+
 #ifdef TRACE_TCP
 		if (send_count < RECORDS)
 		{
@@ -429,15 +451,23 @@ static int tcp_send(void *buf, int count, int dest, int data_size)
 		}
 #endif
 
-		if (n <= 0)
+		if (n <= 0) {
+			printf("Error returned by tcp_sendmsg: %d\n", n);
 			return -1;
+		}
 		p += n;
 		count -= n;
 	}
 
 	return 0;
 #else
-	return base_send(buf, count, dest, data_size);
+	int ret = 0;
+
+	set_bypass_syscall(1);
+	ret = base_send(buf, count, dest, data_size);
+	set_bypass_syscall(0);
+
+	return ret;
 #endif //UKL_SHORTCUT
 }
 
@@ -446,7 +476,6 @@ static int base_recv(void *buf, int count, int source, int data_size)
 	ssize_t n;
 	void *p = buf;
 
-	set_bypass_syscall(1);
 	count = count * data_size;
 	while (count > 0)
 	{
@@ -468,7 +497,6 @@ static int base_recv(void *buf, int count, int source, int data_size)
 			}
 			else
 			{
-				set_bypass_syscall(0);
 				perror("Failed to read");
 				return -1;
 			}
@@ -484,7 +512,6 @@ static int base_recv(void *buf, int count, int source, int data_size)
 		count -= n;
 	}
 
-	set_bypass_syscall(0);
 	return 0;
 }
 
@@ -495,7 +522,7 @@ extern int shortcut_tcp_recvmsg(int fd, struct iovec *iov);
 static int tcp_recv(void *buf, int count, int source, int data_size)
 {
 #ifdef UKL_SHORTCUT
-	ssize_t n;
+	ssize_t n = 0, i = 0;
 	void *p = buf;
 	struct iovec iov;
 
@@ -511,7 +538,14 @@ static int tcp_recv(void *buf, int count, int source, int data_size)
 #endif
 		iov.iov_base = (void *)p;
 		iov.iov_len  = count;
+
 		n = shortcut_tcp_recvmsg(get_socket(source), &iov);
+
+		if (n == -EAGAIN)
+		{
+			return base_recv(p, 1, source, count);
+		}
+
 #ifdef TRACE_TCP
 		if (receive_count < RECORDS)
 		{
@@ -520,15 +554,24 @@ static int tcp_recv(void *buf, int count, int source, int data_size)
 		}
 #endif
 
-		if (n <= 0)
+		if (n <= 0) {
+			printf("Error returned by tcp_recvmsg(): %d\n", n);
 			return -1;
+		}
+
 		p += n;
 		count -= n;
 	}
 
 	return 0;
 #else
-	return base_recv(buf, count, source, data_size);
+	int ret = 0;
+
+	set_bypass_syscall(1);
+	ret = base_recv(buf, count, source, data_size);
+	set_bypass_syscall(0);
+
+	return ret;
 #endif //UKL_SHORTCUT
 }
 
@@ -591,6 +634,7 @@ int main(int argc, char **argv)
 	FILE *fp;
 	size_t *scratch;
 
+	printf("Parsing configuration\n");
 #ifdef UKL
 	char *args[8] = { NULL };
 	int i = 0;
@@ -618,6 +662,7 @@ int main(int argc, char **argv)
 	iters = atol(argv[argc - 1]);
 #endif
 
+	printf("Setup TCP\n");
 	tcp_init();
 
 	scratch = malloc(sizeof(size_t) * iters);
@@ -628,22 +673,26 @@ int main(int argc, char **argv)
 	}
 	memset(scratch, 0, sizeof(size_t) * iters);
 
+	printf("Starting benchmark\n");
 	gettimeofday(&begin, NULL);
 
-	for (size_t r = 0; r < iters; r++)
+	for (size_t r = 1; r <= iters; r++)
 	{
 		if (tcp_send(&r, 1, get_succ(), sizeof(size_t)))
 			return -1;
-		if (tcp_recv(&(scratch[r]), 1, get_pred(), sizeof(size_t)))
+		if (tcp_recv(&(scratch[r - 1]), 1, get_pred(), sizeof(size_t)))
 			return -1;
-		if (scratch[r] != r)
+		if (scratch[r - 1] != r)
 		{
-			printf("Error in comms: got %lu expected %lu\n", scratch[r], r);
+			printf("Error in comms: got %lu expected %lu\n", scratch[r - 1], r);
 			return -1;
 		}
 	}
 
 	gettimeofday(&end, NULL);
+
+	printf("Benchmark finished\n");
+
 	seconds = end.tv_sec - begin.tv_sec;
 	micro = end.tv_usec - begin.tv_usec;
 	elapsed = seconds + micro * 1e-6;
@@ -656,6 +705,7 @@ int main(int argc, char **argv)
 		printf("%ld\tGROUP-BY\t%.6f\n", iters, elapsed);
 	}
 
+	printf("Tearing down TCP connections\n");
 	tcp_finalize();
 	return 0;
 }
