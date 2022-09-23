@@ -438,11 +438,6 @@ static int tcp_send(void *buf, int count, int dest, int data_size)
 		iov.iov_len  = count;
 		n = shortcut_tcp_sendmsg(get_socket(dest), &iov);
 
-		if (n == -EAGAIN)
-		{
-			return base_send(p, 1, dest, count);
-		}
-
 #ifdef TRACE_TCP
 		if (send_count < RECORDS)
 		{
@@ -540,11 +535,6 @@ static int tcp_recv(void *buf, int count, int source, int data_size)
 		iov.iov_len  = count;
 
 		n = shortcut_tcp_recvmsg(get_socket(source), &iov);
-
-		if (n == -EAGAIN)
-		{
-			return base_recv(p, 1, source, count);
-		}
 
 #ifdef TRACE_TCP
 		if (receive_count < RECORDS)
@@ -676,15 +666,19 @@ int main(int argc, char **argv)
 	printf("Starting benchmark\n");
 	gettimeofday(&begin, NULL);
 
-	for (size_t r = 1; r <= iters; r++)
+	for (size_t r = 0; r < iters; r++)
 	{
+		// Simulate doing some work on each "row"
+		for (size_t i = 0; i < iters; i++)
+			scratch[i]++;
+
 		if (tcp_send(&r, 1, get_succ(), sizeof(size_t)))
 			return -1;
-		if (tcp_recv(&(scratch[r - 1]), 1, get_pred(), sizeof(size_t)))
+		if (tcp_recv(&(scratch[r]), 1, get_pred(), sizeof(size_t)))
 			return -1;
-		if (scratch[r - 1] != r)
+		if (scratch[r] != r)
 		{
-			printf("Error in comms: got %lu expected %lu\n", scratch[r - 1], r);
+			printf("Error in comms: got %lu expected %lu\n", scratch[r], r);
 			return -1;
 		}
 	}
