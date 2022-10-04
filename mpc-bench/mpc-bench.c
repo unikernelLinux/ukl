@@ -332,6 +332,8 @@ static int tcp_init()
 		tcp_connect(get_succ());
 	}
 
+	printf("Connected\n");
+
 #ifdef TRACE_TCP
 	sends = malloc(sizeof(struct Record) * RECORDS);
 	receives = malloc(sizeof(struct Record) * RECORDS);
@@ -345,11 +347,15 @@ static int tcp_init()
 	memset(receives, 0, sizeof(struct Record) * RECORDS);
 #endif
 
+	printf("Sending test message\n");
+
 	if (base_send(&test, 1, get_succ(), sizeof(size_t)))
 	{
 		printf("Failed to send test value, connection failed\n");
 		exit(1);
 	}
+
+	printf("Receiving test message\n");
 
 	if (base_recv(&rec, 1, get_pred(), sizeof(size_t)) || rec != DEFAULT_PORT)
 	{
@@ -534,7 +540,10 @@ static int tcp_recv(void *buf, int count, int source, int data_size)
 		iov.iov_base = (void *)p;
 		iov.iov_len  = count;
 
-		n = shortcut_tcp_recvmsg(get_socket(source), &iov);
+		do
+		{
+			n = shortcut_tcp_recvmsg(get_socket(source), &iov);
+		} while (n == -EAGAIN);
 
 #ifdef TRACE_TCP
 		if (receive_count < RECORDS)
