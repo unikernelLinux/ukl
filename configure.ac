@@ -108,7 +108,7 @@ AC_ARG_ENABLE([shortcuts],
 	[enable deep kernel shortcuts @<:@default=no@:>@])],
 	[ENABLE_SHORTCUT="$enableval"],
 	[ENABLE_SHORTCUT="no"])
-AM_CONDITIONAL([ENABLE_SHORTCUT], [test "x$ENABLE_SHORCUT" = "xyes"])
+AM_CONDITIONAL([ENABLE_SHORTCUT], [test "x$ENABLE_SHORTCUT" = "xyes"])
 AC_MSG_RESULT([$ENABLE_SHORTCUT])
 
 dnl Produce output files.
