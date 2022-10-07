@@ -349,7 +349,7 @@ static int tcp_init()
 
 	printf("Sending test message\n");
 
-	if (base_send(&test, 1, get_succ(), sizeof(size_t)))
+	if (base_send(&test, 1, get_succ(), sizeof(size_t)) != sizeof(size_t))
 	{
 		printf("Failed to send test value, connection failed\n");
 		exit(1);
@@ -357,7 +357,7 @@ static int tcp_init()
 
 	printf("Receiving test message\n");
 
-	if (base_recv(&rec, 1, get_pred(), sizeof(size_t)) || rec != DEFAULT_PORT)
+	if (base_recv(&rec, 1, get_pred(), sizeof(size_t)) != sizeof(size_t) || rec != DEFAULT_PORT)
 	{
 		printf("Failed to receive test value, expected %lu got %lu\n",
 			DEFAULT_PORT, rec);
@@ -373,8 +373,11 @@ static int base_send(void *buf, int count, int dest, int data_size)
 {
 	ssize_t n;
 	void *p = buf;
+	int retval;
 
 	count = count * data_size;
+	retval = count;
+
 	while (count > 0)
 	{
 #ifdef TRACE_TCP
@@ -397,7 +400,7 @@ static int base_send(void *buf, int count, int dest, int data_size)
 			else
 			{
 				perror("Failed to send");
-				return -1;
+				return n;
 			}
 		}
 
@@ -413,7 +416,7 @@ static int base_send(void *buf, int count, int dest, int data_size)
 		count -= n;
 	}
 
-	return 0;
+	return retval;
 }
 
 #ifdef UKL_SHORTCUT
@@ -442,7 +445,16 @@ static int tcp_send(void *buf, int count, int dest, int data_size)
 
 		iov.iov_base = (void *)p;
 		iov.iov_len  = count;
-		n = shortcut_tcp_sendmsg(get_socket(dest), &iov);
+		if (bp_count < 10)
+		{
+			n = shortcut_tcp_sendmsg(get_socket(dest), &iov);
+			bp_count++;
+		}
+		else
+		{
+			n = base_send(p, 1, dest, count);
+			bp_count = 0;
+		}
 
 #ifdef TRACE_TCP
 		if (send_count < RECORDS)
@@ -468,7 +480,10 @@ static int tcp_send(void *buf, int count, int dest, int data_size)
 	ret = base_send(buf, count, dest, data_size);
 	set_bypass_syscall(0);
 
-	return ret;
+	if (ret < 0)
+		return ret;
+	else
+		return 0;
 #endif //UKL_SHORTCUT
 }
 
@@ -476,8 +491,11 @@ static int base_recv(void *buf, int count, int source, int data_size)
 {
 	ssize_t n;
 	void *p = buf;
+	int retval;
 
 	count = count * data_size;
+	retval = count;
+
 	while (count > 0)
 	{
 #ifdef TRACE_TCP
@@ -499,7 +517,7 @@ static int base_recv(void *buf, int count, int source, int data_size)
 			else
 			{
 				perror("Failed to read");
-				return -1;
+				return n;
 			}
 		}
 #ifdef TRACE_TCP
@@ -513,7 +531,7 @@ static int base_recv(void *buf, int count, int source, int data_size)
 		count -= n;
 	}
 
-	return 0;
+	return retval;
 }
 
 #ifdef UKL_SHORTCUT
@@ -542,7 +560,16 @@ static int tcp_recv(void *buf, int count, int source, int data_size)
 
 		do
 		{
-			n = shortcut_tcp_recvmsg(get_socket(source), &iov);
+			if (bp_count < 10)
+			{
+				n = shortcut_tcp_recvmsg(get_socket(source), &iov);
+				bp_count++;
+			}
+			else
+			{
+				n = base_recv(buf, 1, source, count);
+				bp_count = 0;
+			}
 		} while (n == -EAGAIN);
 
 #ifdef TRACE_TCP
@@ -570,7 +597,10 @@ static int tcp_recv(void *buf, int count, int source, int data_size)
 	ret = base_recv(buf, count, source, data_size);
 	set_bypass_syscall(0);
 
-	return ret;
+	if (ret < 0)
+		return ret;
+	else
+		return 0;
 #endif //UKL_SHORTCUT
 }
 
@@ -627,6 +657,7 @@ static int tcp_finalize(){
 int main(int argc, char **argv)
 {
 	size_t iters;
+	size_t work;
 	struct timeval begin, end;
 	long seconds, micro;
 	double elapsed;
@@ -672,24 +703,47 @@ int main(int argc, char **argv)
 	}
 	memset(scratch, 0, sizeof(size_t) * iters);
 
+	/*
+	 * The program we are trying to mimic makes 3 rounds of communications per
+	 * row in the input, doing a small amount of local computation between each
+	 * round. We will try and do the same by generating a 'random' value and
+	 * using the value passed around in the first comms round to modify that
+	 * value and then exchange it.
+	 */
+
+	srandom(time(NULL));
+	work = random();
+	work |= (random() << 32);
+
 	printf("Starting benchmark\n");
 	gettimeofday(&begin, NULL);
 
 	for (size_t r = 0; r < iters; r++)
 	{
-		// Simulate doing some work on each "row"
-		for (size_t i = 0; i < iters; i++)
-			scratch[i]++;
-
-		if (tcp_send(&r, 1, get_succ(), sizeof(size_t)))
+		// Round 1
+		if (tcp_send(&r, 1, get_pred(), sizeof(size_t)))
 			return -1;
-		if (tcp_recv(&(scratch[r]), 1, get_pred(), sizeof(size_t)))
+		if (tcp_recv(&(scratch[r]), 1, get_succ(), sizeof(size_t)))
 			return -1;
 		if (scratch[r] != r)
 		{
 			printf("Error in comms: got %lu expected %lu\n", scratch[r], r);
 			return -1;
 		}
+
+		// Round 2
+		work |= scratch[r];
+		if (tcp_send(&work, 1, get_pred(), sizeof(size_t)))
+			return -1;
+		if (tcp_recv(&work, 1, get_succ(), sizeof(size_t)))
+			return -1;
+
+		// Round 3
+		work ^= scratch[r];
+		if (tcp_send(&work, 1, get_pred(), sizeof(size_t)))
+			return -1;
+		if (tcp_recv(&work, 1, get_succ(), sizeof(size_t)))
+			return -1;
 	}
 
 	gettimeofday(&end, NULL);
