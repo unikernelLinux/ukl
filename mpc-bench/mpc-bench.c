@@ -48,6 +48,8 @@ size_t receive_count = 0;
 struct bench_config {
 	unsigned int rank;
 	int initialized;
+	unsigned int rounds;
+	unsigned int work;
 	unsigned short port;
 	char **ip_list;
 };
@@ -59,10 +61,12 @@ struct bench_config config;
 
 int succ_sock, pred_sock;
 
-const static char *opt_str = "r:c:p:i:h";
+const static char *opt_str = "r:R:w:c:p:i:h";
 
 const static struct option opts[] = {
 	{ "rank",    required_argument, NULL, 'r' },
+	{ "rounds",  required_argument, NULL, 'R' },
+	{ "work",   required_argument, NULL, 'w' },
 	{ "port",    required_argument, NULL, 'p' },
 	{ "ips",     required_argument, NULL, 'i' },
 	{ "help",    no_argument,       NULL, 'h' },
@@ -74,6 +78,8 @@ static void print_usage(const char *name)
 	printf("Usage: %s <opts>\n", name);
 	printf("<opts>:\n");
 	printf("    -r|--rank     The rank of this node (from 0 to parties - 1)\n");
+	printf("    -R|--rounds   The number of communication rounds per row, defaults to 1\n");
+	printf("    -w|--work     The number of fixed point multiplies we do per round to simulate cpu work, defaults to 4\n");
 	printf("    -p|--port     The to use for internode communication, defaults to 8000\n");
 	printf("    -i|--ips      Comma delimited list of ip addresses in rank order\n");
 	printf("    -h|--help     Print this message\n");
@@ -82,86 +88,96 @@ static void print_usage(const char *name)
 static int parse_opts(int argc, char **argv)
 {
 	int c;
-    char *haystack = NULL;
-    unsigned int i;
+	char *haystack = NULL;
+	unsigned int i;
 
-    // Set the port here, if the user specified a value this will be overwritten
-    config.port = DEFAULT_PORT;
-    int opt_index = 0;
-    while (1)
-    {
-        c = getopt_long(argc, argv, opt_str, opts, &opt_index);
-        if (c == -1)
-            break;
+	// Set the port here, if the user specified a value this will be overwritten
+	config.port = DEFAULT_PORT;
+	config.rounds = 1;
+	config.work = 4;
+	int opt_index = 0;
+	while (1)
+	{
+		c = getopt_long(argc, argv, opt_str, opts, &opt_index);
+		if (c == -1)
+			break;
 
-        switch (c)
-        {
-        case 'r':
-            config.rank = atoi(optarg);
-            break;
+		switch (c)
+		{
+		case 'r':
+			config.rank = atoi(optarg);
+			break;
 
-        case 'p':
-            config.port = atoi(optarg);
-            break;
+		case 'R':
+			config.rounds = atoi(optarg);
+			break;
 
-	case 'i':
-            if (optarg == NULL)
-            {
-                printf("Missing argument to --ips switch\n");
-                print_usage(argv[0]);
-                return -1;
-            }
+		case 'w':
+			config.work = atoi(optarg);
+			break;
 
-            haystack = optarg;
-            break;
+		case 'p':
+			config.port = atoi(optarg);
+			break;
 
-        case 'h':
-        case '?':
-            print_usage(argv[0]);
-            return -1;
+		case 'i':
+			if (optarg == NULL)
+			{
+				printf("Missing argument to --ips switch\n");
+				print_usage(argv[0]);
+				return -1;
+			}
 
-        default:
-            printf("Unknown option -%o\n", c);
-            print_usage(argv[0]);
-            return -1;
-        }
-    }
+			haystack = optarg;
+			break;
 
-    if (haystack != NULL)
-    {
-        config.ip_list = calloc(NUM_PARTIES, sizeof(char*));
-        if (config.ip_list == NULL)
-        {
-            printf("Failed to allocate memory for ip list\n");
-            return -1;
-        }
-        char *next = NULL;
-        i = 0;
-        do
-        {
-            config.ip_list[i] = haystack;
-            i++;
-            if (i >= NUM_PARTIES)
-                break;
-            next = strchr(haystack, ',');
-            if (next != NULL)
-            {
-                *next = '\0';
-                haystack = next + 1;
-            }
-        } while(next != NULL);
-    }
+		case 'h':
+		case '?':
+			print_usage(argv[0]);
+			return -1;
 
-    if (config.ip_list == NULL)
-    {
-        printf("Invalid configuration, you must specify node rank and the ip list\n");
-        print_usage(argv[0]);
-        return -1;
-    }
+		default:
+			printf("Unknown option -%o\n", c);
+			print_usage(argv[0]);
+			return -1;
+		}
+	}
 
-    config.initialized = 1;
+	if (haystack != NULL)
+	{
+		config.ip_list = calloc(NUM_PARTIES, sizeof(char*));
+		if (config.ip_list == NULL)
+		{
+			printf("Failed to allocate memory for ip list\n");
+			return -1;
+		}
+		char *next = NULL;
+		i = 0;
+		do
+		{
+			config.ip_list[i] = haystack;
+			i++;
+			if (i >= NUM_PARTIES)
+				break;
+			next = strchr(haystack, ',');
+			if (next != NULL)
+			{
+				*next = '\0';
+				haystack = next + 1;
+			}
+		} while(next != NULL);
+	}
 
-    return 0;
+	if (config.ip_list == NULL)
+	{
+		printf("Invalid configuration, you must specify node rank and the ip list\n");
+		print_usage(argv[0]);
+		return -1;
+	}
+
+	config.initialized = 1;
+
+	return 0;
 }
 
 static char *get_address(unsigned int rank)
@@ -654,10 +670,36 @@ static int tcp_finalize(){
 	close(pred_sock);
 }
 
+static int msg_work(size_t rnd, size_t *val)
+{
+	size_t work;
+
+	if (tcp_send(&rnd, 1, get_pred(), sizeof(size_t)))
+		return -1;
+	if (tcp_recv(val, 1, get_succ(), sizeof(size_t)))
+		return -1;
+
+	if (*val != rnd) {
+		printf("Error in comms, expected %lu but got %lu\n", rnd, *val);
+		return -1;
+	}
+
+	work = random();
+	work |= (random() << 32);
+
+	for (unsigned int i = 0; i < config.work; i++)
+	{
+		work |= rnd - i;
+		work *= rnd + i;
+	}
+	*val = work;
+
+	return 0;
+}
+
 int main(int argc, char **argv)
 {
 	size_t iters;
-	size_t work;
 	struct timeval begin, end;
 	long seconds, micro;
 	double elapsed;
@@ -666,12 +708,12 @@ int main(int argc, char **argv)
 
 	printf("Parsing configuration\n");
 #ifdef UKL
-	char *args[8] = { NULL };
+	char *args[11] = { NULL };
 	int i = 0;
 	ssize_t read = 0;
 	size_t n = 0;
 	char *nl;
-	argc = 7;
+	argc = 10;
 	fp = fopen("/config", "r");
 
 	while((read = getline(&args[i], &n, fp)) > 0)
@@ -685,7 +727,7 @@ int main(int argc, char **argv)
 	fclose(fp);
 	if (parse_opts(argc, args))
 		return -1;
-	iters = strtol(args[5], NULL, 10);
+	iters = strtol(args[9], NULL, 10);
 #else
 	if (parse_opts(argc, argv))
 		return -1;
@@ -712,38 +754,17 @@ int main(int argc, char **argv)
 	 */
 
 	srandom(time(NULL));
-	work = random();
-	work |= (random() << 32);
 
 	printf("Starting benchmark\n");
 	gettimeofday(&begin, NULL);
 
 	for (size_t r = 0; r < iters; r++)
 	{
-		// Round 1
-		if (tcp_send(&r, 1, get_pred(), sizeof(size_t)))
-			return -1;
-		if (tcp_recv(&(scratch[r]), 1, get_succ(), sizeof(size_t)))
-			return -1;
-		if (scratch[r] != r)
+		for (size_t rnd = 0; rnd < config.rounds; rnd++)
 		{
-			printf("Error in comms: got %lu expected %lu\n", scratch[r], r);
-			return -1;
+			if (msg_work(r ^ rnd, &scratch[r]))
+				return -1;
 		}
-
-		// Round 2
-		work |= scratch[r];
-		if (tcp_send(&work, 1, get_pred(), sizeof(size_t)))
-			return -1;
-		if (tcp_recv(&work, 1, get_succ(), sizeof(size_t)))
-			return -1;
-
-		// Round 3
-		work ^= scratch[r];
-		if (tcp_send(&work, 1, get_pred(), sizeof(size_t)))
-			return -1;
-		if (tcp_recv(&work, 1, get_succ(), sizeof(size_t)))
-			return -1;
 	}
 
 	gettimeofday(&end, NULL);
