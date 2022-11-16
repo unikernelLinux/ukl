@@ -116,6 +116,9 @@ LIBC_OBJS = libc.a libpthread.a libm.a librt.a libcrypt.a crt1.o crti.o crtn.o
 noinst_DATA += $(LIBC_OBJS)
 
 GLIBC_CFLAGS = -g -O2 -fthread-jumps -mcmodel=kernel -mno-red-zone
+if DEFAULT_PIE
+GLIBC_CFLAGS += -fno-PIC
+endif
 if ENABLE_BYPASS
 GLIBC_CFLAGS += -DUKL_BP
 else
