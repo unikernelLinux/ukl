@@ -38,6 +38,18 @@ test "x$U" != "x" && AC_MSG_ERROR([Compiler not ANSI compliant])
 
 AM_PROG_CC_C_O
 
+dnl Check if GCC uses --enable-default-pie
+AC_MSG_CHECKING([if this is GCC with --enable-default-pie])
+DEFAULT_PIE=no
+AS_IF([test "x$GCC" = "xyes"],[
+    $CC -v >&AS_MESSAGE_LOG_FD 2>&1
+    AS_IF([$CC -v 2>&1 | grep -s -q -- --enable-default-pie],[
+        DEFAULT_PIE=yes
+    ])
+])
+AC_MSG_RESULT([$DEFAULT_PIE])
+AM_CONDITIONAL([DEFAULT_PIE], [test "x$DEFAULT_PIE" = "xyes"])
+
 dnl Misc programs.
 AC_PROG_SED
 
