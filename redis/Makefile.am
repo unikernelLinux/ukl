@@ -92,7 +92,7 @@ UKL.a: stamp-redis-dir undefined_sys_hack.o
 stamp-redis-dir:
 	rm -f $@
 	if ! test -d redis; then \
-	    git clone -b redis-ukl git@github.com:unikernelLinux/redis.git; \
+	    git clone -b redis-ukl https://github.com/unikernelLinux/redis.git; \
 	fi
 	touch $@
 
