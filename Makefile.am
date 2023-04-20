@@ -168,6 +168,9 @@ stamp-glibc-configure:
 	    --enable-hacker-mode \
 	    --enable-timezone-tools \
 	    --disable-build-nscd \
+	    --disable-default-pie \
+	    --disable-pic \
+	    --disable-pie \
 	    --disable-nscd \
 	    --disable-pt_chown \
 	    --enable-static-nss \
