@@ -8,7 +8,6 @@ int __dlmopen(){printf("function %s NYI\n","__dlmopen"); while(1);}
 int __dlopen(){printf("function %s NYI\n","__dlopen"); while(1);}
 int __dlsym(){printf("function %s NYI\n","__dlsym"); while(1);}
 int __dlvsym(){printf("function %s NYI\n","__dlvsym"); while(1);}
-int __fstatfs64(){printf("function %s NYI\n","__fstatfs64"); while(1);}
 int __libc_register_dlfcn_hook(){printf("function %s NYI\n","__libc_register_dlfcn_hook"); while(1);}
 int bp_ftruncate64(){printf("function %s NYI\n","ukl_bp_ftruncate64"); while(1);}
 int bp_clock_getres_time64(){printf("function %s NYI\n","ukl_bp_clock_getres_time64"); while(1);}
