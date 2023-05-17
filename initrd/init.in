@@ -1,0 +1,48 @@
+#!/bin/bash
+set -x
+export HOME=/root
+export LOGNAME=root
+export TERM=vt100
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
+export ENV="HOME=$HOME LOGNAME=$LOGNAME TERM=$TERM PATH=$PATH"
+
+# setup standard file system view
+mount -t proc /proc /proc
+mount -t sysfs /sys /sys
+
+# take care of /dev 1) try using devtmpfs and devpts or 2) dev of exiting fs and devpts
+if ! mount -t devtmpfs -o mode=0755 udev /dev; then
+  # failed to mount devtmpfs
+  # so add a few useful things if not already in file system
+  echo "W: devtmpfs not available, falling back to tmpfs for /dev"
+  [[ -e /dev/console ]] || mknod -m 0600 /dev/console c 5 1
+  [[ -e /dev/null ]] || mknod /dev/null c 1 3
+  [[ -e /dev/zero ]] || mknod /dev/zero c 1 5
+  [[ -e /dev/random ]] || mknod /dev/random c 1 8
+  [[ -e /dev/urandom ]] || mknod /dev/urandom c 1 9
+fi
+
+[[ -e /dev/pts ]] || mkdir /dev/pts
+mount -t devpts devpts /dev/pts
+
+# Some things don't work properly without /etc/mtab.
+ln -sf /proc/mounts /etc/mtab
+
+# Print cmdline
+echo "CMDLINE" >> /log
+cat /proc/cmdline >> /log
+
+# Running performance scripts
+echo "Running Setup scripts" >> /log
+./perf/disable_ht.sh >> /log
+./perf/turbo-boost.sh disable >> /log
+echo "Done" >> /log
+
+sleep 1
+
+# Run sshd
+/usr/sbin/dropbear -E -R -p 22
+
+# Start UKL process
+@TRIGGER@
+

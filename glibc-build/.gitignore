@@ -2,6 +2,8 @@
 *.h
 *.stamp
 
+libmvec.mk
+
 /argp/
 /assert/
 /bits/
@@ -13,6 +15,7 @@
 /cstdlib
 /csu/
 /ctype/
+/crypt/
 /debug/
 /debugglibc.sh
 /dirent/

@@ -53,10 +53,6 @@ AM_CONDITIONAL([DEFAULT_PIE], [test "x$DEFAULT_PIE" = "xyes"])
 dnl Misc programs.
 AC_PROG_SED
 
-dnl supermin (required)
-AC_CHECK_PROG([SUPERMIN],[supermin],[supermin],[no])
-test "x$SUPERMIN" = "xno" && AC_MSG_ERROR(['supermin' program is required])
-
 dnl Select the target program.
 AC_MSG_CHECKING([which program to compile])
 AC_ARG_WITH([program],
@@ -66,6 +62,26 @@ AC_ARG_WITH([program],
         [PROGRAM="hello"])
 AC_MSG_RESULT([$PROGRAM])
 AC_SUBST([PROGRAM])
+
+dnl Set the path to UKL process archive
+AC_MSG_CHECKING([path to partially linked archive])
+AC_ARG_WITH([ukl-archive],
+    [AS_HELP_STRING([--with-ukl-archive],
+	[set location of the partially linked application archive @<:@default=../UKL.a@:>@])],
+	[ARCHIVE="$withval"],
+	[ARCHIVE="../UKL.a"])
+AC_MSG_RESULT([$ARCHIVE])
+AC_SUBST([ARCHIVE])
+
+dnl Set the string used to start the UKL process
+AC_MSG_CHECKING([UKL process trigger string])
+AC_ARG_WITH([ukl-trigger],
+    [AS_HELP_STRING([--with-ukl-trigger],
+	[set the string checked in exec to trigger the UKL process @<:@default=/UKL@:>@])],
+	[TRIGGER="$withval"],
+	[TRIGGER="/UKL"])
+AC_MSG_RESULT([$TRIGGER])
+AC_SUBST([TRIGGER])
 
 dnl Control glibc bypass.
 AC_MSG_CHECKING([if we should enable glibc bypass])
@@ -105,15 +121,6 @@ AC_ARG_ENABLE([use-ist-pf],
 AM_CONDITIONAL([ENABLE_USE_IST_PF], [test "x$ENABLE_USE_IST_PF" = "xyes"])
 AC_MSG_RESULT([$ENABLE_USE_IST_PF])
 
-AC_MSG_CHECKING([if we should create an afterspace])
-AC_ARG_ENABLE([afterspace],
-    [AS_HELP_STRING([--enable-afterspace],
-        [enable afterspace (CONFIG_UKL_CREATE_AFTERSPACE) @<:@default=no@:>@])],
-        [ENABLE_AFTERSPACE="$enableval"],
-        [ENABLE_AFTERSPACE="no"])
-AM_CONDITIONAL([ENABLE_AFTERSPACE], [test "x$ENABLE_AFTERSPACE" = "xyes"])
-AC_MSG_RESULT([$ENABLE_AFTERSPACE])
-
 AC_MSG_CHECKING([if we should enable deep shortcuts])
 AC_ARG_ENABLE([shortcuts],
     [AS_HELP_STRING([--enable-shortcuts],
@@ -126,6 +133,8 @@ AC_MSG_RESULT([$ENABLE_SHORTCUT])
 dnl Produce output files.
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile \
+		 initrd/init \
+		 initrd/Makefile \
                  dnsmasq/Makefile \
                  hello/Makefile \
                  memcached/Makefile \

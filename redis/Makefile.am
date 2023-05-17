@@ -41,6 +41,9 @@ MATH_LIB    = $(abs_top_builddir)/libm.a
 GCC_LIBS    = $(abs_top_builddir)/libgcc.a $(abs_top_builddir)/libgcc_eh.a
 
 AM_CFLAGS   = -ggdb -mno-red-zone -mcmodel=kernel -static
+if DEFAULT_PIE
+AM_CFLAGS += -fno-PIC -no-pie -fno-PIE
+endif
 
 UKL.a: stamp-redis-dir undefined_sys_hack.o
 	rm -f $@
@@ -51,6 +54,8 @@ UKL.a: stamp-redis-dir undefined_sys_hack.o
 	    CFLAGS='$(AM_CFLAGS)' -C redis
 	rm -f redis/src/{redis-server,redis-cli,redis-benchmark}
 	cd redis/deps/lua/src/ && \
+	$(MAKE) BUILD_WITH_SYSTEMD=no MALLOC=libc V=1 \
+	CFLAGS='$(AM_CFLAGS)' luac.o print.o  && \
 	ld -r -o lua --allow-multiple-definition \
 	    $(CRT_STARTS) lua.o liblua.a \
 	    --start-group \

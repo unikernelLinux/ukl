@@ -26,26 +26,23 @@ EXTRA_DIST = \
 CLEANFILES = \
 	*~ *.o *.a \
 	stamp-gcc-prereq \
+	stamp-h1 \
 	stamp-glibc-configure \
 	stamp-libgcc-build \
 	stamp-libgcc-configure \
-	supermin.d/data.tar.gz \
+	ukl-initrd.cpio.xz \
 	vmlinuz
 
 clean-local:
-	-cd glibc-build && $(MAKE) clean
-	-cd libgcc-build && $(MAKE) clean
 	-rm -rf glibc-build/* libgcc-build/*
 	-cd linux && $(MAKE) clean
 	-cd $(PROGRAM) && $(MAKE) clean
-	rm -rf initrd supermin.d
 	-find -name config.cache -delete
 
 min-clean:
 	-cd linux && $(MAKE) clean
-	rm -rf initrd supermin.d
 	-rm UKL.a
-	cd $(PROGRAM) && $(MAKE) clean
+	-cd $(PROGRAM) && $(MAKE) clean
 
 DIST_SUBDIRS = dnsmasq hello memcached redis mpc-bench fio
 
@@ -60,26 +57,31 @@ CRT_OBJS = crtbeginT.o crtend.o libgcc.a libgcc_eh.a
 
 noinst_DATA = $(CRT_OBJS) libstdc++.a
 
+GCC_CFLAGS = -ggdb -O2 -mcmodel=kernel -mno-red-zone
+if DEFAULT_PIE
+GCC_CFLAGS += -fno-PIC -no-pie -fno-PIE
+endif
+
 $(CRT_OBJS): stamp-libgcc-build
 stamp-libgcc-build: stamp-libgcc-configure
 	rm -f $@
 	cd libgcc-build && $(MAKE) all-gcc
 	-cd libgcc-build && $(MAKE) all-target-libgcc \
-	    CFLAGS_FOR_TARGET='-ggdb -O2 -mno-red-zone -mcmodel=kernel' \
-	    CXXFLAGS_FOR_TARGET='-ggdb -O2 -mno-red-zone -mcmodel=kernel'
+	    CFLAGS_FOR_TARGET='$(GCC_CFLAGS)' \
+	    CXXFLAGS_FOR_TARGET='$(GCC_CFLAGS)'
 # XXX The kernel memory model doesn't support -fpic, but GCC adds it
 # unconditionally, even though we used --disable-shared.
 	$(SED) -i 's/PICFLAG/#PICFLAG/g' \
 	    libgcc-build/x86_64-pc-linux-gnu/libgcc/Makefile
 	cd libgcc-build && $(MAKE) all-target-libgcc \
-	    CFLAGS_FOR_TARGET='-ggdb -O2 -mno-red-zone -mcmodel=kernel' \
-	    CXXFLAGS_FOR_TARGET='-ggdb -O2 -mno-red-zone -mcmodel=kernel'
+	    CFLAGS_FOR_TARGET='$(GCC_CFLAGS)' \
+	    CXXFLAGS_FOR_TARGET='$(GCC_CFLAGS)'
 # libgcc_eh.a is not built automatically when we use --disable-shared,
 # but it still builds fine.
 	cd libgcc-build/x86_64-pc-linux-gnu/libgcc && \
 	    $(MAKE) libgcc_eh.a \
-	    CFLAGS_FOR_TARGET='-ggdb -O2 -mno-red-zone -mcmodel=kernel' \
-	    CXXFLAGS_FOR_TARGET='-ggdb -O2 -mno-red-zone -mcmodel=kernel'
+	    CFLAGS_FOR_TARGET='$(GCC_CFLAGS)' \
+	    CXXFLAGS_FOR_TARGET='$(GCC_CFLAGS)'
 	cd libgcc-build/x86_64-pc-linux-gnu/libgcc && \
 	cp $(CRT_OBJS) $(abs_builddir)
 	touch $@
@@ -87,8 +89,8 @@ stamp-libgcc-build: stamp-libgcc-configure
 libstdc++.a: stamp-libgcc-build
 	rm -f $@
 	cd libgcc-build && $(MAKE) all-target-libstdc++-v3 \
-	    CFLAGS_FOR_TARGET='-ggdb -O2 -mno-red-zone -mcmodel=kernel' \
-	    CXXFLAGS_FOR_TARGET='-ggdb -O2 -mno-red-zone -mcmodel=kernel'
+	    CFLAGS_FOR_TARGET='$(GCC_CFLAGS)' \
+	    CXXFLAGS_FOR_TARGET='$(GCC_CFLAGS)'
 	cp libgcc-build/x86_64-pc-linux-gnu/libstdc++-v3/src/.libs/libstdc++.a $@
 
 stamp-libgcc-configure: stamp-gcc-prereq
@@ -119,7 +121,7 @@ noinst_DATA += $(LIBC_OBJS)
 
 GLIBC_CFLAGS = -g -O2 -fthread-jumps -mcmodel=kernel -mno-red-zone
 if DEFAULT_PIE
-GLIBC_CFLAGS += -fno-PIC
+GLIBC_CFLAGS += -fno-PIC -no-pie -fno-PIE
 endif
 if ENABLE_BYPASS
 GLIBC_CFLAGS += -DUKL_BP
@@ -194,15 +196,16 @@ vmlinuz: linux/arch/x86/boot/bzImage
 	cp $< $@
 
 linux/arch/x86/boot/bzImage: linux/.config UKL.a
-	mkdir -p linux
 	$(MAKE) -C $(srcdir)/linux olddefconfig O=$(abs_builddir)/linux
 	$(MAKE) -C $(srcdir)/linux WERROR=0 O=$(abs_builddir)/linux
 
 linux/.config: saveconfig
 	rm -f $@
-	mkdir -p linux
 	cp $(srcdir)/saveconfig $@
 	echo CONFIG_UNIKERNEL_LINUX=y >> $@
+	echo CONFIG_UKL_TLS=y >> $@
+	echo CONFIG_UKL_ARCHIVE_PATH=$(ARCHIVE) >> $@
+	echo CONFIG_UKL_NAME=$(TRIGGER) >> $@
 if ENABLE_SAME_STACK
 	echo CONFIG_UKL_SAME_STACK=y >> $@
 endif
@@ -212,8 +215,8 @@ endif
 if ENABLE_USE_IST_PF
 	echo CONFIG_UKL_USE_IST_PF=y >> $@
 endif
-if ENABLE_AFTERSPACE
-	echo CONFIG_UKL_CREATE_AFTERSPACE=y >> $@
+if ENABLE_SHORTCUT
+	echo CONFIG_UKL_DEEP_SHORTCUT=y >> $@
 endif
 
 #----------------------------------------------------------------------
@@ -228,79 +231,43 @@ $(PROGRAM)/UKL.a: $(CRT_OBJS) $(LIBC_OBJS)
 #----------------------------------------------------------------------
 # Per-program configuration and data files (if required).
 
-supermin.d/data.tar.gz: $(PROGRAM)/data.tar.gz supermin.d/packages
-	rm -f $@
-	cp $< $@
-
 $(PROGRAM)/data.tar.gz:
 	rm -f $@
 	-cd $(PROGRAM) && $(MAKE) data.tar.gz
 	if ! test -f $@; then tar zcf $@ --no-recursion . ; fi
 
 #----------------------------------------------------------------------
-# Build the initramfs and root filesystem.
+# Build the initramfs
 
-INITRD_PACKAGES = \
-	bash \
-	coreutils \
-	ethtool \
-	iproute \
-	iputils \
-	kmod \
-	net-tools \
-	pciutils \
-	perf \
-	procps-ng \
-	python \
-	strace \
-	strace \
-	systemd \
-	systemd-udev \
-	util-linux \
-	vim
+noinst_DATA += ukl-initrd.cpio.xz
 
-noinst_DATA += initrd/root
-
-initrd/root: supermin.d/packages \
-	     supermin.d/init.tar.gz \
-	     supermin.d/data.tar.gz
-	$(SUPERMIN) --build \
-	    --size 8G --if-newer --format ext2 \
-	    supermin.d -o initrd
-	touch $@
-
-supermin.d/packages: Makefile
-	mkdir -p supermin.d
-	$(SUPERMIN) --prepare $(INITRD_PACKAGES) -o supermin.d
-
-supermin.d/init.tar.gz: init supermin.d/packages
-	mkdir -p supermin.d
-	tar -zcf $@ $<
+ukl-initrd.cpio.xz: $(PROGRAM)/data.tar.gz
+	cp $(PROGRAM)/data.tar.gz initrd/
+	$(MAKE) -C $(srcdir)/initrd $@
+	cp initrd/$@ $@
 
 #----------------------------------------------------------------------
 # Boot the unikernel under qemu.
 
 # Non-privileged:
-boot:
+boot: ukl-initrd.cpio.xz vmlinuz
 	qemu-system-x86_64 \
 	    -cpu host -accel kvm -m 4G \
 	    -kernel vmlinuz \
-	    -initrd ./initrd/initrd \
-	    -hda ./initrd/root \
+	    -initrd ./ukl-initrd.cpio.xz \
 	    -nodefaults -nographic -serial stdio \
-	    -append "console=ttyS0 root=/dev/sda net.ifnames=0 biosdevname=0 nowatchdog nosmap nosmep mds=off ip=192.168.122.128:::255.255.255.0::eth0:none" \
+	    -append "console=ttyS0 net.ifnames=0 biosdevname=0 nowatchdog nosmap nosmep mitigations=off mds=off ip=192.168.122.128:::255.255.255.0::eth0:none" \
 	    -net user
 
 # Privileged (probably required if the kernel is expecting incoming
 # network connections).
-boot-priv:
+boot-priv: ukl-initrd.cpio.xz vmlinuz
 	sudo qemu-system-x86_64 \
 	    -cpu host -accel kvm -m 4G \
 	    -kernel vmlinuz \
-	    -initrd ./initrd/initrd \
-	    -hda ./initrd/root \
+	    -initrd ./ukl-initrd.cpio.xz \
 	    -nodefaults -nographic -serial stdio \
-	    -append "console=ttyS0 root=/dev/sda net.ifnames=0 biosdevname=0 nowatchdog nosmap nosmep mds=off ip=192.168.122.128:::255.255.255.0::eth0:none" \
+	    -append "console=ttyS0 net.ifnames=0 biosdevname=0 nowatchdog nosmap nosmep mitigations=off mds=off ip=192.168.122.128:::255.255.255.0::eth0:none" \
 	    -net nic -net bridge,br=virbr0
 
 #----------------------------------------------------------------------

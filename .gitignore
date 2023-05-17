@@ -5,6 +5,7 @@
 
 Makefile
 Makefile.in
+ukl-initrd.cpio.xz
 
 /aclocal.m4
 /autom4te.cache/
@@ -16,7 +17,7 @@ Makefile.in
 /configure
 /dnsmasq/undefined_sys_hack.c
 /hello/undefined_sys_hack.c
-/initrd
+/hello/data.tar.gz
 /install-sh
 /memcached/stamp-libevent-dir
 /memcached/stamp-memcached-dir
@@ -30,8 +31,9 @@ Makefile.in
 /stamp-libgcc-build
 /stamp-libgcc-configure
 /stamp-h1
-/supermin.d
 /vmlinuz
+/initrd/init
+/initrd/data.tar.gz
 
 /lebench.ukl
 /new_lebench

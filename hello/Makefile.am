@@ -32,7 +32,7 @@ GCC_LIBS    = $(abs_top_builddir)/libgcc.a $(abs_top_builddir)/libgcc_eh.a
 
 AM_CFLAGS   = -ggdb -mno-red-zone -mcmodel=kernel -static
 if DEFAULT_PIE
-AM_CFLAGS  += -fno-PIC
+AM_CFLAGS  += -fno-PIC -no-pie -fno-PIE
 endif
 
 data.tar.gz:
