@@ -37,6 +37,7 @@ clean-local:
 	-rm -rf glibc-build/* libgcc-build/*
 	-cd linux && $(MAKE) clean
 	-cd $(PROGRAM) && $(MAKE) clean
+	-cd initrd && $(MAKE) clean
 	-find -name config.cache -delete
 
 min-clean:
@@ -241,7 +242,7 @@ $(PROGRAM)/data.tar.gz:
 
 noinst_DATA += ukl-initrd.cpio.xz
 
-ukl-initrd.cpio.xz: $(PROGRAM)/data.tar.gz
+ukl-initrd.cpio.xz: $(PROGRAM)/data.tar.gz vmlinuz
 	cp $(PROGRAM)/data.tar.gz initrd/
 	$(MAKE) -C $(srcdir)/initrd $@
 	cp initrd/$@ $@
