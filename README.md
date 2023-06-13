@@ -1,5 +1,10 @@
 # Unikernel Linux (UKL)
 
+## Note
+
+Rebasing is in progress and this repo is likely broken (it seems to work when
+compiled on debian bullseye, but not on more modern toolchains). YMMV
+
 Unikernel Linux (UKL) is a small patch to Linux and glibc which allows
 you to build many programs, unmodified, as unikernels.  That means
 they are linked with the Linux kernel into a final `vmlinuz` and run
