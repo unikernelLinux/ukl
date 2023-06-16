@@ -101,8 +101,10 @@ for f in $conf ; do
 done
 
 if [ -s data.tar.gz ] ; then
-	tar xvf -C ${WDIR} data.tar.gz
+	tar xf data.tar.gz -C ${WDIR}
 fi
+
+cp -r perf ${WDIR}
 
 rm -f $unsorted
 
