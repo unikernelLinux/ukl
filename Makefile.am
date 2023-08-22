@@ -45,6 +45,14 @@ min-clean:
 	-rm UKL.a
 	-cd $(PROGRAM) && $(MAKE) clean
 
+app-clean:
+	-rm UKL.a
+	-cd $(PROGRAM) && $(MAKE) clean
+
+kern-clean:
+	-rm vmlinuz
+	-cd linux && $(MAKE) clean
+
 DIST_SUBDIRS = dnsmasq hello memcached redis mpc-bench fio
 
 #----------------------------------------------------------------------
@@ -253,22 +261,22 @@ ukl-initrd.cpio.xz: $(PROGRAM)/data.tar.gz vmlinuz
 # Non-privileged:
 boot: ukl-initrd.cpio.xz vmlinuz
 	qemu-system-x86_64 \
-	    -cpu host -accel kvm -m 4G \
+	    -cpu host,-smap,-smep -accel kvm -m 4G \
 	    -kernel vmlinuz \
 	    -initrd ./ukl-initrd.cpio.xz \
 	    -nodefaults -nographic -serial stdio \
-	    -append "console=ttyS0 net.ifnames=0 biosdevname=0 nowatchdog nosmap nosmep mitigations=off mds=off ip=192.168.122.128:::255.255.255.0::eth0:none" \
+	    -append "console=ttyS0 net.ifnames=0 biosdevname=0 nowatchdog clearcpuid=smap,smep mitigations=off mds=off ip=192.168.122.128:::255.255.255.0::eth0:none" \
 	    -net user
 
 # Privileged (probably required if the kernel is expecting incoming
 # network connections).
 boot-priv: ukl-initrd.cpio.xz vmlinuz
 	sudo qemu-system-x86_64 \
-	    -cpu host -accel kvm -m 4G \
+	    -cpu host,-smap,-smep -accel kvm -m 4G \
 	    -kernel vmlinuz \
 	    -initrd ./ukl-initrd.cpio.xz \
 	    -nodefaults -nographic -serial stdio \
-	    -append "console=ttyS0 net.ifnames=0 biosdevname=0 nowatchdog nosmap nosmep mitigations=off mds=off ip=192.168.122.128:::255.255.255.0::eth0:none" \
+	    -append "console=ttyS0 net.ifnames=0 biosdevname=0 nowatchdog clearcpuid=smap,smep mitigations=off mds=off ip=192.168.122.128:::255.255.255.0::eth0:none" \
 	    -net nic -net bridge,br=virbr0
 
 #----------------------------------------------------------------------

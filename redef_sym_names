@@ -22,3 +22,8 @@ ukl_k_t_arr k_t_arr
 ukl_shortcut_tcp_recvmsg shortcut_tcp_recvmsg
 ukl_shortcut_tcp_sendmsg shortcut_tcp_sendmsg
 ukl_shortcut_tcp_sendmsg2 shortcut_tcp_sendmsg2
+ukl_ktime_get ktime_get
+ukl_redis_event_log redis_event_log
+ukl_kernel_write kernel_write
+ukl_redis_wake_count redis_wake_count
+ukl_redis_wake_time redis_wake_time
