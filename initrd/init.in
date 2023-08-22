@@ -38,10 +38,12 @@ echo "Running Setup scripts" >> /log
 ./perf/turbo-boost.sh disable >> /log
 echo "Done" >> /log
 
-sleep 1
+/usr/sbin/ip address
 
 # Run sshd
 /usr/sbin/dropbear -E -R -p 22
+
+sleep 5
 
 # Start UKL process
 @TRIGGER@
