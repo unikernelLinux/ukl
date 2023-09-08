@@ -1,10 +1,5 @@
 # Unikernel Linux (UKL)
 
-## Note
-
-Rebasing is in progress and this repo is likely broken (it seems to work when
-compiled on debian bullseye, but not on more modern toolchains). YMMV
-
 Unikernel Linux (UKL) is a small patch to Linux and glibc which allows
 you to build many programs, unmodified, as unikernels.  That means
 they are linked with the Linux kernel into a final `vmlinuz` and run
@@ -18,7 +13,8 @@ available for use by the unikernel.
 * GCC or Clang
 * GNU make
 * GNU sed
-* supermin (https://github.com/libguestfs/supermin)
+* Docker
+* All the prerequisites for building the 6.3 Linux Kernel on your distro
 * qemu, if you want to test boot in a virtual machine
 
 ## Building the included programs
