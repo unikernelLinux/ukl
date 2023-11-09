@@ -27,3 +27,5 @@ ukl_redis_event_log redis_event_log
 ukl_kernel_write kernel_write
 ukl_redis_wake_count redis_wake_count
 ukl_redis_wake_time redis_wake_time
+ukl_do_event_ctl do_event_ctl
+ukl_release_ukl_event release_ukl_event
