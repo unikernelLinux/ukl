@@ -277,7 +277,8 @@ boot-priv: ukl-initrd.cpio.xz vmlinuz
 	    -initrd ./ukl-initrd.cpio.xz \
 	    -nodefaults -nographic -serial stdio \
 	    -append "console=ttyS0 net.ifnames=0 biosdevname=0 nowatchdog clearcpuid=smap,smep mitigations=off mds=off ip=192.168.122.128:::255.255.255.0::eth0:none" \
-	    -net nic -net bridge,br=virbr0
+	    -netdev tap,ifname=tap0,id=hostnet0 \
+	    -device virtio-net-pci,netdev=hostnet0,id=net0,mac=52:54:00:82:c1:3a
 
 #----------------------------------------------------------------------
 # Maintainers only!
