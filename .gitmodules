@@ -1,15 +1,21 @@
 [submodule "linux"]
 	path = linux
-	url = https://github.com/unikernelLinux/linux
-[submodule "glibc"]
-	path = glibc
-	url = https://github.com/unikernelLinux/glibc
-[submodule "gcc"]
-	path = gcc
-	url = https://github.com/gcc-mirror/gcc
+	url = git.github.com:unikernelLinux/linux.git
+	branch = ukl-dl
+	update = checkout
 [submodule "gapbs"]
 	path = gapbs
 	url = https://github.com/unikernelLinux/gapbs
 [submodule "dnsmasq/dnsmasq"]
 	path = dnsmasq/dnsmasq
 	url = https://github.com/rwmjones/dnsmasq
+[submodule "glibc"]
+	path = glibc
+	url = git@github.com:unikernelLinux/glibc-1.git
+	branch = ukl-dl
+	update = checkout
+[submodule "redis"]
+	path = redis/redis
+	url = git@github.com:unikernelLinux/redis.git
+	branch = ukl-dynamic
+	update = checkout

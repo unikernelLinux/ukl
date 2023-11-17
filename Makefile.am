@@ -19,181 +19,95 @@
 EXTRA_DIST = \
 	.gitignore \
 	glibc-build/.gitignore \
-	libgcc-build/.gitignore \
 	LICENSE \
 	README.md
 
+
 CLEANFILES = \
-	*~ *.o *.a \
-	stamp-gcc-prereq \
-	stamp-h1 \
-	stamp-glibc-configure \
-	stamp-libgcc-build \
-	stamp-libgcc-configure \
-	ukl-initrd.cpio.xz \
-	vmlinuz
+	*~ *.o *.a *.so *.so.[0-9] *.txt \
+	stamp-* \
+	vmlinuz \
+	data.tar.gz *.cpio.xz 
 
-clean-local:
-	-rm -rf glibc-build/* libgcc-build/*
-	-cd linux && $(MAKE) clean
-	-cd $(PROGRAM) && $(MAKE) clean
-	-cd initrd && $(MAKE) clean
+clean-all:
+	-rm -rf linux-headers tmp
+	rm -rf glibc-build/*
+	cd linux && $(MAKE) clean
+	cd initrd && $(MAKE) clean
+	cd $(PROGRAM) && $(MAKE) clean
 	-find -name config.cache -delete
+	$(MAKE) clean
 
-min-clean:
-	-cd linux && $(MAKE) clean
-	-rm UKL.a
-	-cd $(PROGRAM) && $(MAKE) clean
-
-app-clean:
-	-rm UKL.a
-	-cd $(PROGRAM) && $(MAKE) clean
-
-kern-clean:
-	-rm vmlinuz
-	-cd linux && $(MAKE) clean
+glibc-clean:
+	-rm stamp-glibc-configure
+	-rm $(LIBC_OBJS)
+	-rm -rf glibc-build/*
 
 DIST_SUBDIRS = dnsmasq hello memcached redis mpc-bench fio
 
-#----------------------------------------------------------------------
-# Build libgcc and static libstdc++.
-#
-# XXX We only want libgcc.  Can we build this in a way which doesn't
-# build the whole of gcc?
+FORCE:
+	true
 
-# C runtime objects.
-CRT_OBJS = crtbeginT.o crtend.o libgcc.a libgcc_eh.a
-
-noinst_DATA = $(CRT_OBJS) libstdc++.a
-
-GCC_CFLAGS = -ggdb -O2 -mcmodel=kernel -mno-red-zone
-if DEFAULT_PIE
-GCC_CFLAGS += -fno-PIC -no-pie -fno-PIE
-endif
-
-$(CRT_OBJS): stamp-libgcc-build
-stamp-libgcc-build: stamp-libgcc-configure
-	rm -f $@
-	cd libgcc-build && $(MAKE) all-gcc
-	-cd libgcc-build && $(MAKE) all-target-libgcc \
-	    CFLAGS_FOR_TARGET='$(GCC_CFLAGS)' \
-	    CXXFLAGS_FOR_TARGET='$(GCC_CFLAGS)'
-# XXX The kernel memory model doesn't support -fpic, but GCC adds it
-# unconditionally, even though we used --disable-shared.
-	$(SED) -i 's/PICFLAG/#PICFLAG/g' \
-	    libgcc-build/x86_64-pc-linux-gnu/libgcc/Makefile
-	cd libgcc-build && $(MAKE) all-target-libgcc \
-	    CFLAGS_FOR_TARGET='$(GCC_CFLAGS)' \
-	    CXXFLAGS_FOR_TARGET='$(GCC_CFLAGS)'
-# libgcc_eh.a is not built automatically when we use --disable-shared,
-# but it still builds fine.
-	cd libgcc-build/x86_64-pc-linux-gnu/libgcc && \
-	    $(MAKE) libgcc_eh.a \
-	    CFLAGS_FOR_TARGET='$(GCC_CFLAGS)' \
-	    CXXFLAGS_FOR_TARGET='$(GCC_CFLAGS)'
-	cd libgcc-build/x86_64-pc-linux-gnu/libgcc && \
-	cp $(CRT_OBJS) $(abs_builddir)
-	touch $@
-
-libstdc++.a: stamp-libgcc-build
-	rm -f $@
-	cd libgcc-build && $(MAKE) all-target-libstdc++-v3 \
-	    CFLAGS_FOR_TARGET='$(GCC_CFLAGS)' \
-	    CXXFLAGS_FOR_TARGET='$(GCC_CFLAGS)'
-	cp libgcc-build/x86_64-pc-linux-gnu/libstdc++-v3/src/.libs/libstdc++.a $@
-
-stamp-libgcc-configure: stamp-gcc-prereq
-	rm -f $@
-	mkdir -p libgcc-build
-	cd libgcc-build && \
-	$(abs_top_srcdir)/gcc/configure \
-	    --prefix=$(abs_builddir) \
-	    --enable-languages=c,c++ \
-	    --disable-nls \
-	    --without-headers \
-	    --with-multilib-list=m64 \
-	    --disable-multilib \
-	    --disable-shared
-	touch $@
-
-stamp-gcc-prereq:
-	rm -f $@
-	cd $(srcdir)/gcc && contrib/download_prerequisites
-	touch $@
-
-#----------------------------------------------------------------------
 # Build glibc.
 
-LIBC_OBJS = libc.a libpthread.a libm.a librt.a libcrypt.a crt1.o crti.o crtn.o
+noinst_DATA = $(LIBC_OBJS)
 
-noinst_DATA += $(LIBC_OBJS)
+GLIBC_CFLAGS = -g -O2 -mno-red-zone -fthread-jumps
 
-GLIBC_CFLAGS = -g -O2 -fthread-jumps -mcmodel=kernel -mno-red-zone
-if DEFAULT_PIE
-GLIBC_CFLAGS += -fno-PIC -no-pie -fno-PIE
-endif
 if ENABLE_BYPASS
 GLIBC_CFLAGS += -DUKL_BP
 else
 GLIBC_CFLAGS += -UUKL_BP
 endif
 
-libc.a: stamp-glibc-configure
-	rm -f $@
-# XXX This fails in the iconv subdirectory, and there seems to be
-# no way to disable that feature.  So instead just continue past
-# the failure and hope if libc.a has not been created then the
-# build will fail on the next line.
+LIBC_OBJS = libc.so.6 libc_nonshared.a \
+	    ld-linux-x86-64.so.2 libuklsyms.so \
+	    libm.so.6 undefined_sys_hack.o
+
+glibc: FORCE
+	-rm $(LIBC_OBJS)
+	make $(LIBC_OBJS)
+
+undefined_sys_hack.o: undefined_sys_hack.c
+	gcc -c undefined_sys_hack.c
+
+empty.o:
+	echo "" | gcc -x c - -c -o $@	
+
+libuklsyms.so: empty.o linux/vmlinux uklsyms_syms_map
+	bash ld-uklsyms.sh
+
+# XXX this fails in the iconv subdirectory because there is no general rule
+# in the Makefiles to add libuklsyms.so to the linker's PATH, so just ignore
+# the error and assume that if we have the libc.so binary, it works
+libc.so.6: libuklsyms.so stamp-glibc-configure undefined_sys_hack.o
 	-cd glibc-build && $(MAKE)
-	cp glibc-build/libc.a $@
+	cp glibc-build/libc.so $@
 
-libpthread.a: stamp-glibc-configure libc.a
-	rm -f $@
-	cd glibc-build && $(MAKE) subdirs=nptl
-	cp glibc-build/nptl/libpthread.a $@
-
-libm.a: stamp-glibc-configure libpthread.a
-	rm -f $@
+libm.so.6: libc.so.6
 	cd glibc-build && $(MAKE) subdirs=math
-	cp glibc-build/math/libm.a $@
+	cp glibc-build/math/libm.so $@
 
-librt.a: stamp-glibc-configure libm.a
-	rm -f $@
-	cd glibc-build && $(MAKE) subdirs=rt
-	cp glibc-build/rt/librt.a $@
+libc_nonshared.a: libc.so.6
+	cp glibc-build/$@ $@
 
-libcrypt.a: stamp-glibc-configure libm.a
-	rm -f $@
-	cd glibc-build && $(MAKE) subdirs=crypt
-	cp glibc-build/crypt/libcrypt.a $@
+ld-linux-x86-64.so.2: libc.so.6
+	cp glibc-build/elf/$@ $@
 
-crt1.o crti.o crtn.o: librt.a
-	rm -f $@
-	cp glibc-build/csu/$(basename $@).o $@
-
-stamp-glibc-configure:
-	rm -f $@
+stamp-glibc-configure: stamp-linux-headers
 	mkdir -p glibc-build
 	cd glibc-build && \
 	$(abs_top_srcdir)/glibc/configure \
-	    CFLAGS="$(GLIBC_CFLAGS)" \
+	    CFLAGS="$(GLIBC_CFLAGS)"  \
 	    --prefix=$(abs_builddir) \
+	    --with-headers=$(abs_top_srcdir)/linux-headers \
 	    --enable-hacker-mode \
 	    --enable-timezone-tools \
 	    --disable-build-nscd \
-	    --disable-default-pie \
-	    --disable-pic \
-	    --disable-pie \
 	    --disable-nscd \
-	    --disable-pt_chown \
-	    --enable-static-nss \
-	    --disable-shared \
 	    --disable-tunables \
-	    --disable-werror \
-	    x86_64-ukl \
-	    build_alias=x86_64-ukl \
-	    host_alias=x86_64-ukl \
-	    target_alias=x86_64-ukl
+	    --disable-pt_chown \
+	    --disable-werror 
 	touch $@
 
 #----------------------------------------------------------------------
@@ -201,19 +115,24 @@ stamp-glibc-configure:
 
 noinst_DATA += vmlinuz
 
+linux: FORCE
+	-rm vmlinuz linux/arch/x86/boot/bzImage
+	$(MAKE) vmlinuz
+
 vmlinuz: linux/arch/x86/boot/bzImage
 	cp $< $@
 
-linux/arch/x86/boot/bzImage: linux/.config UKL.a
+linux/vmlinux: linux/arch/x86/boot/bzImage
+
+linux/arch/x86/boot/bzImage: linux/.config
 	$(MAKE) -C $(srcdir)/linux olddefconfig O=$(abs_builddir)/linux
-	$(MAKE) -C $(srcdir)/linux WERROR=0 O=$(abs_builddir)/linux
+	-$(MAKE) -C $(srcdir)/linux WERROR=0 O=$(abs_builddir)/linux
 
 linux/.config: saveconfig
 	rm -f $@
 	cp $(srcdir)/saveconfig $@
 	echo CONFIG_UNIKERNEL_LINUX=y >> $@
 	echo CONFIG_UKL_TLS=y >> $@
-	echo CONFIG_UKL_ARCHIVE_PATH=$(ARCHIVE) >> $@
 	echo CONFIG_UKL_NAME=$(TRIGGER) >> $@
 if ENABLE_SAME_STACK
 	echo CONFIG_UKL_SAME_STACK=y >> $@
@@ -228,30 +147,53 @@ if ENABLE_SHORTCUT
 	echo CONFIG_UKL_DEEP_SHORTCUT=y >> $@
 endif
 
+stamp-linux-headers: linux/.config
+	-rm -rf linux-headers tmp
+	cd linux && make headers_install INSTALL_HDR_PATH=$(abs_top_srcdir)/tmp
+	mv tmp/include linux-headers
+	rm -r tmp
+	touch $@
+
 #----------------------------------------------------------------------
 # Compile the program.
 
-UKL.a: $(PROGRAM)/UKL.a
-	cp $< $@
+export LIBC_OBJS
 
-$(PROGRAM)/UKL.a: $(CRT_OBJS) $(LIBC_OBJS)
-	cd $(PROGRAM) && $(MAKE) UKL.a
+# XXX This compiles with the crt* files of the host system
+$(PROGRAM)/UKL: $(LIBC_OBJS)
+	cd $(PROGRAM) && $(MAKE) UKL
 
-#----------------------------------------------------------------------
-# Per-program configuration and data files (if required).
 
-$(PROGRAM)/data.tar.gz:
-	rm -f $@
-	-cd $(PROGRAM) && $(MAKE) data.tar.gz
-	if ! test -f $@; then tar zcf $@ --no-recursion . ; fi
+ukl-getsyms/initlib: ukl-getsyms/ukl-getsyms.c ukl-getsyms/ukl-initlib.c
+	cd ukl-getsyms && $(MAKE)
+
+data.tar.gz: $(LIBC_OBJS) libc.so $(PROGRAM)/UKL empty.o ukl-getsyms/initlib
+	-rm -rf data
+	-mkdir data
+	cp $(LIBC_OBJS) data
+	cp libc.so data
+# XXX libm.so is supposed to be a linker script that includes libmvec.so as-needed
+	ln -s data/libm.so.6 data/libm.so
+	cp $(PROGRAM)/UKL data
+	cp ukl-getsyms/initlib data
+	cp ukl-getsyms/ukl-makeso.sh data
+	cp ukl-getsyms/ukl-getsyms.ko data
+	cp uklsyms_syms_map data
+	cp empty.o data
+	cp $(PROGRAM)/data/* data
+	tar -czf data.tar.gz data
+	cp $@ initrd	
 
 #----------------------------------------------------------------------
 # Build the initramfs
 
 noinst_DATA += ukl-initrd.cpio.xz
 
-ukl-initrd.cpio.xz: $(PROGRAM)/data.tar.gz vmlinuz
-	cp $(PROGRAM)/data.tar.gz initrd/
+initrd: FORCE
+	-rm -f ukl-initrd.cpio.xz initrd/ukl-initrd.cpio.xz data.tar.gz
+	$(MAKE) ukl-initrd.cpio.xz	
+
+ukl-initrd.cpio.xz: data.tar.gz
 	$(MAKE) -C $(srcdir)/initrd $@
 	cp initrd/$@ $@
 
@@ -259,18 +201,18 @@ ukl-initrd.cpio.xz: $(PROGRAM)/data.tar.gz vmlinuz
 # Boot the unikernel under qemu.
 
 # Non-privileged:
-boot: ukl-initrd.cpio.xz vmlinuz
+boot:
 	qemu-system-x86_64 \
 	    -cpu host,-smap,-smep -accel kvm -m 4G \
 	    -kernel vmlinuz \
 	    -initrd ./ukl-initrd.cpio.xz \
 	    -nodefaults -nographic -serial stdio \
-	    -append "console=ttyS0 net.ifnames=0 biosdevname=0 nowatchdog clearcpuid=smap,smep mitigations=off mds=off ip=192.168.122.128:::255.255.255.0::eth0:none" \
+	    -append "console=ttyS0 net.ifnames=0 biosdevname=0 nowatchdog clearcpuid=smap,smep mitigations=off mds=off ip=192.168.122.128:::255.255.255.0::eth0:none init=/bin/bash" \
 	    -net user
 
 # Privileged (probably required if the kernel is expecting incoming
 # network connections).
-boot-priv: ukl-initrd.cpio.xz vmlinuz
+boot-priv:
 	sudo qemu-system-x86_64 \
 	    -cpu host,-smap,-smep -accel kvm -m 4G \
 	    -kernel vmlinuz \
@@ -278,6 +220,34 @@ boot-priv: ukl-initrd.cpio.xz vmlinuz
 	    -nodefaults -nographic -serial stdio \
 	    -append "console=ttyS0 net.ifnames=0 biosdevname=0 nowatchdog clearcpuid=smap,smep mitigations=off mds=off ip=192.168.122.128:::255.255.255.0::eth0:none" \
 	    -net nic -net bridge,br=virbr0
+
+# Run for the purposes of debugging.
+# In a separate terminal inside of gdb run 
+#	(gdb) target remote :1234
+#	(gdb) symbol-file linux/vmlinux
+#
+# note that if you wish to set a breakpoint before the kernel has had the opportunity to set
+# up its VAS, you will need to use a hardware breakpoint (hbreak)
+boot-gdb:
+	qemu-system-x86_64 \
+	    -cpu host,-smap,-smep -accel kvm -m 4G \
+	    -kernel vmlinuz \
+	    -initrd ./ukl-initrd.cpio.xz \
+	    -nodefaults -nographic -serial stdio \
+	    -append "console=ttyS0 net.ifnames=0 biosdevname=0 nowatchdog clearcpuid=smap,smep mitigations=off mds=off ip=192.168.122.128:::255.255.255.0::eth0:none" \
+	    -net user \
+	    -s -S
+
+boot-gdb-priv:
+	sudo qemu-system-x86_64 \
+	    -cpu host,-smap,-smep -accel kvm -m 4G \
+	    -kernel vmlinuz \
+	    -initrd ./ukl-initrd.cpio.xz \
+	    -nodefaults -nographic -serial stdio \
+	    -append "console=ttyS0 net.ifnames=0 biosdevname=0 nowatchdog clearcpuid=smap,smep mitigations=off mds=off ip=192.168.122.128:::255.255.255.0::eth0:none" \
+	    -net nic -net bridge,br=virbr0 \
+	    -s -S
+
 
 #----------------------------------------------------------------------
 # Maintainers only!

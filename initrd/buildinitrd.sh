@@ -23,11 +23,11 @@ copy()
 
 printf "Creating initramfs structure ... "
 
-binfiles="cat ls mkdir mknod mount bash top"
+binfiles="cat ls mkdir mknod mount bash top ld touch nm awk"
 binfiles="$binfiles umount sed sleep ln rm uname grep"
 binfiles="$binfiles readlink basename chmod ps"
 
-sbinfiles="halt dropbear ip rdmsr wrmsr lspci netstat"
+sbinfiles="halt dropbear ip rdmsr wrmsr lspci netstat insmod rmmod lsmod"
 
 unsorted=$(mktemp /tmp/unsorted.XXXXXXXXXX)
 
@@ -58,7 +58,6 @@ mknod -m 664 $WDIR/dev/loop1   b 7 1
 mkdir -m 755 $WDIR/dev/pts
 mknod -m 600 $WDIR/dev/pts/0   c 136 0
 mknod -m 000 $WDIR/dev/pts/ptmx c 5 2
-
 
 # Install the init file
 install -m0755 $INITIN $WDIR/init
@@ -100,9 +99,7 @@ for f in $conf ; do
   cp -r /etc/$f $WDIR/etc/$f
 done
 
-if [ -s data.tar.gz ] ; then
-	tar xf data.tar.gz -C ${WDIR}
-fi
+tar xf data.tar.gz -C ${WDIR}
 
 cp -r perf ${WDIR}
 

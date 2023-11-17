@@ -1,0 +1,1 @@
+savedcmd_/home/vraiti/ukl/ukl/ukl-getsyms/Module.symvers :=  scripts/mod/modpost       -o /home/vraiti/ukl/ukl/ukl-getsyms/Module.symvers -T /home/vraiti/ukl/ukl/ukl-getsyms/modules.order -i Module.symvers -e 

@@ -1,0 +1,2 @@
+delete -y 
+symbol-file linux/vmlinux

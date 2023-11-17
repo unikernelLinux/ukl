@@ -1,0 +1,2 @@
+kill
+target remote :1234

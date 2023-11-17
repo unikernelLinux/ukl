@@ -2,10 +2,24 @@
 *.a
 *.o
 *.ukl
+*.so
+*.so.6
+*.txt
+*.tar.gz
+.ukl-*.cmd
 
+ld-linux-x86-64.so.2
+/glibc/stamp-*
+
+/stamp-*
+UKL
 Makefile
 Makefile.in
 ukl-initrd.cpio.xz
+**/cscope*
+/*.gdb
+
+!ukl-getsyms/Makefile
 
 /aclocal.m4
 /autom4te.cache/
@@ -34,6 +48,11 @@ ukl-initrd.cpio.xz
 /vmlinuz
 /initrd/init
 /initrd/data.tar.gz
+
+/data*
+**/data/*
+linux-headers
+**/*-build
 
 /lebench.ukl
 /new_lebench

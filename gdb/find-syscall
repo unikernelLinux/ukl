@@ -1,0 +1,9 @@
+source gdb/rtld
+hbreak _dl_start
+continue
+
+source gdb/linux
+hbreak entry_SYSCALL_64
+continue
+
+source gdb/rtld
