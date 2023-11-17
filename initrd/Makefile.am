@@ -18,5 +18,5 @@
 
 CLEANFILES = ukl-initrd.cpio.xz data.tar.gz
 
-ukl-initrd.cpio.xz:
+ukl-initrd.cpio.xz: init data.tar.gz
 	./create-initrd.sh
