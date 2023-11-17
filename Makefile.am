@@ -128,10 +128,8 @@ LIBC_OBJS = libc.a libpthread.a libm.a librt.a libcrypt.a crt1.o crti.o crtn.o
 
 noinst_DATA += $(LIBC_OBJS)
 
-GLIBC_CFLAGS = -g -O2 -fthread-jumps -mcmodel=kernel -mno-red-zone
-if DEFAULT_PIE
-GLIBC_CFLAGS += -fno-PIC -no-pie -fno-PIE
-endif
+GLIBC_CFLAGS = -g -O2 -fthread-jumps -mcmodel=kernel -mno-red-zone -fPIC -fPIE -shared
+
 if ENABLE_BYPASS
 GLIBC_CFLAGS += -DUKL_BP
 else
@@ -181,13 +179,8 @@ stamp-glibc-configure:
 	    --enable-hacker-mode \
 	    --enable-timezone-tools \
 	    --disable-build-nscd \
-	    --disable-default-pie \
-	    --disable-pic \
-	    --disable-pie \
 	    --disable-nscd \
 	    --disable-pt_chown \
-	    --enable-static-nss \
-	    --disable-shared \
 	    --disable-tunables \
 	    --disable-werror \
 	    x86_64-ukl \
@@ -196,6 +189,9 @@ stamp-glibc-configure:
 	    target_alias=x86_64-ukl
 	touch $@
 
+glibc-clean:
+	rm -f $(LIBC_OBJS)
+	cd glibc-build && $(MAKE) clean
 #----------------------------------------------------------------------
 # Build Linux kernel linked with UKL.a
 
