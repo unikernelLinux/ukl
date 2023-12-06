@@ -128,7 +128,7 @@ LIBC_OBJS = libc.a libpthread.a libm.a librt.a libcrypt.a crt1.o crti.o crtn.o
 
 noinst_DATA += $(LIBC_OBJS)
 
-GLIBC_CFLAGS = -g -O2 -fthread-jumps -mcmodel=kernel -mno-red-zone -fPIC -fPIE -shared
+GLIBC_CFLAGS = -g -O2 -fthread-jumps -mno-red-zone
 
 if ENABLE_BYPASS
 GLIBC_CFLAGS += -DUKL_BP
@@ -169,13 +169,14 @@ crt1.o crti.o crtn.o: librt.a
 	rm -f $@
 	cp glibc-build/csu/$(basename $@).o $@
 
-stamp-glibc-configure:
+stamp-glibc-configure: linux-headers
 	rm -f $@
 	mkdir -p glibc-build
 	cd glibc-build && \
 	$(abs_top_srcdir)/glibc/configure \
 	    CFLAGS="$(GLIBC_CFLAGS)" \
 	    --prefix=$(abs_builddir) \
+	    --with-headers=$(abs_top_srcdir)/linux-headers \
 	    --enable-hacker-mode \
 	    --enable-timezone-tools \
 	    --disable-build-nscd \
@@ -186,14 +187,17 @@ stamp-glibc-configure:
 	    x86_64-ukl \
 	    build_alias=x86_64-ukl \
 	    host_alias=x86_64-ukl \
-	    target_alias=x86_64-ukl
+	    target_alias=x86_64-ukl \
 	touch $@
 
 glibc-clean:
 	rm -f $(LIBC_OBJS)
-	cd glibc-build && $(MAKE) clean
+	rm -rf glibc-build/*
+	rm stamp-glibc-configure
 #----------------------------------------------------------------------
 # Build Linux kernel linked with UKL.a
+
+
 
 noinst_DATA += vmlinuz
 
@@ -211,6 +215,16 @@ linux/.config: saveconfig
 	echo CONFIG_UKL_TLS=y >> $@
 	echo CONFIG_UKL_ARCHIVE_PATH=$(ARCHIVE) >> $@
 	echo CONFIG_UKL_NAME=$(TRIGGER) >> $@
+
+linux-headers: linux/.config
+	cd linux && make headers_install INSTALL_HDR_PATH=$(abs_top_srcdir)/tmplinux/.config: saveconfig
+	rm -f $@
+	cp $(srcdir)/saveconfig $@
+	echo CONFIG_UNIKERNEL_LINUX=y >> $@
+	echo CONFIG_UKL_TLS=y >> $@
+	echo CONFIG_UKL_ARCHIVE_PATH=$(ARCHIVE) >> $@
+	echo CONFIG_UKL_NAME=$(TRIGGER) >> $@
+
 if ENABLE_SAME_STACK
 	echo CONFIG_UKL_SAME_STACK=y >> $@
 endif
