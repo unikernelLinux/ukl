@@ -124,11 +124,11 @@ stamp-gcc-prereq:
 #----------------------------------------------------------------------
 # Build glibc.
 
-LIBC_OBJS = libc.a libpthread.a libm.a librt.a libcrypt.a crt1.o crti.o crtn.o
+LIBC_OBJS = libc.so libpthread.so libm.so librt.so libcrypt.so ld-linux-x86-64.so.2 crt1.o crti.o crtn.o
 
 noinst_DATA += $(LIBC_OBJS)
 
-GLIBC_CFLAGS = -g -O2 -fthread-jumps -mno-red-zone 
+GLIBC_CFLAGS = -g -O2 -fthread-jumps -mno-red-zone
 
 if ENABLE_BYPASS
 GLIBC_CFLAGS += -DUKL_BP
@@ -136,38 +136,41 @@ else
 GLIBC_CFLAGS += -UUKL_BP
 endif
 
-libc.a: stamp-glibc-configure
+libc.so: stamp-glibc-configure
 	rm -f $@
 # XXX This fails in the iconv subdirectory, and there seems to be
 # no way to disable that feature.  So instead just continue past
 # the failure and hope if libc.a has not been created then the
 # build will fail on the next line.
 	-cd glibc-build && $(MAKE)
-	cp glibc-build/libc.a $@
+	cp glibc-build/libc.so $@
 
-libpthread.a: stamp-glibc-configure libc.a
+libpthread.so: stamp-glibc-configure libc.so
 	rm -f $@
 	cd glibc-build && $(MAKE) subdirs=nptl
-	cp glibc-build/nptl/libpthread.a $@
+	cp glibc-build/nptl/libpthread.so $@
 
-libm.a: stamp-glibc-configure libpthread.a
+libm.so: stamp-glibc-configure libpthread.so
 	rm -f $@
 	cd glibc-build && $(MAKE) subdirs=math
-	cp glibc-build/math/libm.a $@
+	cp glibc-build/math/libm.so $@
 
-librt.a: stamp-glibc-configure libm.a
+librt.so: stamp-glibc-configure libm.so
 	rm -f $@
 	cd glibc-build && $(MAKE) subdirs=rt
-	cp glibc-build/rt/librt.a $@
+	cp glibc-build/rt/librt.so $@
 
-libcrypt.a: stamp-glibc-configure libm.a
+libcrypt.so: stamp-glibc-configure libm.so
 	rm -f $@
 	cd glibc-build && $(MAKE) subdirs=crypt
-	cp glibc-build/crypt/libcrypt.a $@
+	cp glibc-build/crypt/libcrypt.so $@
 
-crt1.o crti.o crtn.o: librt.a
+crt1.o crti.o crtn.o: librt.so
 	rm -f $@
 	cp glibc-build/csu/$(basename $@).o $@
+
+ld-linux-x86-64.so.2: glibc-build/elf/ld-linux-x86-64.so.2
+	cp $< $@
 
 stamp-glibc-configure: linux-headers
 	rm -f $@
@@ -191,9 +194,9 @@ stamp-glibc-configure: linux-headers
 	touch $@
 
 glibc-clean:
-	rm -f $(LIBC_OBJS)
-	rm -rf glibc-build/*
-	rm stamp-glibc-configure
+	-rm -f $(LIBC_OBJS)
+	-rm -rf glibc-build/*
+	-rm stamp-glibc-configure
 #----------------------------------------------------------------------
 # Build Linux kernel linked with UKL.a
 
@@ -204,7 +207,7 @@ noinst_DATA += vmlinuz
 vmlinuz: linux/arch/x86/boot/bzImage
 	cp $< $@
 
-linux/arch/x86/boot/bzImage: linux/.config UKL.a
+linux/arch/x86/boot/bzImage: linux/.config UKL
 	$(MAKE) -C $(srcdir)/linux olddefconfig O=$(abs_builddir)/linux
 	$(MAKE) -C $(srcdir)/linux WERROR=0 O=$(abs_builddir)/linux
 
@@ -213,17 +216,12 @@ linux/.config: saveconfig
 	cp $(srcdir)/saveconfig $@
 	echo CONFIG_UNIKERNEL_LINUX=y >> $@
 	echo CONFIG_UKL_TLS=y >> $@
-	echo CONFIG_UKL_ARCHIVE_PATH=$(ARCHIVE) >> $@
 	echo CONFIG_UKL_NAME=$(TRIGGER) >> $@
 
 linux-headers: linux/.config
-	cd linux && make headers_install INSTALL_HDR_PATH=$(abs_top_srcdir)/tmplinux/.config: saveconfig
-	rm -f $@
-	cp $(srcdir)/saveconfig $@
-	echo CONFIG_UNIKERNEL_LINUX=y >> $@
-	echo CONFIG_UKL_TLS=y >> $@
-	echo CONFIG_UKL_ARCHIVE_PATH=$(ARCHIVE) >> $@
-	echo CONFIG_UKL_NAME=$(TRIGGER) >> $@
+	cd linux && make headers_install INSTALL_HDR_PATH=$(abs_top_srcdir)/tmp
+	mv tmp/include linux-headers
+	rm -r tmp
 
 if ENABLE_SAME_STACK
 	echo CONFIG_UKL_SAME_STACK=y >> $@
@@ -241,11 +239,11 @@ endif
 #----------------------------------------------------------------------
 # Compile the program.
 
-UKL.a: $(PROGRAM)/UKL.a
+UKL: $(PROGRAM)/UKL
 	cp $< $@
 
-$(PROGRAM)/UKL.a: $(CRT_OBJS) $(LIBC_OBJS)
-	cd $(PROGRAM) && $(MAKE) UKL.a
+$(PROGRAM)/UKL: $(CRT_OBJS) $(LIBC_OBJS)
+	cd $(PROGRAM) && $(MAKE) UKL
 
 #----------------------------------------------------------------------
 # Per-program configuration and data files (if required).
