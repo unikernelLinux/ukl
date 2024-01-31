@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <string.h>
+#include <unistd.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -9,11 +11,11 @@
 struct work_item {
 	void *arg;
 	void *result;
-	bool done;
+	int done;
 };
 
 struct worker {
-	bool dying;
+	int dying;
 };
 
 void *handle_ukl_event(void *data)
@@ -25,6 +27,12 @@ void *handle_ukl_event(void *data)
 	printf("Got '%s'\n", buf);
 	return NULL;
 }
+
+void register_ukl_handler_task(void);
+void *workitem_queue_consume_event(void);
+void ukl_worker_sleep(void);
+void *do_event_ctl(int, void*);
+void init_event_workitem_queue(void);
 
 void *worker_thread(void *arg)
 {
@@ -38,8 +46,6 @@ void *worker_thread(void *arg)
 		data = workitem_queue_consume_event();
 		if (data) {
 			ret = handle_ukl_event(data);
-			work->result = ret;
-			work->done = true;
 		} else {
 			ukl_worker_sleep();
 		}
@@ -50,13 +56,18 @@ int main(int argc, char **argv)
 {
 	pthread_t event;
 	pthread_attr_t event_attrs;
+	struct sockaddr_storage their_addr;
+	socklen_t addr_size;
 	struct addrinfo hints, *res;
 	struct worker worker;
 	int ret;
 	int sock;
 	int yes = 1;
+	int conn;
 
-	worker.dying = false;
+	worker.dying = 0;
+
+	init_event_workitem_queue();
 
 	if (pthread_attr_init(&event_attrs))
 	{
@@ -70,7 +81,7 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	if (pthread_create(&event, &event_attrs, thread_register, &worker))
+	if (pthread_create(&event, &event_attrs, worker_thread, &worker))
 	{
 		perror("Failed to create event thread");
 		exit(1);
@@ -78,7 +89,7 @@ int main(int argc, char **argv)
 
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_INET;
-	hints.ai_socktype = SOCK_DGRAM;
+	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
 	getaddrinfo(NULL, "7777", &hints, &res);
 
@@ -88,10 +99,13 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	bind(sockfd, res->ai_addr, res->ai_addrlen);
+	bind(sock, res->ai_addr, res->ai_addrlen);
+	listen(sock, 16);
+	addr_size = sizeof their_addr;
+	conn = accept(sock, (struct sockaddr *)&their_addr, &addr_size);
 
 	// Setup event handler
-	do_event_ctl(sock, &sock);
+	do_event_ctl(conn, &conn);
 
 	while(1)
 	{
