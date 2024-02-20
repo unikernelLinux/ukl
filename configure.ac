@@ -79,7 +79,7 @@ AC_ARG_WITH([ukl-trigger],
     [AS_HELP_STRING([--with-ukl-trigger],
 	[set the string checked in exec to trigger the UKL process @<:@default=/UKL@:>@])],
 	[TRIGGER="$withval"],
-	[TRIGGER="/UKL"])
+	[TRIGGER="/data/UKL"])
 AC_MSG_RESULT([$TRIGGER])
 AC_SUBST([TRIGGER])
 
