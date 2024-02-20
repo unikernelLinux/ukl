@@ -16,44 +16,20 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-CLEANFILES = *~ *.o *.a undefined_sys_hack.c
+CLEANFILES = *~ *.o *.a *.so undefined_sys_hack.c
 
-noinst_DATA = UKL.a
+noinst_DATA = UKL
 
-# Libraries built in the top build directory.
-CRT_STARTS  = $(abs_top_builddir)/crt1.o $(abs_top_builddir)/crti.o \
-	      $(abs_top_builddir)/crtbeginT.o
-CRT_ENDS    = $(abs_top_builddir)/crtend.o $(abs_top_builddir)/crtn.o
-C_LIB       = $(abs_top_builddir)/libc.a
-PTHREAD_LIB = $(abs_top_builddir)/libpthread.a
-RT_LIB      = $(abs_top_builddir)/librt.a
-MATH_LIB    = $(abs_top_builddir)/libm.a
-GCC_LIBS    = $(abs_top_builddir)/libgcc.a $(abs_top_builddir)/libgcc_eh.a
+AM_CFLAGS   = -ggdb -mno-red-zone
 
-AM_CFLAGS   = -ggdb -mno-red-zone -mcmodel=kernel -static
-if DEFAULT_PIE
-AM_CFLAGS  += -fno-PIC -no-pie -fno-PIE
-endif
-
-data.tar.gz:
-	touch data.tar.gz
-
-UKL.a: hello-world.o undefined_sys_hack.o
-	rm -f $@ temp.o
-	ld -r -o temp.o -allow-multiple-definition \
-	    $(CRT_STARTS) \
+UKL: hello-world.o undefined_sys_hack.o
+	gcc -o $@  \
 	    $< \
-	    --start-group \
-	    --whole-archive \
-	    $(MATH_LIB) $(RT_LIB) $(PTHREAD_LIB) $(C_LIB) \
-	    --no-whole-archive \
-	    $(GCC_LIBS) \
-	    --end-group \
-	    $(CRT_ENDS)
-	ar cr UKL.a temp.o undefined_sys_hack.o
-	rm temp.o
-	objcopy --prefix-symbols=ukl_ $@
-	objcopy --redefine-syms=$(top_srcdir)/redef_sym_names $@
+	    -L.. \
+	    -lc -lm -lpthread -lrt \
+	    -Wl,--rpath=/data \
+	    -Wl,--dynamic-linker=/data/ld-linux-x86-64.so.2
+
 
 undefined_sys_hack.c: $(top_builddir)/undefined_sys_hack.c
 	cp $< $@
