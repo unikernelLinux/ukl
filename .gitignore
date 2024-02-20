@@ -2,6 +2,7 @@
 *.a
 *.o
 *.ukl
+*UKL
 
 Makefile
 Makefile.in
