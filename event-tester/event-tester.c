@@ -22,9 +22,12 @@ void *handle_ukl_event(void *data)
 {
 	unsigned char buf[4096] = {0};
 	int fd = *(int*)data;
+	free(data);
 	int ret = read(fd, buf, 4096);
 	
 	printf("Got '%s'\n", buf);
+	write(fd, buf, strlen(buf));
+	close(fd);
 	return NULL;
 }
 
@@ -45,8 +48,10 @@ void *worker_thread(void *arg)
 	while (!worker->dying) {
 		data = workitem_queue_consume_event();
 		if (data) {
+			printf("Processing event\n");
 			ret = handle_ukl_event(data);
 		} else {
+			printf("No work, sleeping\n");
 			ukl_worker_sleep();
 		}
 	}
@@ -63,7 +68,7 @@ int main(int argc, char **argv)
 	int ret;
 	int sock;
 	int yes = 1;
-	int conn;
+	int *conn;
 
 	worker.dying = 0;
 
@@ -102,14 +107,18 @@ int main(int argc, char **argv)
 	bind(sock, res->ai_addr, res->ai_addrlen);
 	listen(sock, 16);
 	addr_size = sizeof their_addr;
-	conn = accept(sock, (struct sockaddr *)&their_addr, &addr_size);
 
-	// Setup event handler
-	do_event_ctl(conn, &conn);
+	while(1) {
+		conn = malloc(sizeof(conn));
+		if (!conn) {
+			printf("Allocation failed\n");
+			exit(1);
+		}
+		*conn = accept(sock, (struct sockaddr *)&their_addr, &addr_size);
 
-	while(1)
-	{
-		sleep(1);
+		// Setup event handler
+		do_event_ctl(*conn, conn);
+
 	}
 
 	return 0;
