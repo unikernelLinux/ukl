@@ -108,11 +108,15 @@ for f in $conf ; do
   cp -r /etc/$f $WDIR/etc/$f
 done
 
+if [ -z "$2" -a -s "$2" ] ; then
+	cp $2 $WDIR/usr/bin/
+fi
+
 if [ -s data.tar.gz ] ; then
 	tar xf data.tar.gz -C ${WDIR}
 fi
 
-cp -r perf ${WDIR}
+cp -r exp ${WDIR}
 
 rm -f $unsorted
 
