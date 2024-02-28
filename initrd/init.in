@@ -32,10 +32,10 @@ ln -sf /proc/mounts /etc/mtab
 echo "CMDLINE" >> /log
 cat /proc/cmdline >> /log
 
-# Running performance scripts
+# Running experimental setup scripts
 echo "Running Setup scripts" >> /log
-./perf/disable_ht.sh >> /log
-./perf/turbo-boost.sh disable >> /log
+./exp/disable_ht.sh >> /log
+./exp/turbo-boost.sh disable >> /log
 echo "Done" >> /log
 
 /usr/sbin/ip address

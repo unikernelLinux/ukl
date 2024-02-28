@@ -46,7 +46,7 @@ min-clean:
 	-cd $(PROGRAM) && $(MAKE) clean
 
 app-clean:
-	-rm UKL.a
+	-rm UKL.a vmlinuz linux/vmlinux linux/arch/x86/boot/bzImage
 	-cd $(PROGRAM) && $(MAKE) clean
 
 kern-clean:
@@ -201,6 +201,12 @@ stamp-glibc-configure:
 
 noinst_DATA += vmlinuz
 
+initrd/perf: linux/tools/perf/perf
+	cp $< $@
+
+linux/tools/perf/perf:
+	$(MAKE) -C $(srcdir)/linux/tools perf
+
 vmlinuz: linux/arch/x86/boot/bzImage
 	cp $< $@
 
@@ -250,7 +256,7 @@ $(PROGRAM)/data.tar.gz:
 
 noinst_DATA += ukl-initrd.cpio.xz
 
-ukl-initrd.cpio.xz: $(PROGRAM)/data.tar.gz vmlinuz
+ukl-initrd.cpio.xz: $(PROGRAM)/data.tar.gz vmlinuz initrd/perf
 	cp $(PROGRAM)/data.tar.gz initrd/
 	$(MAKE) -C $(srcdir)/initrd $@
 	cp initrd/$@ $@

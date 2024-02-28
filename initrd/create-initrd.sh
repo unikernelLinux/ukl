@@ -13,6 +13,6 @@ docker exec -it $CONTAINER dnf -y install sed elfutils-libelf-devel bc hostname 
         msr-tools wget dnf-plugins-core bzip2 curl xz cpio shadow-utils procps-ng iproute pciutils net-tools
 docker exec -w /src/ -it $CONTAINER rm -rf ukl-initrd
 docker exec -w /src/ -it $CONTAINER ./set-passwd.sh
-docker exec -w /src/ -it $CONTAINER ./buildinitrd.sh ukl-initrd
+docker exec -w /src/ -it $CONTAINER ./buildinitrd.sh ukl-initrd $1
 docker exec -w /src/ -it $CONTAINER rm -rf ukl-initrd
 docker stop $CONTAINER
