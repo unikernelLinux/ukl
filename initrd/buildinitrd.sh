@@ -23,11 +23,13 @@ copy()
 
 printf "Creating initramfs structure ... "
 
+cp ./perf /usr/sbin/
+
 binfiles="cat ls mkdir mknod mount bash top"
 binfiles="$binfiles umount sed sleep ln rm uname grep"
 binfiles="$binfiles readlink basename chmod ps"
 
-sbinfiles="halt dropbear ip rdmsr wrmsr lspci netstat"
+sbinfiles="halt dropbear ip rdmsr wrmsr lspci perf"
 
 unsorted=$(mktemp /tmp/unsorted.XXXXXXXXXX)
 
@@ -100,11 +102,15 @@ for f in $conf ; do
   cp -r /etc/$f $WDIR/etc/$f
 done
 
+if [ -z "$2" -a -s "$2" ] ; then
+	cp $2 $WDIR/usr/bin/
+fi
+
 if [ -s data.tar.gz ] ; then
 	tar xf data.tar.gz -C ${WDIR}
 fi
 
-cp -r perf ${WDIR}
+cp -r exp ${WDIR}
 
 rm -f $unsorted
 
