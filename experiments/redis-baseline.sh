@@ -53,4 +53,4 @@ build_kernel()
 
 build_redis
 build_initrd
-#build_kernel
+build_kernel
