@@ -83,6 +83,16 @@ AC_ARG_WITH([ukl-trigger],
 AC_MSG_RESULT([$TRIGGER])
 AC_SUBST([TRIGGER])
 
+dnl Start perf before UKL process
+AC_MSG_CHECKING([perf invocation])
+AC_ARG_WITH([profiler],
+    [AS_HELP_STRING([--with-profiler],
+	[run this profiler before starting UKL process @<:@default=@:>@])],
+	[PROFILER="$withval"],
+	[PROFILER=""])
+AC_MSG_RESULT([$PROFILER])
+AC_SUBST([PROFILER])
+
 dnl Control glibc bypass.
 AC_MSG_CHECKING([if we should enable glibc bypass])
 AC_ARG_ENABLE([bypass],
