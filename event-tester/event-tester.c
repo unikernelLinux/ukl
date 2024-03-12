@@ -22,11 +22,25 @@ void *handle_ukl_event(void *data)
 {
 	unsigned char buf[4096] = {0};
 	int fd = *(int*)data;
-	free(data);
+	if (fd < 0)
+		return NULL;
+
+	//printf("Reading\n");
+
 	int ret = read(fd, buf, 4096);
 	
-	printf("Got '%s'\n", buf);
-	write(fd, buf, strlen(buf));
+	//printf("Got '%s'\n", buf);
+
+	if (ret > 0) {
+		//printf("Writing\n");
+		write(fd, buf, ret);
+	}
+
+	if (*(int*)data >= 0) {
+		*(int*)data = -1;
+		free(data);
+	}
+
 	close(fd);
 	return NULL;
 }
@@ -48,10 +62,10 @@ void *worker_thread(void *arg)
 	while (!worker->dying) {
 		data = workitem_queue_consume_event();
 		if (data) {
-			printf("Processing event\n");
+			//printf("Processing event\n");
 			ret = handle_ukl_event(data);
 		} else {
-			printf("No work, sleeping\n");
+			//printf("No work, sleeping\n");
 			ukl_worker_sleep();
 		}
 	}
@@ -118,7 +132,6 @@ int main(int argc, char **argv)
 
 		// Setup event handler
 		do_event_ctl(*conn, conn);
-
 	}
 
 	return 0;

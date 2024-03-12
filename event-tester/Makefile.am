@@ -16,7 +16,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-CLEANFILES = *~ *.o *.a undefined_sys_hack.c
+CLEANFILES = *~ *.o *.a undefined_sys_hack.c tcp_client
 
 noinst_DATA = UKL.a
 
@@ -38,7 +38,10 @@ endif
 data.tar.gz:
 	touch data.tar.gz
 
-UKL.a: event-tester.o undefined_sys_hack.o
+tcp_client: tcp_client.c
+	gcc -ggdb -Wall -Werror -O2 -o tcp_client tcp_client.c
+
+UKL.a: event-tester.o undefined_sys_hack.o tcp_client
 	rm -f $@ temp.o
 	ld -r -o temp.o -allow-multiple-definition \
 	    $(CRT_STARTS) \
