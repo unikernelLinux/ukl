@@ -25,9 +25,9 @@ printf "Creating initramfs structure ... "
 
 cp ./perf /usr/sbin/
 
-binfiles="cat ls mkdir mknod mount bash top"
+binfiles="cat ls mkdir mknod mount bash top touch"
 binfiles="$binfiles umount sed sleep ln rm uname grep"
-binfiles="$binfiles readlink basename chmod ps"
+binfiles="$binfiles readlink basename chmod ps pidof pgrep pkill"
 
 sbinfiles="halt dropbear ip rdmsr wrmsr lspci perf"
 
@@ -64,6 +64,12 @@ mknod -m 000 $WDIR/dev/pts/ptmx c 5 2
 
 # Install the init file
 install -m0755 $INITIN $WDIR/init
+
+# At somepoint dropbear stopped supporting scp directly and now requires access
+# to an sftp server so we have to pull in enough of openssh to make that work
+mkdir -p $WDIR/usr/libexec/openssh/
+ldd /usr/libexec/openssh/sftp-server | sed "s/\t//" | cut -d " " -f1 >> $unsorted
+copy /usr/libexec/openssh/sftp-server usr/libexec/openssh/
 
 # Install basic binaries
 for f in $binfiles ; do
