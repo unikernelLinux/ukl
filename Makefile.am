@@ -44,6 +44,8 @@ min-clean:
 	-cd linux && $(MAKE) clean
 	-rm UKL.a
 	-cd $(PROGRAM) && $(MAKE) clean
+	-rm ukl-initrd.cpio.xz
+	-cd initrd && $(MAKE) clean
 
 app-clean:
 	-rm UKL.a vmlinuz linux/vmlinux linux/arch/x86/boot/bzImage
