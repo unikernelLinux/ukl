@@ -3,7 +3,6 @@
 *.o
 *.ukl
 *UKL
-
 Makefile
 Makefile.in
 ukl-initrd.cpio.xz

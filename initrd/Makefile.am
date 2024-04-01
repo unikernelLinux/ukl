@@ -24,6 +24,7 @@ CONTAINER:="init-builder"
 clean:
 	rm -f $(CLEANFILES)
 	docker rm -f $(CONTAINER)
+	rm config.log
 
 stamp-initrd: buildinitrd.sh set-passwd.sh
 	docker pull fedora:36
