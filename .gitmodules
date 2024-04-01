@@ -13,3 +13,7 @@
 [submodule "dnsmasq/dnsmasq"]
 	path = dnsmasq/dnsmasq
 	url = https://github.com/rwmjones/dnsmasq
+[sudmodule "glibc"]
+	branch = ukl-dynamic
+[sudmodule "linux"]
+	branch = ukl-dynamic
