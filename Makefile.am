@@ -30,34 +30,27 @@ CLEANFILES = \
 	data.tar.gz \
 	vmlinuz
 
-clean-local:
-	-rm -rf glibc-build/* 
-	-cd linux && $(MAKE) clean
-	-cd $(PROGRAM) && $(MAKE) clean
-	-cd initrd && $(MAKE) clean
+clean:
+	-$(MAKE) glibc-clean
+	-$(MAKE) app-clean
+	-$(MAKE) kern-clean
+	-$(MAKE) initrd-clean
 	-find -name config.cache -delete
-	-rm -rf linux-headers
 
 min-clean:
 	-cd linux && $(MAKE) clean
 	-rm UKL
 	-cd $(PROGRAM) && $(MAKE) clean
 
-app-clean:
-	-rm UKL
-	-cd $(PROGRAM) && $(MAKE) clean
-
 kern-clean:
 	-rm vmlinuz
 	-cd linux && $(MAKE) clean
-	-rm linux/.config
 
-root-clean:
-	-rm -rf data
+initrd-clean:
 	-rm -rf data.tar.gz
 	-rm $(PROGRAM)/UKL
 	-rm -f ukl-initrd.cpio.xz
-	-rm -f initrd/ukl-initrd.cpio.xz
+	cd initrd && $(MAKE) clean
 
 glibc-clean:
 	-rm -f $(LIBC_OBJS)
@@ -66,26 +59,16 @@ glibc-clean:
 	-rm stamp-glibc-configure
 	-rm stamp-linux-headers
 
-
-
-LIBC_OBJS = libc.so libpthread.so libm.so librt.so libcrypt.so \
-	    ld-linux-x86-64.so.2 entry-patch.o
-
-elf_hack_files = dl-gdb-hack dl-patch-prot
-hacks-clean:
-	$(MAKE) root-clean
-	-rm $(elf_hack_files)
-	-cd elf-hacks && rm $(elf_hack_files)
-	-rm stamp-elf-hacks
-	-rm ld-linux-*
-
 DIST_SUBDIRS = dnsmasq hello memcached redis mpc-bench fio
+
+FORCE:
+	true
 
 # Build glibc.
 
 noinst_DATA = $(LIBC_OBJS)
 
-GLIBC_CFLAGS = -g -O2 -fthread-jumps -mno-red-zone 
+GLIBC_CFLAGS = -g -O2 -mno-red-zone -fthread-jumps
 
 if ENABLE_BYPASS
 GLIBC_CFLAGS += -DUKL_BP
@@ -93,16 +76,24 @@ else
 GLIBC_CFLAGS += -UUKL_BP
 endif
 
-entry-patch.o:
-	gcc entry-patch.c -c -fPIC -nostdlib
+
+LIBC_OBJS = libc.so libpthread.so libm.so librt.so libcrypt.so \
+	    ld-linux-x86-64.so.2 entry-patch.o
+
+entry-patch.o: entry-patch.c
+	gcc entry-patch.c -c -fPIC -nostdlib $(GLIBC_CFLAGS)
+
+glibc: FORCE
+	-rm $(LIBC_OBJS)
+	make $(LIBC_OBJS)
 
 libc.so: entry-patch.o stamp-glibc-configure
 	-cd glibc-build && $(MAKE)
-# XXX This fails in the support subdirectory, and there seems to be
+# XXX This fails in the iconv subdirectory, and there seems to be
 # no way to disable that feature.  So instead just continue past
 # the failure and hope if libc.a has not been created then the
 # build will fail on the next line.
-	cp glibc-build/libc.so $@
+	cp glibc-build/$@ $@
 
 libpthread.so: libc.so
 	rm -f $@
@@ -124,21 +115,8 @@ libcrypt.so: libm.so
 	cd glibc-build && $(MAKE) subdirs=crypt
 	cp glibc-build/crypt/libcrypt.so $@
 
-stamp-elf-hacks:
-	cd elf-hacks && $(MAKE)
-	cp elf-hacks/dl-patch-prot .
-	cp elf-hacks/dl-gdb-hack .
-	touch $@
-
-ld-linux-x86-64.so.2: libc.so stamp-elf-hacks
+ld-linux-x86-64.so.2: libc.so
 	cp glibc-build/elf/$@ $@
-# there is a segment that rtld will try to execute that is mapped RW in it's executable
-# until I can figure out whether or not this is a bug, just change it so it's mapped RWX
-	./dl-patch-prot $@
-	cp $@ ld-linux-gdb.so
-# gdb does not register the actual load address of rtld, so move .text and .data up to where
-# we know they're going to be??
-	./dl-gdb-hack ld-linux-gdb.so
 
 stamp-glibc-configure: stamp-linux-headers
 	touch $@
@@ -171,17 +149,17 @@ vmlinuz: linux/arch/x86/boot/bzImage
 linux/arch/x86/boot/bzImage: linux/.config
 	$(MAKE) -C $(srcdir)/linux olddefconfig O=$(abs_builddir)/linux
 	$(MAKE) -C $(srcdir)/linux WERROR=0 O=$(abs_builddir)/linux
-
-
+	$(MAKE) -C $(srcdir)/linux scripts_gdb
 
 linux/.config: saveconfig
 	rm -f $@
 	cp $(srcdir)/saveconfig $@
 	echo CONFIG_UNIKERNEL_LINUX=y >> $@
-	echo CONFIG_UKL_TLS=y >> $@
+	echo # CONFIG_UKL_TLS=y >> $@
 	echo CONFIG_UKL_NAME=$(TRIGGER) >> $@
-	echo CONFIG_GDB_SCRIPTS=y >> $@ # to enable per-cpu gdb scripts
-	echo CONFIG_DEBUG_INFO_REDUCE=n >> $@
+# enable lx-symbol python scripts in gdb
+	echo CONFIG_GDB_SCRIPTS=y >> $@
+	echo CONFIG_KGDB=y >> $@
 	echo CONFIG_FRAME_POINTER=y >> $@
 if ENABLE_SAME_STACK
 	echo CONFIG_UKL_SAME_STACK=y >> $@
@@ -210,31 +188,33 @@ stamp-linux-headers: linux/.config
 export LIBC_OBJS
 
 data.tar.gz: $(LIBC_OBJS)
-	-rm -rf data
-	mkdir data
+	-mkdir data
+	rm -r data/*
 	cd $(PROGRAM) && make UKL	
 	cp $(LIBC_OBJS) data
 	cp $(PROGRAM)/UKL data
-	tar -czf data.tar.gz data	
+	ln data/libc.so data/libc.so.6
+	tar -czf data.tar.gz data
+	cp $@ initrd	
 
 #----------------------------------------------------------------------
 # Build the initramfs
 
 noinst_DATA += ukl-initrd.cpio.xz
 
-ukl-initrd.cpio.xz: data.tar.gz vmlinuz
-	-rm -f initrd/$@
-	cp data.tar.gz initrd/
-	$(MAKE) -C $(srcdir)/initrd $@
+initrd: FORCE
+	-rm ukl-initrd.cpio.xz
+	$(MAKE) ukl-initrd.cpio.xz	
+
+ukl-initrd.cpio.xz: data.tar.gz
+	$(MAKE) -C $(srcdir)/initrd
 	cp initrd/$@ $@
 
 #----------------------------------------------------------------------
 # Boot the unikernel under qemu.
 
-KIMAGE = ukl-initrd.cpio.xz vmlinuz
-
 # Non-privileged:
-boot: $(KIMAGE)
+boot:
 	qemu-system-x86_64 \
 	    -cpu host,-smap,-smep -accel kvm -m 4G \
 	    -kernel vmlinuz \
@@ -245,7 +225,7 @@ boot: $(KIMAGE)
 
 # Privileged (probably required if the kernel is expecting incoming
 # network connections).
-boot-priv: $(KIMAGE)
+boot-priv:
 	sudo qemu-system-x86_64 \
 	    -cpu host,-smap,-smep -accel kvm -m 4G \
 	    -kernel vmlinuz \
@@ -254,6 +234,13 @@ boot-priv: $(KIMAGE)
 	    -append "console=ttyS0 net.ifnames=0 biosdevname=0 nowatchdog clearcpuid=smap,smep mitigations=off mds=off ip=192.168.122.128:::255.255.255.0::eth0:none" \
 	    -net nic -net bridge,br=virbr0
 
+# Run for the purposes of debugging.
+# In a separate terminal inside of gdb run 
+#	(gdb) target remote :1234
+#	(gdb) symbol-file linux/vmlinux
+#
+# note that if you wish to set a breakpoint before the kernel has had the opportunity to set
+# up its VAS, you will need to use a hardware breakpoint (hbreak)
 boot-gdb:
 	qemu-system-x86_64 \
 	    -cpu host,-smap,-smep -accel kvm -m 4G \
