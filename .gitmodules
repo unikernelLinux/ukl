@@ -1,9 +1,11 @@
 [submodule "linux"]
 	path = linux
 	url = https://github.com/unikernelLinux/linux
+	update = checkout
 [submodule "glibc"]
 	path = glibc
 	url = git@github.com:unikernelLinux/glibc.git 
+	update = checkout
 [submodule "gapbs"]
 	path = gapbs
 	url = https://github.com/unikernelLinux/gapbs
