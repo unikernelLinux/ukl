@@ -16,7 +16,36 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-CLEANFILES = ukl-initrd.cpio.xz data.tar.gz
+CLEANFILES = ukl-initrd.cpio.xz data.tar.gz stamp-initrd
 
-ukl-initrd.cpio.xz:
-	./create-initrd.sh
+
+CONTAINER:="init-builder"
+
+clean:
+	rm -f $(CLEANFILES)
+	docker rm -f $(CONTAINER)
+
+stamp-initrd: buildinitrd.sh set-passwd.sh
+	docker pull fedora:36
+	-docker stop $(CONTAINER)
+	-docker rm -f $(CONTAINER)
+	docker run --privileged --name=$(CONTAINER) -v $(abs_builddir):/src -dit fedora:36 /bin/bash
+	docker exec -it $(CONTAINER) dnf -y update
+	docker exec -it $(CONTAINER) dnf -y install sed elfutils-libelf-devel bc hostname perl dropbear \
+		msr-tools wget dnf-plugins-core bzip2 curl xz cpio shadow-utils procps-ng iproute pciutils net-tools
+	docker exec -it $(CONTAINER) yum -y install gdb
+	docker exec -w /src/ -it $(CONTAINER) rm -rf ukl-initrd
+	docker exec -w /src/ -it $(CONTAINER) ./set-passwd.sh
+	docker exec -w /src/ -it $(CONTAINER) ./buildinitrd.sh ukl-initrd
+	docker stop $(CONTAINER) > /dev/null
+	touch $@
+
+data.tar.gz:
+	cd .. && $(MAKE) $@	
+
+ukl-initrd.cpio.xz: stamp-initrd data.tar.gz init install-data.sh
+	docker start $(CONTAINER) > /dev/null
+	docker exec -w /src/ -it $(CONTAINER) ./install-data.sh ukl-initrd
+	docker stop $(CONTAINER) & > /dev/null
+
+all: ukl-initrd.cpio.xz

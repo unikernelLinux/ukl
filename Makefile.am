@@ -189,7 +189,7 @@ export LIBC_OBJS
 
 data.tar.gz: $(LIBC_OBJS)
 	-mkdir data
-	rm -r data/*
+	-rm -r data/*
 	cd $(PROGRAM) && make UKL	
 	cp $(LIBC_OBJS) data
 	cp $(PROGRAM)/UKL data

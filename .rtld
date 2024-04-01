@@ -1,0 +1,5 @@
+delete -y
+source .connect
+symbol-file ld-linux-x86-64.so.2 -o 0x7ffff7fd3000
+hbreak _dl_map_object
+c

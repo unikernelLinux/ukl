@@ -1,0 +1,3 @@
+delete -y
+source .connect
+file linux/vmlinux

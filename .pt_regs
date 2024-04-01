@@ -1,0 +1,1 @@
+set $regs = ((struct pt_regs*)(((void*)(&$lx_current())->stack) + (((1UL) << 12) << (2)))-1)

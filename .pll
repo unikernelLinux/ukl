@@ -1,0 +1,7 @@
+define pll
+  set var $n = $arg0
+  while $n
+    printf "%s\n", $n->l_name
+    set var $n = $n->l_next
+  end
+end
