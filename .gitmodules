@@ -1,10 +1,12 @@
 [submodule "linux"]
 	path = linux
 	url = https://github.com/unikernelLinux/linux
+	branch = ukl-dynamic
 	update = checkout
 [submodule "glibc"]
 	path = glibc
-	url = git@github.com:unikernelLinux/glibc.git 
+	url = git@github.com:unikernelLinux/glibc.git
+	branch = ukl-dynamic	
 	update = checkout
 [submodule "gapbs"]
 	path = gapbs
@@ -12,7 +14,3 @@
 [submodule "dnsmasq/dnsmasq"]
 	path = dnsmasq/dnsmasq
 	url = https://github.com/rwmjones/dnsmasq
-[sudmodule "glibc"]
-	branch = ukl-dynamic
-[sudmodule "linux"]
-	branch = ukl-dynamic
