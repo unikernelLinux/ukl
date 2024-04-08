@@ -1,0 +1,33 @@
+GLIBC_2.2.5 {
+  global:
+    __libc_stack_end;
+    _dl_mcount;
+    _r_debug;
+    calloc; free; malloc; realloc;
+  local:
+    *;
+};
+GLIBC_2.3 {
+  global:
+    __tls_get_addr;
+} GLIBC_2.2.5;
+GLIBC_2.4 {
+  global:
+    __stack_chk_guard;
+} GLIBC_2.3;
+GLIBC_PRIVATE {
+  global:
+    __get_cpu_features;
+    __libc_enable_secure;
+    __pointer_chk_guard;
+    __tunable_get_val;
+    _dl_allocate_tls; _dl_allocate_tls_init;
+    _dl_argv; _dl_find_dso_for_object; _dl_get_tls_static_info;
+    _dl_deallocate_tls; _dl_make_stack_executable;
+    _dl_debug_state;
+    _dl_exception_create; _dl_exception_create_format; _dl_exception_free;
+    _dl_rtld_di_serinfo; _dl_starting_up;
+    _dl_signal_error; _dl_catch_error;
+    _dl_signal_exception; _dl_catch_exception;
+    _rtld_global; _rtld_global_ro;
+} GLIBC_2.4;

@@ -195,6 +195,7 @@ data.tar.gz: $(LIBC_OBJS)
 	cp $(PROGRAM)/UKL data
 	ln data/libc.so data/libc.so.6
 	tar -czf data.tar.gz data
+	rm -r data
 	cp $@ initrd	
 
 #----------------------------------------------------------------------
@@ -207,7 +208,7 @@ initrd: FORCE
 	$(MAKE) ukl-initrd.cpio.xz	
 
 ukl-initrd.cpio.xz: data.tar.gz
-	$(MAKE) -C $(srcdir)/initrd
+	$(MAKE) -C $(srcdir)/initrd $@
 	cp initrd/$@ $@
 
 #----------------------------------------------------------------------
