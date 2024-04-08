@@ -55,7 +55,7 @@ initrd-clean:
 
 glibc-clean:
 	-rm -f $(LIBC_OBJS)
-	-rm -rf glibc-build/*
+	-rm -rf glibc-build
 	-rm -rf linux-headers
 	-rm stamp-glibc-configure
 	-rm stamp-linux-headers

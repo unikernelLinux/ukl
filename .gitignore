@@ -37,6 +37,7 @@ ukl-initrd.cpio.xz
 
 data
 linux-headers
+glibc-build
 
 /lebench.ukl
 /new_lebench
