@@ -34,8 +34,9 @@ ukl-initrd.cpio.xz
 /vmlinuz
 /initrd/init
 /initrd/data.tar.gz
-data
 
+data
+linux-headers
 
 /lebench.ukl
 /new_lebench
