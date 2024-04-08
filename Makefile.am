@@ -30,7 +30,7 @@ CLEANFILES = \
 	data.tar.gz \
 	vmlinuz
 
-clean:
+clean-all:
 	-$(MAKE) glibc-clean
 	-$(MAKE) app-clean
 	-$(MAKE) kern-clean
