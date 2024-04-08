@@ -36,6 +36,7 @@ clean-all:
 	-$(MAKE) kern-clean
 	-$(MAKE) initrd-clean
 	-find -name config.cache -delete
+	$(MAKE) clean
 
 min-clean:
 	-cd linux && $(MAKE) clean
