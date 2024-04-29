@@ -33,3 +33,5 @@ ukl_register_ukl_handler_task register_ukl_handler_task
 ukl_workitem_queue_consume_event workitem_queue_consume_event
 ukl_ukl_worker_sleep ukl_worker_sleep
 ukl_init_event_workitem_queue init_event_workitem_queue
+ukl_ukl_tsc_log ukl_tsc_log
+ukl_in_redis in_redis
