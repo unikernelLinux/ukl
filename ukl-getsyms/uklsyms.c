@@ -1,4 +1,7 @@
 /* signature doesn't matter, will redefine addresses in ukl-initlib.c */
-void __attribute__((weak)) (*entry_SYSCALL_64)(void);
-void __attribute__((weak)) (*ksyswrite)(void);
-void __attribute__((weak)) (*ksysread) (void);
+#define SYM_NAME(name) \
+  void __attribute__((weak)) name (void) {}
+
+SYM_NAME (ksys_write)
+SYM_NAME (entry_SYSCALL_64)
+SYM_NAME (ksysread)
