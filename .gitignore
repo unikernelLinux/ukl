@@ -2,6 +2,8 @@
 *.a
 *.o
 *.ukl
+*.so
+stamp
 *UKL
 Makefile
 Makefile.in
