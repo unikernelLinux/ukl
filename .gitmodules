@@ -4,9 +4,14 @@
 	branch = ukl-dynamic
 	update = checkout
 [submodule "glibc"]
-	path = glibc
+	path = glibc/glibc
 	url = git@github.com:unikernelLinux/glibc.git
 	branch = ukl-dynamic	
+	update = checkout
+[submodule "rtld"]
+	path = glibc/rtld
+	url = git@github.com:unikernelLinux/glibc.git
+	branch = ukl-rtld
 	update = checkout
 [submodule "gapbs"]
 	path = gapbs
