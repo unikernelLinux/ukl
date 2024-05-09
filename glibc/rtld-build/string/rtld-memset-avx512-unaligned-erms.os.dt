@@ -1,0 +1,9 @@
+/home/vraiti/ukl/ukl/glibc/rtld-build/string/rtld-memset-avx512-unaligned-erms.os: \
+ ../sysdeps/x86_64/multiarch/memset-avx512-unaligned-erms.S \
+ /home/vraiti/ukl/ukl/glibc/rtld-build/libc-modules.h \
+ ../include/libc-symbols.h /home/vraiti/ukl/ukl/glibc/rtld-build/config.h \
+ ../sysdeps/generic/symbol-hacks.h
+/home/vraiti/ukl/ukl/glibc/rtld-build/libc-modules.h:
+../include/libc-symbols.h:
+/home/vraiti/ukl/ukl/glibc/rtld-build/config.h:
+../sysdeps/generic/symbol-hacks.h:

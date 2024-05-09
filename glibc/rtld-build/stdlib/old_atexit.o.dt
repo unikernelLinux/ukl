@@ -1,0 +1,9 @@
+/home/vraiti/ukl/ukl/glibc/rtld-build/stdlib/old_atexit.o: old_atexit.c \
+ /home/vraiti/ukl/ukl/glibc/rtld-build/libc-modules.h \
+ ../include/libc-symbols.h /home/vraiti/ukl/ukl/glibc/rtld-build/config.h \
+ ../sysdeps/generic/symbol-hacks.h ../include/shlib-compat.h
+/home/vraiti/ukl/ukl/glibc/rtld-build/libc-modules.h:
+../include/libc-symbols.h:
+/home/vraiti/ukl/ukl/glibc/rtld-build/config.h:
+../sysdeps/generic/symbol-hacks.h:
+../include/shlib-compat.h:

@@ -1,6 +1,6 @@
 [submodule "linux"]
 	path = linux
-	url = https://github.com/unikernelLinux/linux.git
+	url = git.github.com:unikernelLinux/linux.git
 	branch = ukl-dynamic
 	update = checkout
 [submodule "glibc/glibc"]

@@ -1,0 +1,1 @@
+shadow/getspent.os shadow/getspnam.os shadow/sgetspent.os shadow/fgetspent.os shadow/putspent.os shadow/getspent_r.os shadow/getspnam_r.os shadow/sgetspent_r.os shadow/fgetspent_r.os shadow/lckpwdf.os

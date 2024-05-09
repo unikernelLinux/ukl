@@ -1,0 +1,51 @@
+/home/vraiti/ukl/ukl/glibc/rtld-build/termios/cfmakeraw.o: cfmakeraw.c \
+ /home/vraiti/ukl/ukl/glibc/rtld-build/libc-modules.h \
+ ../include/libc-symbols.h /home/vraiti/ukl/ukl/glibc/rtld-build/config.h \
+ ../sysdeps/generic/symbol-hacks.h ../include/termios.h \
+ ../termios/termios.h ../include/features.h ../include/stdc-predef.h \
+ ../include/sys/cdefs.h ../misc/sys/cdefs.h \
+ ../sysdeps/x86/bits/wordsize.h \
+ ../sysdeps/ieee754/ldbl-96/bits/long-double.h ../include/gnu/stubs.h \
+ ../include/bits/types.h ../posix/bits/types.h \
+ ../sysdeps/unix/sysv/linux/x86/bits/timesize.h \
+ ../sysdeps/unix/sysv/linux/x86/bits/typesizes.h ../bits/time64.h \
+ ../sysdeps/unix/sysv/linux/bits/termios.h \
+ ../sysdeps/unix/sysv/linux/bits/termios-struct.h \
+ ../sysdeps/unix/sysv/linux/bits/termios-c_cc.h \
+ ../sysdeps/unix/sysv/linux/bits/termios-c_iflag.h \
+ ../sysdeps/unix/sysv/linux/bits/termios-c_oflag.h \
+ ../sysdeps/unix/sysv/linux/bits/termios-baud.h \
+ ../sysdeps/unix/sysv/linux/bits/termios-c_cflag.h \
+ ../sysdeps/unix/sysv/linux/bits/termios-c_lflag.h \
+ ../sysdeps/unix/sysv/linux/bits/termios-tcflow.h \
+ ../sysdeps/unix/sysv/linux/bits/termios-misc.h \
+ ../sysdeps/unix/sysv/linux/sys/ttydefaults.h
+/home/vraiti/ukl/ukl/glibc/rtld-build/libc-modules.h:
+../include/libc-symbols.h:
+/home/vraiti/ukl/ukl/glibc/rtld-build/config.h:
+../sysdeps/generic/symbol-hacks.h:
+../include/termios.h:
+../termios/termios.h:
+../include/features.h:
+../include/stdc-predef.h:
+../include/sys/cdefs.h:
+../misc/sys/cdefs.h:
+../sysdeps/x86/bits/wordsize.h:
+../sysdeps/ieee754/ldbl-96/bits/long-double.h:
+../include/gnu/stubs.h:
+../include/bits/types.h:
+../posix/bits/types.h:
+../sysdeps/unix/sysv/linux/x86/bits/timesize.h:
+../sysdeps/unix/sysv/linux/x86/bits/typesizes.h:
+../bits/time64.h:
+../sysdeps/unix/sysv/linux/bits/termios.h:
+../sysdeps/unix/sysv/linux/bits/termios-struct.h:
+../sysdeps/unix/sysv/linux/bits/termios-c_cc.h:
+../sysdeps/unix/sysv/linux/bits/termios-c_iflag.h:
+../sysdeps/unix/sysv/linux/bits/termios-c_oflag.h:
+../sysdeps/unix/sysv/linux/bits/termios-baud.h:
+../sysdeps/unix/sysv/linux/bits/termios-c_cflag.h:
+../sysdeps/unix/sysv/linux/bits/termios-c_lflag.h:
+../sysdeps/unix/sysv/linux/bits/termios-tcflow.h:
+../sysdeps/unix/sysv/linux/bits/termios-misc.h:
+../sysdeps/unix/sysv/linux/sys/ttydefaults.h:

@@ -1,0 +1,11 @@
+/home/vraiti/ukl/ukl/glibc/rtld-build/string/rtld-stpcpy-sse2-unaligned.os: \
+ ../sysdeps/x86_64/multiarch/stpcpy-sse2-unaligned.S \
+ /home/vraiti/ukl/ukl/glibc/rtld-build/libc-modules.h \
+ ../include/libc-symbols.h /home/vraiti/ukl/ukl/glibc/rtld-build/config.h \
+ ../sysdeps/generic/symbol-hacks.h \
+ ../sysdeps/x86_64/multiarch/strcpy-sse2-unaligned.S
+/home/vraiti/ukl/ukl/glibc/rtld-build/libc-modules.h:
+../include/libc-symbols.h:
+/home/vraiti/ukl/ukl/glibc/rtld-build/config.h:
+../sysdeps/generic/symbol-hacks.h:
+../sysdeps/x86_64/multiarch/strcpy-sse2-unaligned.S:

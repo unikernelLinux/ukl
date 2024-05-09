@@ -1,0 +1,27 @@
+/home/vraiti/ukl/ukl/glibc/rtld-build/stdlib/tens_in_limb.o: \
+ tens_in_limb.c /home/vraiti/ukl/ukl/glibc/rtld-build/libc-modules.h \
+ ../include/libc-symbols.h /home/vraiti/ukl/ukl/glibc/rtld-build/config.h \
+ ../sysdeps/generic/symbol-hacks.h ../include/gmp.h \
+ ../sysdeps/generic/gmp-mparam.h ../sysdeps/x86/bits/wordsize.h \
+ ../stdlib/gmp.h ../include/features.h ../include/stdc-predef.h \
+ ../include/sys/cdefs.h ../misc/sys/cdefs.h \
+ ../sysdeps/ieee754/ldbl-96/bits/long-double.h ../include/gnu/stubs.h \
+ /usr/lib/gcc/x86_64-linux-gnu/12/include/stddef.h \
+ ../sysdeps/x86/bits/floatn.h ../bits/floatn-common.h
+/home/vraiti/ukl/ukl/glibc/rtld-build/libc-modules.h:
+../include/libc-symbols.h:
+/home/vraiti/ukl/ukl/glibc/rtld-build/config.h:
+../sysdeps/generic/symbol-hacks.h:
+../include/gmp.h:
+../sysdeps/generic/gmp-mparam.h:
+../sysdeps/x86/bits/wordsize.h:
+../stdlib/gmp.h:
+../include/features.h:
+../include/stdc-predef.h:
+../include/sys/cdefs.h:
+../misc/sys/cdefs.h:
+../sysdeps/ieee754/ldbl-96/bits/long-double.h:
+../include/gnu/stubs.h:
+/usr/lib/gcc/x86_64-linux-gnu/12/include/stddef.h:
+../sysdeps/x86/bits/floatn.h:
+../bits/floatn-common.h:

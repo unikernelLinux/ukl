@@ -1,0 +1,25 @@
+# preconfigure fragment for powerpc.
+
+case "$machine" in
+powerpc64le)
+  base_machine=powerpc machine=powerpc/powerpc64/le
+  ;;
+powerpc64*)
+  base_machine=powerpc machine=powerpc/powerpc64/be
+  ;;
+powerpc*)
+  base_machine=powerpc machine=powerpc/powerpc32
+  with_fp_cond="!defined __NO_FPRS__"
+  case "$host_os" in
+    *gnuspe*)
+      # SPE support was dropped in glibc 2.30.
+      # We can't use AC_MSG_ERROR here.
+      # The parent script is in the middle of printing the
+      # "checking for sysdeps preconfigure fragments" line.
+      echo >&2
+      echo "Host system type $host is no longer supported." >&2
+      exit 1
+    ;;
+  esac
+  ;;
+esac

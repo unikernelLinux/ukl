@@ -1,0 +1,54 @@
+/home/vraiti/ukl/ukl/glibc/rtld-build/wctype/towctrans_l.os: \
+ towctrans_l.c /home/vraiti/ukl/ukl/glibc/rtld-build/libc-modules.h \
+ ../include/libc-symbols.h /home/vraiti/ukl/ukl/glibc/rtld-build/config.h \
+ ../sysdeps/generic/symbol-hacks.h ../include/wctype.h ../wctype/wctype.h \
+ ../include/features.h ../include/stdc-predef.h ../include/sys/cdefs.h \
+ ../misc/sys/cdefs.h ../sysdeps/x86/bits/wordsize.h \
+ ../sysdeps/ieee754/ldbl-96/bits/long-double.h ../include/gnu/stubs.h \
+ ../include/bits/types.h ../posix/bits/types.h \
+ ../sysdeps/unix/sysv/linux/x86/bits/timesize.h \
+ ../sysdeps/unix/sysv/linux/x86/bits/typesizes.h ../bits/time64.h \
+ ../include/bits/types/wint_t.h ../wcsmbs/bits/types/wint_t.h \
+ ../include/bits/wctype-wchar.h ../wctype/bits/wctype-wchar.h \
+ ../include/bits/endian.h ../string/bits/endian.h \
+ ../sysdeps/x86/bits/endianness.h ../include/bits/types/locale_t.h \
+ ../locale/bits/types/locale_t.h ../include/bits/types/__locale_t.h \
+ ../locale/bits/types/__locale_t.h wchar-lookup.h ../include/stdint.h \
+ ../stdlib/stdint.h ../bits/libc-header-start.h ../bits/wchar.h \
+ ../bits/stdint-intn.h ../bits/stdint-uintn.h
+/home/vraiti/ukl/ukl/glibc/rtld-build/libc-modules.h:
+../include/libc-symbols.h:
+/home/vraiti/ukl/ukl/glibc/rtld-build/config.h:
+../sysdeps/generic/symbol-hacks.h:
+../include/wctype.h:
+../wctype/wctype.h:
+../include/features.h:
+../include/stdc-predef.h:
+../include/sys/cdefs.h:
+../misc/sys/cdefs.h:
+../sysdeps/x86/bits/wordsize.h:
+../sysdeps/ieee754/ldbl-96/bits/long-double.h:
+../include/gnu/stubs.h:
+../include/bits/types.h:
+../posix/bits/types.h:
+../sysdeps/unix/sysv/linux/x86/bits/timesize.h:
+../sysdeps/unix/sysv/linux/x86/bits/typesizes.h:
+../bits/time64.h:
+../include/bits/types/wint_t.h:
+../wcsmbs/bits/types/wint_t.h:
+../include/bits/wctype-wchar.h:
+../wctype/bits/wctype-wchar.h:
+../include/bits/endian.h:
+../string/bits/endian.h:
+../sysdeps/x86/bits/endianness.h:
+../include/bits/types/locale_t.h:
+../locale/bits/types/locale_t.h:
+../include/bits/types/__locale_t.h:
+../locale/bits/types/__locale_t.h:
+wchar-lookup.h:
+../include/stdint.h:
+../stdlib/stdint.h:
+../bits/libc-header-start.h:
+../bits/wchar.h:
+../bits/stdint-intn.h:
+../bits/stdint-uintn.h:

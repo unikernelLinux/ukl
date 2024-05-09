@@ -1,0 +1,1 @@
+resource/getrlimit.os resource/setrlimit.os resource/getrlimit64.os resource/setrlimit64.os resource/getrusage.os resource/ulimit.os resource/vlimit.os resource/vtimes.os resource/getpriority.os resource/setpriority.os resource/nice.os

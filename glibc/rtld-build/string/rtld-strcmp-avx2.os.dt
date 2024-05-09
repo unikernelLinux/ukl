@@ -1,0 +1,9 @@
+/home/vraiti/ukl/ukl/glibc/rtld-build/string/rtld-strcmp-avx2.os: \
+ ../sysdeps/x86_64/multiarch/strcmp-avx2.S \
+ /home/vraiti/ukl/ukl/glibc/rtld-build/libc-modules.h \
+ ../include/libc-symbols.h /home/vraiti/ukl/ukl/glibc/rtld-build/config.h \
+ ../sysdeps/generic/symbol-hacks.h
+/home/vraiti/ukl/ukl/glibc/rtld-build/libc-modules.h:
+../include/libc-symbols.h:
+/home/vraiti/ukl/ukl/glibc/rtld-build/config.h:
+../sysdeps/generic/symbol-hacks.h:
