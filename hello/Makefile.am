@@ -24,11 +24,10 @@ AM_CFLAGS   = -ggdb -mno-red-zone
 
 UKL: hello-world.o undefined_sys_hack.o
 	gcc -o $@  \
-	    $< \
-	    -L.. \
-	    -lc -lm -lpthread -lrt \
-	    -Wl,--rpath=/data \
-	    -Wl,--dynamic-linker=/data/ld-linux-x86-64.so.2
+	    -Wl,--rpath=/data -L.. \
+	    -Wl,--dynamic-linker=/data/ld-linux-x86-64.so.2 \
+	    hello-world.o undefined_sys_hack.o \
+	    -lc
 
 
 undefined_sys_hack.c: $(top_builddir)/undefined_sys_hack.c

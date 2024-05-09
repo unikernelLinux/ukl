@@ -8,6 +8,8 @@ stamp
 Makefile
 Makefile.in
 ukl-initrd.cpio.xz
+cscope*
+
 
 /aclocal.m4
 /autom4te.cache/
