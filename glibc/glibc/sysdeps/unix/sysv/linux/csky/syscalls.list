@@ -1,2 +1,0 @@
-# File name	Caller	Syscall name	Args	Strong name	Weak names
-cacheflush	-	cacheflush	i:pii	_flush_cache	cacheflush

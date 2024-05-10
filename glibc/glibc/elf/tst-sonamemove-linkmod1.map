@@ -1,3 +1,0 @@
-SONAME_MOVE {
-  global: moved_function;
-};

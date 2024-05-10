@@ -1,1 +1,0 @@
-cp $B/elf/tst-ldconfig-ld-mod.so $L/tst-ldconfig-ld-mod.so

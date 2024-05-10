@@ -1,2 +1,0 @@
-libc_add_on_canonical=libpthread
-libc_add_on_subdirs=.

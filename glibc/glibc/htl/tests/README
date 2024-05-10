@@ -1,6 +1,0 @@
-Testing of installed package:
-
-    $ [libpthread]/configure --prefix=[install_root]
-    $ make
-    $ make install
-    $ make -C [libpthread]/tests/ INSTALL_ROOT=[install_root] clean check
