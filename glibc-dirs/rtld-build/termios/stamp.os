@@ -1,1 +1,0 @@
-termios/speed.os termios/cfsetspeed.os termios/tcsetattr.os termios/tcgetattr.os termios/tcgetpgrp.os termios/tcsetpgrp.os termios/tcdrain.os termios/tcflow.os termios/tcflush.os termios/tcsendbrk.os termios/cfmakeraw.os termios/tcgetsid.os

@@ -1,9 +1,0 @@
-/home/vraiti/ukl/ukl/glibc/rtld-build/stdlib/mp_clz_tab.o: \
- ../sysdeps/x86_64/mp_clz_tab.c \
- /home/vraiti/ukl/ukl/glibc/rtld-build/libc-modules.h \
- ../include/libc-symbols.h /home/vraiti/ukl/ukl/glibc/rtld-build/config.h \
- ../sysdeps/generic/symbol-hacks.h
-/home/vraiti/ukl/ukl/glibc/rtld-build/libc-modules.h:
-../include/libc-symbols.h:
-/home/vraiti/ukl/ukl/glibc/rtld-build/config.h:
-../sysdeps/generic/symbol-hacks.h:

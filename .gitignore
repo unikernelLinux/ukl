@@ -42,6 +42,7 @@ cscope*
 data
 linux-headers
 glibc-build
+**/*-build
 
 /lebench.ukl
 /new_lebench
