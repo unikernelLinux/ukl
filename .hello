@@ -1,3 +1,0 @@
-delete -y
-source .connect
-symbol-file data/UKL -o 0x555555554000
