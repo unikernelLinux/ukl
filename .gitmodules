@@ -9,3 +9,11 @@
 [submodule "dnsmasq/dnsmasq"]
 	path = dnsmasq/dnsmasq
 	url = https://github.com/rwmjones/dnsmasq
+[submodule "glibc/glibc"]
+	path = glibc/glibc
+	url = git@github.com:unikernelLinux/glibc.git
+	branch = ukl-dynamic
+[submodule "glibc/rtld"]
+	path = glibc/rtld
+	url = git@github.com:unikernelLinux/glibc.git
+	branch = ukl-rtld
