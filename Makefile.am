@@ -79,24 +79,70 @@ endif
 
 
 LIBC_OBJS = libc.so libpthread.so libm.so librt.so libcrypt.so \
-	    ld-linux-x86-64.so.2 libuklsyms.so 
+	    ld-linux-x86-64.so.2 entry-patch.o
 
-stamp-glibc:
-	$(MAKE) -C glibc glibc-objs
+entry-patch.o: entry-patch.c
+	gcc entry-patch.c -c -fPIC -nostdlib $(GLIBC_CFLAGS)
+
+glibc: FORCE
+	-rm $(LIBC_OBJS)
+	make $(LIBC_OBJS)
+
+libc.so: entry-patch.o stamp-glibc-configure
+	-cd glibc-build && $(MAKE)
+# XXX This fails in the iconv subdirectory, and there seems to be
+# no way to disable that feature.  So instead just continue past
+# the failure and hope if libc.a has not been created then the
+# build will fail on the next line.
+	cp glibc-build/$@ $@
+
+libpthread.so: libc.so
+	rm -f $@
+	cd glibc-build && $(MAKE) subdirs=nptl
+	cp glibc-build/nptl/libpthread.so $@
+
+libm.so: libpthread.so
+	rm -f $@
+	cd glibc-build && $(MAKE) subdirs=math
+	cp glibc-build/math/libm.so $@
+
+librt.so: libm.so
+	rm -f $@
+	cd glibc-build && $(MAKE) subdirs=rt
+	cp glibc-build/rt/librt.so $@
+
+libcrypt.so: libm.so
+	rm -f $@
+	cd glibc-build && $(MAKE) subdirs=crypt
+	cp glibc-build/crypt/libcrypt.so $@
+
+ld-linux-x86-64.so.2: libc.so
+	cp glibc-build/elf/$@ $@
+
+stamp-glibc-configure: stamp-linux-headers
 	touch $@
-
-$(LIBC_OBJS): stamp-glibc
-	cp glibc/$@ $@
+	mkdir -p glibc-build
+	cd glibc-build && \
+	$(abs_top_srcdir)/glibc/configure \
+	    CFLAGS="$(GLIBC_CFLAGS)"  \
+	    --prefix=$(abs_builddir) \
+	    --with-headers=$(abs_top_srcdir)/linux-headers \
+	    --enable-hacker-mode \
+	    --enable-timezone-tools \
+	    --disable-build-nscd \
+	    --disable-nscd \
+	    --disable-tunables \
+	    --disable-pt_chown \
+	    --disable-werror \
+	    x86_64-ukl \
+	    build_alias=x86_64-ukl \
+	    host_alias=x86_64-ukl \
+	    target_alias=x86_64-ukl 
 
 #----------------------------------------------------------------------
 # Build Linux kernel linked with UKL.a
 
 noinst_DATA += vmlinuz
-
-linux: FORCE
-	rm vmlinuz
-	rm linux/arch/x86/boot/bzImage
-	$(MAKE) vmlinuz
 
 vmlinuz: linux/arch/x86/boot/bzImage
 	cp $< $@
@@ -151,7 +197,7 @@ data.tar.gz: $(LIBC_OBJS)
 	ln data/libc.so data/libc.so.6
 	tar -czf data.tar.gz data
 	rm -r data
-	cp $@ initrd
+	cp $@ initrd	
 
 #----------------------------------------------------------------------
 # Build the initramfs
@@ -159,12 +205,10 @@ data.tar.gz: $(LIBC_OBJS)
 noinst_DATA += ukl-initrd.cpio.xz
 
 initrd: FORCE
-	./configure --with-program=$(PROGRAM)
-	-rm ukl-initrd.cpio.xz initrd/ukl-initrd.cpio.xz -f
+	-rm ukl-initrd.cpio.xz
 	$(MAKE) ukl-initrd.cpio.xz	
 
 ukl-initrd.cpio.xz: data.tar.gz
-	-rm $@ initrd/$@
 	$(MAKE) -C $(srcdir)/initrd $@
 	cp initrd/$@ $@
 
