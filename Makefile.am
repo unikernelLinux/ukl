@@ -79,16 +79,19 @@ endif
 
 
 LIBC_OBJS = libc.so libpthread.so libm.so librt.so libcrypt.so \
-	    ld-linux-x86-64.so.2 entry-patch.o
-
-entry-patch.o: entry-patch.c
-	gcc entry-patch.c -c -fPIC -nostdlib $(GLIBC_CFLAGS)
+	    ld-linux-x86-64.so.2 libuklsyms.so
 
 glibc: FORCE
 	-rm $(LIBC_OBJS)
 	make $(LIBC_OBJS)
 
-libc.so: entry-patch.o stamp-glibc-configure
+entry-patch.o: entry-patch.c
+	gcc -o $@ $< -fPIC -c
+
+libuklsyms.so: uklsyms-static.c entry-patch.o
+	gcc -o $@ -shared -fPIC $<
+
+libc.so: libuklsyms.so stamp-glibc-configure
 	-cd glibc-build && $(MAKE)
 # XXX This fails in the iconv subdirectory, and there seems to be
 # no way to disable that feature.  So instead just continue past
