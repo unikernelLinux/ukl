@@ -13,3 +13,4 @@
 	path = glibc
 	url = git@github.com:unikernelLinux/glibc.git
 	branch = ukl-rtld
+	update = checkout
