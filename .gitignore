@@ -12,8 +12,10 @@ UKL
 Makefile
 Makefile.in
 ukl-initrd.cpio.xz
-cscope*
+**/cscope*
 /*.gdb
+
+!ukl-getsyms/Makefile
 
 /aclocal.m4
 /autom4te.cache/

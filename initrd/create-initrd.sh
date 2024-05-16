@@ -3,7 +3,7 @@
 set -x
 
 docker pull fedora:36
-CONTAINER=init-builder
+CONTAINER=init-builder-$USER
 docker stop $CONTAINER
 docker rm -f $CONTAINER
 ABSINIT=`readlink -f .`

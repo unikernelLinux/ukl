@@ -11,7 +11,7 @@
 static long ukl_getsyms_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
     struct ioctl_data user_data;
-    int i, ret;
+    int i;
     void **defs;
 
     switch (cmd) {
