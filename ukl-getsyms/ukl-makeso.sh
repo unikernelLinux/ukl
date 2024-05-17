@@ -5,7 +5,7 @@
 EMPTY_OBJ=empty.o
 touch $EMPTY_OBJ
 
-CMD="ld -shared -o libukl-syms.so empty.o"
+CMD="ld -shared -o /data/libuklsyms.so empty.o"
 arg_count=0
 sym_name=""
 sym_def=""

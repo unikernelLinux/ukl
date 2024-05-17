@@ -14,6 +14,7 @@ docker exec -it $CONTAINER dnf -y install sed elfutils-libelf-devel bc hostname 
 	gdb
 docker exec -w /src/ -it $CONTAINER rm -rf ukl-initrd
 docker exec -w /src/ -it $CONTAINER ./set-passwd.sh
+make -C ../ukl-getsyms
 docker cp ../ukl-getsyms $CONTAINER:/
 docker exec -w /src/ -it $CONTAINER ./buildinitrd.sh ukl-initrd
 docker exec -w /src/ -it $CONTAINER rm -rf ukl-initrd
