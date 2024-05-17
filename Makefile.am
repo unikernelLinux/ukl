@@ -91,12 +91,6 @@ glibc: FORCE
 entry-patch.o: entry-patch.c
 	gcc -o $@ $< -fPIC -c
 
-<<<<<<< HEAD
-libuklsyms.so: uklsyms.py linux/vmlinux
-	ld -o $@ stamp-glibc-configure -shared `nm linux/vmlinux | python uklsyms.py`
-
-libc.so: libuklsyms.so stamp-glibc-configure entry-patch.o
-=======
 undefined_sys_hack.o: undefined_sys_hack.c
 	gcc -o $@ $< -fPIC -c
 
@@ -106,7 +100,6 @@ libuklsyms.so: uklsyms-Wl-opts.py linux/vmlinux
 	rm tmp
 
 libc.so: libuklsyms.so stamp-glibc-configure entry-patch.o undefined_sys_hack.o
->>>>>>> a549c84340ea705e619993ee99b7dbb2abe2ba8a
 	-cd glibc-build && $(MAKE)
 # XXX This fails in the iconv subdirectory, and there seems to be
 # no way to disable that feature.  So instead just continue past
