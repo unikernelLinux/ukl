@@ -1,9 +1,7 @@
 '''
-
 script to generate source for static libuklsyms.so
 
-run as nm linux/vmlinx | python uklsyms.py > uklsyms-static.c
-
+run as ld $(OBJS) `nm linux/vmlinx | python uklsyms.py`
 '''
 
 import sys
@@ -12,4 +10,6 @@ for line in sys.stdin:
     if ' ukl_' not in line:
         continue
     val, _, name = line.strip().split(' ')
-    print(f'-Wl,--defsym {name[4:]}=0x{val}',end=' ')
+    print(f'-Wl,--defsym {name[4:]}=0x0',end=' ')
+
+
