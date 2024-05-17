@@ -22,20 +22,16 @@ EXTRA_DIST = \
 	LICENSE \
 	README.md
 
-CLEANFILES = \
-	*~ *.o *.so  *.so.2 \
-	stamp-glibc-configure \
-	stamp-linux-headers \
-	ukl-initrd.cpio.xz \
-	data.tar.gz \
-	vmlinuz
-
 clean-all:
+	-rm *.o
+	-rm stamp-*
+	-rm *.tar.gz
 	-$(MAKE) glibc-clean
 	-$(MAKE) app-clean
 	-$(MAKE) kern-clean
 	-$(MAKE) initrd-clean
 	-find -name config.cache -delete
+	-$(MAKE) $(PROGRAM)-clean
 	$(MAKE) clean
 
 min-clean:
@@ -59,6 +55,9 @@ glibc-clean:
 	-rm -rf linux-headers
 	-rm stamp-glibc-configure
 	-rm stamp-linux-headers
+
+$(PROGRAM)-clean:
+	cd $(PROGRAM) && $(MAKE) clean
 
 DIST_SUBDIRS = dnsmasq hello memcached redis mpc-bench fio
 
@@ -92,10 +91,22 @@ glibc: FORCE
 entry-patch.o: entry-patch.c
 	gcc -o $@ $< -fPIC -c
 
+<<<<<<< HEAD
 libuklsyms.so: uklsyms.py linux/vmlinux
 	ld -o $@ stamp-glibc-configure -shared `nm linux/vmlinux | python uklsyms.py`
 
 libc.so: libuklsyms.so stamp-glibc-configure entry-patch.o
+=======
+undefined_sys_hack.o: undefined_sys_hack.c
+	gcc -o $@ $< -fPIC -c
+
+libuklsyms.so: uklsyms-Wl-opts.py linux/vmlinux
+	touch tmp
+	gcc tmp -o $@ -shared `nm linux/vmlinux | python uklsyms-Wl-opts.py`
+	rm tmp
+
+libc.so: libuklsyms.so stamp-glibc-configure entry-patch.o undefined_sys_hack.o
+>>>>>>> a549c84340ea705e619993ee99b7dbb2abe2ba8a
 	-cd glibc-build && $(MAKE)
 # XXX This fails in the iconv subdirectory, and there seems to be
 # no way to disable that feature.  So instead just continue past
@@ -158,8 +169,7 @@ linux/vmlinux: linux/arch/x86/boot/bzImage
 
 linux/arch/x86/boot/bzImage: linux/.config
 	$(MAKE) -C $(srcdir)/linux olddefconfig O=$(abs_builddir)/linux
-	$(MAKE) -C $(srcdir)/linux WERROR=0 O=$(abs_builddir)/linux
-	$(MAKE) -C $(srcdir)/linux scripts_gdb
+	-$(MAKE) -C $(srcdir)/linux WERROR=0 O=$(abs_builddir)/linux
 
 linux/.config: saveconfig
 	rm -f $@
@@ -167,10 +177,6 @@ linux/.config: saveconfig
 	echo CONFIG_UNIKERNEL_LINUX=y >> $@
 	echo CONFIG_UKL_TLS=y >> $@
 	echo CONFIG_UKL_NAME=$(TRIGGER) >> $@
-# enable lx-symbol python scripts in gdb
-	echo CONFIG_GDB_SCRIPTS=y >> $@
-	echo CONFIG_KGDB=y >> $@
-	echo CONFIG_FRAME_POINTER=y >> $@
 if ENABLE_SAME_STACK
 	echo CONFIG_UKL_SAME_STACK=y >> $@
 endif
@@ -197,10 +203,12 @@ stamp-linux-headers: linux/.config
 
 export LIBC_OBJS
 
-data.tar.gz: $(LIBC_OBJS)
+$(PROGRAM)/UKL: $(LIBC_OBJS)
+	cd $(PROGRAM) && $(MAKE) UKL
+
+data.tar.gz: $(LIBC_OBJS) $(PROGRAM)/UKL
 	-mkdir data
-	-rm -r data/*
-	cd $(PROGRAM) && make UKL	
+	-rm -r data/*	
 	cp $(LIBC_OBJS) data
 	cp $(PROGRAM)/UKL data
 	ln data/libc.so data/libc.so.6
@@ -214,7 +222,7 @@ data.tar.gz: $(LIBC_OBJS)
 noinst_DATA += ukl-initrd.cpio.xz
 
 initrd: FORCE
-	-rm ukl-initrd.cpio.xz
+	-rm -f ukl-initrd.cpio.xz initrd/ukl-initrd.cpio.xz
 	$(MAKE) ukl-initrd.cpio.xz	
 
 ukl-initrd.cpio.xz: data.tar.gz

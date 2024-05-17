@@ -16,25 +16,16 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-CLEANFILES = *~ *.o *.a *.so undefined_sys_hack.c
+CLEANFILES = UKL
 
 noinst_DATA = UKL
 
-AM_CFLAGS   = -ggdb -mno-red-zone
-
-UKL: hello-world.o undefined_sys_hack.o
+UKL: hello-world.c
 	gcc -o $@  \
-	    -Wl,--rpath=/data -L.. \
+	    -ggdb -mno-red-zone \
+	    -Wl,-rpath=/data -L$(abs_top_builddir) \
+	    -Wl,-rpath-link=$(abs_top_builddir) \
+	    -L$(abs_top_builddir) \
 	    -Wl,--dynamic-linker=/data/ld-linux-x86-64.so.2 \
-	    hello-world.o undefined_sys_hack.o \
-	    -lc
-
-
-undefined_sys_hack.c: $(top_builddir)/undefined_sys_hack.c
-	cp $< $@
-
-# automake doesn't add this rule unless we were to specify a C program
-# to compile, which we don't want to do because of the very special
-# linking requirements.
-.c.o:
-	$(CC) $(CFLAGS) $(AM_CFLAGS) -c $< -o $@
+	    $< \
+	    -lc -luklsyms
