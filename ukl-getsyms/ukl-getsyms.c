@@ -10,11 +10,7 @@
 
 static long ukl_getsyms_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
-<<<<<<< HEAD
     struct ioctl_data uData;
-=======
-    struct ioctl_data user_data;
->>>>>>> a549c84340ea705e619993ee99b7dbb2abe2ba8a
     int i;
     void **defs;
 
