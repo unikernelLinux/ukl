@@ -37,6 +37,7 @@ cat /proc/cmdline >> /log
 echo "Running Setup scripts" >> /log
 ./perf/disable_ht.sh >> /log
 ./perf/turbo-boost.sh disable >> /log
+( cd /ukl-getsyms && ./test.sh )
 echo "Done" >> /log
 
 /usr/sbin/ip address

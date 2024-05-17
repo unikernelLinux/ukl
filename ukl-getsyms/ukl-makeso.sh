@@ -2,20 +2,22 @@
 
 # this makes libukl-syms.so from a set of symbol names and
 # corresponding absolute addresses -Ross Mikulskis
-EMPTY_OBJ=empty.o
-touch $EMPTY_OBJ
 
-CMD="ld -shared -o /data/libuklsyms.so empty.o"
+CMD="ld -shared -o /data/libuklsyms.so libuklsyms.so"
 arg_count=0
 sym_name=""
 sym_def=""
 
-for arg in $(./initlib $(cat ukl-syms.txt)); do
+UKL_SYMS=$(nm libuklsyms.so | grep ' A ' | awk '{print "ukl_" $3 "\n" $3}')
+
+for arg in $(./initlib $UKL_SYMS); do
     if ((arg_count % 2 == 0)); then
         sym_name=$arg
     else
 	sym_def=$arg
-        CMD+=" --defsym=$sym_name=$sym_def"
+	if ((sym_def != 0)); then
+           CMD+=" --defsym=$sym_name=$sym_def"
+	fi
     fi
     ((arg_count++))
 done

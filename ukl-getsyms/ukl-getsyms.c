@@ -27,10 +27,11 @@ static long ukl_getsyms_ioctl(struct file *file, unsigned int cmd, unsigned long
 	      printk(KERN_INFO "Looking up symbol %i: %s\n", i + 1, uData.symNames[i]);
                 defs[i] = (void *)kallsyms_lookup_name(uData.symNames[i]);
 		printk(KERN_INFO "Got: %p\n", defs[i]);
-                if (!defs[i]) {
-                    kfree(defs);
-                    return -EINVAL;
-                }
+		/* comment this out since if not defined, we just return NULL */
+                /* if (!defs[i]) { */
+                    /* kfree(defs); */
+                    /* return -EINVAL; */
+                /* } */
             }
             if (copy_to_user(uData.symDefs, defs, uData.numSymbols * sizeof (void*))) {
                 kfree(defs);
