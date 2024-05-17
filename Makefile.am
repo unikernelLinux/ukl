@@ -81,6 +81,10 @@ endif
 LIBC_OBJS = libc.so libpthread.so libm.so librt.so libcrypt.so \
 	    ld-linux-x86-64.so.2 libuklsyms.so
 
+glibc-tst:
+	make glibc-clean
+	$(MAKE) 2>&1 | tee $(shell $d)/glibc.make
+
 glibc: FORCE
 	-rm $(LIBC_OBJS)
 	make $(LIBC_OBJS)
@@ -88,10 +92,10 @@ glibc: FORCE
 entry-patch.o: entry-patch.c
 	gcc -o $@ $< -fPIC -c
 
-libuklsyms.so: uklsyms-static.c entry-patch.o
-	gcc -o $@ -shared -fPIC $<
+libuklsyms.so: uklsyms.py linux/vmlinux
+	ld -o $@ stamp-glibc-configure -shared `nm linux/vmlinux | python uklsyms.py`
 
-libc.so: libuklsyms.so stamp-glibc-configure
+libc.so: libuklsyms.so stamp-glibc-configure entry-patch.o
 	-cd glibc-build && $(MAKE)
 # XXX This fails in the iconv subdirectory, and there seems to be
 # no way to disable that feature.  So instead just continue past
@@ -150,6 +154,8 @@ noinst_DATA += vmlinuz
 vmlinuz: linux/arch/x86/boot/bzImage
 	cp $< $@
 
+linux/vmlinux: linux/arch/x86/boot/bzImage
+
 linux/arch/x86/boot/bzImage: linux/.config
 	$(MAKE) -C $(srcdir)/linux olddefconfig O=$(abs_builddir)/linux
 	$(MAKE) -C $(srcdir)/linux WERROR=0 O=$(abs_builddir)/linux
@@ -159,7 +165,7 @@ linux/.config: saveconfig
 	rm -f $@
 	cp $(srcdir)/saveconfig $@
 	echo CONFIG_UNIKERNEL_LINUX=y >> $@
-	echo # CONFIG_UKL_TLS=y >> $@
+	echo CONFIG_UKL_TLS=y >> $@
 	echo CONFIG_UKL_NAME=$(TRIGGER) >> $@
 # enable lx-symbol python scripts in gdb
 	echo CONFIG_GDB_SCRIPTS=y >> $@
@@ -225,7 +231,7 @@ boot:
 	    -kernel vmlinuz \
 	    -initrd ./ukl-initrd.cpio.xz \
 	    -nodefaults -nographic -serial stdio \
-	    -append "console=ttyS0 net.ifnames=0 biosdevname=0 nowatchdog clearcpuid=smap,smep mitigations=off mds=off ip=192.168.122.128:::255.255.255.0::eth0:none" \
+	    -append "console=ttyS0 net.ifnames=0 biosdevname=0 nowatchdog clearcpuid=smap,smep mitigations=off mds=off ip=192.168.122.128:::255.255.255.0::eth0:none init=/bin/bash" \
 	    -net user
 
 # Privileged (probably required if the kernel is expecting incoming

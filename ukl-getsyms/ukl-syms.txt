@@ -1,0 +1,3 @@
+entry_SYSCALL_64
+ksys_write
+ksys_read
