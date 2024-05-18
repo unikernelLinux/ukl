@@ -49,4 +49,5 @@ echo "Done" >> /log
 sleep 5
 # Start UKL process
 echo -n 0 > /proc/sys/kernel/randomize_va_space
-@TRIGGER@
+nm /data/libuklsyms.so
+# LD_DEBUG=all @TRIGGER@

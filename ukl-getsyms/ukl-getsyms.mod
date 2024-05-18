@@ -1,1 +1,1 @@
-/home/rkulskis/ukl/ukl-getsyms/ukl-getsyms.o
+/home/vraiti/ukl/ukl/ukl-getsyms/ukl-getsyms.o

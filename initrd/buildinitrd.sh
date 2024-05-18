@@ -26,7 +26,6 @@ printf "Creating initramfs structure ... "
 binfiles="cat ls mkdir mknod mount bash top ld touch nm awk"
 binfiles="$binfiles umount sed sleep ln rm uname grep"
 binfiles="$binfiles readlink basename chmod ps"
-binfiles="$binfiles gdb"
 
 sbinfiles="halt dropbear ip rdmsr wrmsr lspci netstat insmod rmmod lsmod"
 
