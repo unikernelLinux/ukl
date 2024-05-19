@@ -16,6 +16,7 @@ static long ukl_getsyms_ioctl(struct file *file, unsigned int cmd, unsigned long
     char sym_name[128] = "ukl_";
     char *usym_name;
 
+    printk(KERN_INFO "IOCTL ukl_getsyms\n");	
     switch (cmd) {
         case IOCTL_GET_SYMBOLS:
             if (copy_from_user(&uData, (struct ioctl_data *)arg, sizeof(struct ioctl_data)))
@@ -84,6 +85,6 @@ static void __exit ukl_getsyms_exit(void)
 module_init(ukl_getsyms_init);
 module_exit(ukl_getsyms_exit);
 
-MODULE_AUTHOR("Ross Mikulskis");
+MODULE_AUTHOR("Ross Mikulskis and Vance Raiti");
 MODULE_DESCRIPTION("Takes symbols via ioctl and copies to user their locations in memory.");
 MODULE_LICENSE("GPL");

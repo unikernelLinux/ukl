@@ -58,7 +58,6 @@ mknod -m 664 $WDIR/dev/loop1   b 7 1
 mkdir -m 755 $WDIR/dev/pts
 mknod -m 600 $WDIR/dev/pts/0   c 136 0
 mknod -m 000 $WDIR/dev/pts/ptmx c 5 2
-mknod -m 640 $WDIR/dev/ukl-getsyms c 153 1
 
 # Install the init file
 install -m0755 $INITIN $WDIR/init
@@ -93,7 +92,6 @@ done
 mkdir -p $WDIR/usr/share
 
 cp -r /usr/share/terminfo $WDIR/usr/share
-cp -r /ukl-getsyms $WDIR/ukl-getsyms
 
 conf="bashrc bash_completion.d group hosts passwd profile"
 conf="$conf shells shadow sysconfig"

@@ -13,6 +13,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    printf ("running initlib...\n");
     int fd = open("/dev/ukl-getsyms", O_RDWR);
     if (fd < 0) {
         perror("Failed to open device");

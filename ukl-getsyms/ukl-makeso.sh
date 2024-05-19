@@ -1,9 +1,9 @@
 #!/bin/bash
-set -x
 
 # this makes libukl-syms.so from a set of symbol names and
 # corresponding absolute addresses -Ross Mikulskis
 
+echo "called ukl-makeso.sh"
 insmod /data/ukl-getsyms.ko
 mknod /dev/ukl-getsyms c 248 1
 

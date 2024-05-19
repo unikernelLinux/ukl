@@ -1,1 +1,1 @@
-savedcmd_/home/vraiti/ukl/ukl/ukl-getsyms/ukl-getsyms.mod := printf '%s\n'   ukl-getsyms.o | awk '!x[$$0]++ { print("/home/vraiti/ukl/ukl/ukl-getsyms/"$$0) }' > /home/vraiti/ukl/ukl/ukl-getsyms/ukl-getsyms.mod
+savedcmd_/home/rkulskis/ukl/ukl-getsyms/ukl-getsyms.mod := printf '%s\n'   ukl-getsyms.o | awk '!x[$$0]++ { print("/home/rkulskis/ukl/ukl-getsyms/"$$0) }' > /home/rkulskis/ukl/ukl-getsyms/ukl-getsyms.mod
