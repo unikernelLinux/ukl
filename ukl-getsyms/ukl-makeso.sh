@@ -1,14 +1,18 @@
 #!/bin/bash
+set -x
 
 # this makes libukl-syms.so from a set of symbol names and
 # corresponding absolute addresses -Ross Mikulskis
 
-CMD="ld -shared -o /data/libuklsyms.so libuklsyms.so"
+insmod /data/ukl-getsyms.ko
+mknod /dev/ukl-getsyms c 248 1
+
+CMD="ld /data/empty.o -shared -o /data/libuklsyms.so"
 arg_count=0
 sym_name=""
 sym_def=""
 
-UKL_SYMS=$(nm libuklsyms.so | grep ' A ' | awk '{print "ukl_" $3 "\n" $3}')
+UKL_SYMS=$(nm /data/libuklsyms.so | grep ' A ' | awk '{print $3}')
 
 for arg in $(./initlib $UKL_SYMS); do
     if ((arg_count % 2 == 0)); then
@@ -23,5 +27,3 @@ for arg in $(./initlib $UKL_SYMS); do
 done
 
 eval "$CMD"
-
-rm $EMPTY_OBJ

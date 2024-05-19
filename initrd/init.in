@@ -37,7 +37,6 @@ cat /proc/cmdline >> /log
 echo "Running Setup scripts" >> /log
 ./perf/disable_ht.sh >> /log
 ./perf/turbo-boost.sh disable >> /log
-( cd /ukl-getsyms && ./test.sh )
 echo "Done" >> /log
 
 /usr/sbin/ip address
@@ -49,5 +48,6 @@ echo "Done" >> /log
 sleep 5
 # Start UKL process
 echo -n 0 > /proc/sys/kernel/randomize_va_space
+# /data/ukl-makeso.sh
 nm /data/libuklsyms.so
-# LD_DEBUG=all @TRIGGER@
+LD_DEBUG=all @TRIGGER@

@@ -155,6 +155,10 @@ stamp-glibc-configure: stamp-linux-headers
 
 noinst_DATA += vmlinuz
 
+linux: FORCE
+	-rm vmlinuz linux/arch/x86/boot/bzImage
+	$(MAKE) vmlinuz
+
 vmlinuz: linux/arch/x86/boot/bzImage
 	cp $< $@
 
@@ -199,11 +203,23 @@ export LIBC_OBJS
 $(PROGRAM)/UKL: $(LIBC_OBJS)
 	cd $(PROGRAM) && $(MAKE) UKL
 
-data.tar.gz: $(LIBC_OBJS) $(PROGRAM)/UKL
+empty.o:
+	touch empty.c
+	gcc empty.c -c
+	rm empty.c
+
+ukl-getsyms/initlib:
+	cd ukl-getsyms && $(MAKE)
+
+data.tar.gz: $(LIBC_OBJS) $(PROGRAM)/UKL empty.o ukl-getsyms/initlib
 	-mkdir data
 	-rm -r data/*	
 	cp $(LIBC_OBJS) data
 	cp $(PROGRAM)/UKL data
+	cp ukl-getsyms/initlib data
+	cp ukl-getsyms/ukl-makeso.sh data
+	cp ukl-getsyms/ukl-getsyms.ko data
+	mv empty.o data
 	ln data/libc.so data/libc.so.6
 	tar -czf data.tar.gz data
 	rm -r data
@@ -213,6 +229,7 @@ data.tar.gz: $(LIBC_OBJS) $(PROGRAM)/UKL
 # Build the initramfs
 
 noinst_DATA += ukl-initrd.cpio.xz
+
 
 initrd: FORCE
 	-rm -f ukl-initrd.cpio.xz initrd/ukl-initrd.cpio.xz

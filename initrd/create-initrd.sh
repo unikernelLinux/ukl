@@ -13,9 +13,6 @@ docker exec -it $CONTAINER dnf -y install sed elfutils-libelf-devel bc hostname 
         msr-tools wget dnf-plugins-core bzip2 curl xz cpio shadow-utils procps-ng iproute pciutils net-tools kmod	
 docker exec -w /src/ -it $CONTAINER rm -rf ukl-initrd
 docker exec -w /src/ -it $CONTAINER ./set-passwd.sh
-make -C ../ukl-getsyms
-docker cp ../ukl-getsyms $CONTAINER:/
-docker cp ../libuklsyms.so $CONTAINER:/ukl-getsyms/
 docker exec -w /src/ -it $CONTAINER ./buildinitrd.sh ukl-initrd
 docker exec -w /src/ -it $CONTAINER rm -rf ukl-initrd
 docker stop $CONTAINER
