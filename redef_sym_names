@@ -35,3 +35,4 @@ ukl_ukl_worker_sleep ukl_worker_sleep
 ukl_init_event_workitem_queue init_event_workitem_queue
 ukl_ukl_tsc_log ukl_tsc_log
 ukl_in_redis in_redis
+ukl_init_upcall_handler init_upcall_handler
