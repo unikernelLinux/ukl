@@ -68,7 +68,7 @@ FORCE:
 
 noinst_DATA = $(LIBC_OBJS)
 
-GLIBC_CFLAGS = -g -O2 -mno-red-zone -fthread-jumps
+GLIBC_CFLAGS = -g -O2 -mno-red-zone -fthread-jumps -DUKL
 
 if ENABLE_BYPASS
 GLIBC_CFLAGS += -DUKL_BP
@@ -140,15 +140,7 @@ stamp-glibc-configure: stamp-linux-headers
 	    --with-headers=$(abs_top_srcdir)/linux-headers \
 	    --enable-hacker-mode \
 	    --enable-timezone-tools \
-	    --disable-build-nscd \
-	    --disable-nscd \
-	    --disable-tunables \
-	    --disable-pt_chown \
-	    --disable-werror \
-	    x86_64-ukl \
-	    build_alias=x86_64-ukl \
-	    host_alias=x86_64-ukl \
-	    target_alias=x86_64-ukl 
+	    --disable-werror
 
 #----------------------------------------------------------------------
 # Build Linux kernel linked with UKL.a
