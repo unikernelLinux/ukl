@@ -33,9 +33,6 @@ ukl-initrd.cpio.xz
 /memcached/stamp-memcached-dir
 /memcached/undefined_sys_hack.c
 /missing
-/redis/redis
-/redis/stamp-redis-dir
-/redis/undefined_sys_hack.c
 /stamp-gcc-prereq
 /stamp-glibc-configure
 /stamp-libgcc-build
