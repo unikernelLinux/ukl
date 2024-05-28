@@ -18,4 +18,3 @@
 	path = redis/redis
 	url = git@github.com:unikernelLinux/redis.git
 	branch = ukl-dynamic
-	update = checkout
