@@ -14,7 +14,3 @@
 	url = git@github.com:unikernelLinux/glibc.git
 	branch = ukl-rtld
 	update = checkout
-[submodule "redis/redis"]
-	path = redis/redis
-	url = git@github.com:unikernelLinux/redis.git
-	branch = ukl-dynamic
