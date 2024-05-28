@@ -55,6 +55,7 @@ glibc-clean:
 	-rm -rf linux-headers
 	-rm stamp-glibc-configure
 	-rm stamp-linux-headers
+	-rm -r tmp
 
 $(PROGRAM)-clean:
 	cd $(PROGRAM) && $(MAKE) clean
@@ -131,7 +132,6 @@ ld-linux-x86-64.so.2: libc.so
 	cp glibc-build/elf/$@ $@
 
 stamp-glibc-configure: stamp-linux-headers
-	touch $@
 	mkdir -p glibc-build
 	cd glibc-build && \
 	$(abs_top_srcdir)/glibc/configure \
@@ -149,6 +149,7 @@ stamp-glibc-configure: stamp-linux-headers
 	    build_alias=x86_64-ukl \
 	    host_alias=x86_64-ukl \
 	    target_alias=x86_64-ukl 
+	touch $@
 
 #----------------------------------------------------------------------
 # Build Linux kernel linked with UKL.a
@@ -188,7 +189,7 @@ if ENABLE_SHORTCUT
 endif
 
 stamp-linux-headers: linux/.config
-	-rm -rf linux-headers
+	-rm -rf linux-headers tmp
 	cd linux && make headers_install INSTALL_HDR_PATH=$(abs_top_srcdir)/tmp
 	mv tmp/include linux-headers
 	rm -r tmp
