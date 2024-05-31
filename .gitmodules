@@ -12,4 +12,5 @@
 [submodule "glibc"]
 	path = glibc
 	url = git@github.com:unikernelLinux/glibc.git
-	branch = ukl-dynamic
+	branch = ukl-rtld
+	update = checkout
