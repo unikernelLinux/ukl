@@ -9,3 +9,8 @@
 [submodule "dnsmasq/dnsmasq"]
 	path = dnsmasq/dnsmasq
 	url = https://github.com/rwmjones/dnsmasq
+[submodule "glibc"]
+	path = glibc
+	url = git@github.com:unikernelLinux/glibc-1.git
+	branch = master
+	update = checkout
