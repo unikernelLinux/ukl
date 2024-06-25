@@ -33,6 +33,8 @@ ukl-initrd.cpio.xz
 /stamp-h1
 /vmlinuz
 /initrd/init
+/initrd/perf
+/initrd/predis-server
 /initrd/data.tar.gz
 
 /lebench.ukl
