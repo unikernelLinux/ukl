@@ -13,12 +13,9 @@
 	path = glibc
 	url = git@github.com:unikernelLinux/glibc.git
 	branch = ukl-rtld
-<<<<<<< HEAD
-=======
 	update = checkout
 [submodule "redis"]
 	path = redis/redis
 	url = git@github.com:unikernelLinux/redis.git
 	branch = ukl-dynamic
 	update = checkout
->>>>>>> 95c56e86 (glibc 2.31 compiles with UKL. init fails for redis but not for hello.)
