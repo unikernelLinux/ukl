@@ -45,7 +45,7 @@ echo "Done" >> /log
 /usr/sbin/dropbear -E -R -p 22
 
 
-sleep 5
+# sleep 5
 # Start UKL process
 echo -n 0 > /proc/sys/kernel/randomize_va_space
 ls -lt /data
@@ -53,5 +53,5 @@ ls -lt /data
 
 nm /data/libuklsyms.so
 
-sleep 5
+# sleep 5
 LD_DEBUG=all @TRIGGER@
