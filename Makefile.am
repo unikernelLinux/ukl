@@ -220,8 +220,11 @@ data.tar.gz: $(LIBC_OBJS) $(PROGRAM)/UKL empty.o ukl-getsyms/initlib
 	cp ukl-getsyms/initlib data
 	cp ukl-getsyms/ukl-makeso.sh data
 	cp ukl-getsyms/ukl-getsyms.ko data
+	cp undefined_sys_hack.o data
 	mv empty.o data
 	ln data/libc.so data/libc.so.6
+	ln data/libm.so data/libm.so.6
+	ln data/libpthread.so data/libpthread.so.0
 	tar -czf data.tar.gz data
 	rm -r data
 	cp $@ initrd	

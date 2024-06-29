@@ -27,3 +27,4 @@ clean-local:
 
 UKL: 
 	cd redis && $(MAKE) MALLOC=libc 
+	cd redis/src && cp redis-server ../../UKL 

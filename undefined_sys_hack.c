@@ -1,4 +1,16 @@
 extern int printf(const char *fmt, ...);
+int execve(){printf("function %s NYI\n","execve"); while(1);}
+int fchmod(){printf("function %s NYI\n","fchmod"); while(1);}
+int fstat64(){printf("function %s NYI\n","fstat64"); while(1);}
+int lstat64(){printf("function %s NYI\n","lstat64"); while(1);}
+int dlopen(){printf("function %s NYI\n","dlopen"); while(1);}
+int dlclose(){printf("function %s NYI\n","dlclose"); while(1);}
+int dlerror(){printf("function %s NYI\n","dlerror"); while(1);}
+int dlsym(){printf("function %s NYI\n","dlsym"); while(1);}
+int dladdr(){printf("function %s NYI\n","dladdr"); while(1);}
+int stat64(){printf("function %s NYI\n","stat64"); while(1);}
+int uname(){printf("function %s NYI\n","uname"); while(1);}
+int atexit(){printf("function %s NYI\n","atexit"); while(1);}
 int __dladdr(){printf("function %s NYI\n","__dladdr"); while(1);}
 int __dladdr1(){printf("function %s NYI\n","__dladdr1"); while(1);}
 int __dlclose(){printf("function %s NYI\n","__dlclose"); while(1);}
