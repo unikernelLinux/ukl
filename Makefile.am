@@ -78,7 +78,7 @@ GLIBC_CFLAGS += -UUKL_BP
 endif
 
 
-LIBC_OBJS = libc.so libpthread.so libm.so librt.so libcrypt.so \
+LIBC_OBJS = libc.so.6 lib_nonshared.a \
 	    ld-linux-x86-64.so.2 libuklsyms.so
 
 glibc-tst:
@@ -100,35 +100,14 @@ libuklsyms.so: uklsyms-Wl-opts.py linux/vmlinux
 	gcc tmp -o $@ -shared `nm linux/vmlinux | python uklsyms-Wl-opts.py`
 	rm tmp
 
-libc.so: libuklsyms.so stamp-glibc-configure entry-patch.o undefined_sys_hack.o
+libc.so.6: libuklsyms.so stamp-glibc-configure entry-patch.o undefined_sys_hack.o
 	-cd glibc-build && $(MAKE)
-# XXX This fails in the iconv subdirectory, and there seems to be
-# no way to disable that feature.  So instead just continue past
-# the failure and hope if libc.a has not been created then the
-# build will fail on the next line.
+	cp glibc-build/libc.so $@
+
+lib_nonshared.a: libc.so.6
 	cp glibc-build/$@ $@
 
-libpthread.so: libc.so
-	rm -f $@
-	cd glibc-build && $(MAKE) subdirs=nptl
-	cp glibc-build/nptl/libpthread.so $@
-
-libm.so: libpthread.so
-	rm -f $@
-	cd glibc-build && $(MAKE) subdirs=math
-	cp glibc-build/math/libm.so $@
-
-librt.so: libm.so
-	rm -f $@
-	cd glibc-build && $(MAKE) subdirs=rt
-	cp glibc-build/rt/librt.so $@
-
-libcrypt.so: libm.so
-	rm -f $@
-	cd glibc-build && $(MAKE) subdirs=crypt
-	cp glibc-build/crypt/libcrypt.so $@
-
-ld-linux-x86-64.so.2: libc.so
+ld-linux-x86-64.so.2: libc.so.6
 	cp glibc-build/elf/$@ $@
 
 stamp-glibc-configure: stamp-linux-headers
@@ -144,11 +123,7 @@ stamp-glibc-configure: stamp-linux-headers
 	    --disable-nscd \
 	    --disable-tunables \
 	    --disable-pt_chown \
-	    --disable-werror \
-	    x86_64-ukl \
-	    build_alias=x86_64-ukl \
-	    host_alias=x86_64-ukl \
-	    target_alias=x86_64-ukl 
+	    --disable-werror 
 	touch $@
 
 #----------------------------------------------------------------------

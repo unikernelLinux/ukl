@@ -33,7 +33,6 @@ static long ukl_getsyms_ioctl(struct file *file, unsigned int cmd, unsigned long
 		 * (e.g. ukl_entry_SYSCALL_64 instead of entry_SYSCALL_64)
 		 */
 		usym_name = uData.symNames[i];
-		printk(KERN_INFO "Looking up symbol %i: %s\n", i + 1, usym_name);	
 		
 		strcpy(sym_name,"ukl_");
 		strncat(sym_name,usym_name,124);
