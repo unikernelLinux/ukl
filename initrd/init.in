@@ -44,14 +44,14 @@ echo "Done" >> /log
 # Run sshd
 /usr/sbin/dropbear -E -R -p 22
 
-
-# sleep 5
+set -e
+sleep 5
 # Start UKL process
 echo -n 0 > /proc/sys/kernel/randomize_va_space
 ls -lt /data
 ( cd /data && ./ukl-makeso.sh )
 
 nm /data/libuklsyms.so
+export LD_LIBRARY_PATH=/data:$LD_LIBRARY_PATH
 
-# sleep 5
-LD_DEBUG=all @TRIGGER@
+LD_DEBUG=all @TRIGGER@ /data/myredis.conf

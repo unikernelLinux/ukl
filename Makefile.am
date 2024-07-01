@@ -77,7 +77,7 @@ GLIBC_CFLAGS += -UUKL_BP
 endif
 
 
-LIBC_OBJS = libc.so libpthread.so libm.so librt.so libcrypt.so \
+LIBC_OBJS = libc.so libpthread.so libm.so librt.so \
 	    ld-linux-x86-64.so.2 libuklsyms.so
 
 glibc-tst:
@@ -145,10 +145,8 @@ stamp-glibc-configure: stamp-linux-headers
 	    --disable-tunables \
 	    --disable-pt_chown \
 	    --disable-werror \
-	    x86_64-ukl \
-	    build_alias=x86_64-ukl \
-	    host_alias=x86_64-ukl \
-	    target_alias=x86_64-ukl 
+	    x86_64-linux-gnu
+	touch $@
 
 #----------------------------------------------------------------------
 # Build Linux kernel linked with UKL.a
@@ -216,6 +214,7 @@ data.tar.gz: $(LIBC_OBJS) $(PROGRAM)/UKL empty.o ukl-getsyms/initlib
 	-rm -r data/*	
 	cp $(LIBC_OBJS) data
 	cp $(PROGRAM)/UKL data
+	-cp redis/myredis.conf data
 	cp ukl-getsyms/initlib data
 	cp ukl-getsyms/ukl-makeso.sh data
 	cp ukl-getsyms/ukl-getsyms.ko data
