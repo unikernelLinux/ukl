@@ -45,8 +45,8 @@ echo "Done" >> /log
 
 sleep 5
 
-#Possibly start profiler
-@PROFILER@ &
+echo "UKL BOOTED"
+
 # Start UKL process
 @TRIGGER@
 
