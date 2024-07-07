@@ -22,43 +22,23 @@ EXTRA_DIST = \
 	LICENSE \
 	README.md
 
+
+CLEANFILES = \
+	*~ *.o *.a *.so *.so.[0-9] *.txt \
+	stamp-* \
+	vmlinuz \
+	data.tar.gz *.cpio.xz 
+
 clean-all:
-	-rm *.o
-	-rm stamp-*
-	-rm *.tar.gz
-	-$(MAKE) glibc-clean
-	-$(MAKE) app-clean
-	-$(MAKE) kern-clean
-	-$(MAKE) initrd-clean
+	-rm -rf linux-headers tmp
+	cd glibc-build && $(MAKE) clean
+	cd linux && $(MAKE) clean
+	-rm -rf initrd
+	cd initrd && $(MAKE) clean
+	cd $(PROGRAM) && $(MAKE) clean
 	-find -name config.cache -delete
-	-$(MAKE) $(PROGRAM)-clean
 	$(MAKE) clean
 
-min-clean:
-	-cd linux && $(MAKE) clean
-	-rm UKL
-	-cd $(PROGRAM) && $(MAKE) clean
-
-kern-clean:
-	-rm vmlinuz
-	-cd linux && $(MAKE) clean
-
-initrd-clean:
-	-rm -rf data.tar.gz
-	-rm $(PROGRAM)/UKL
-	-rm -f ukl-initrd.cpio.xz
-	cd initrd && $(MAKE) clean
-
-glibc-clean:
-	-rm -f $(LIBC_OBJS)
-	-rm -rf glibc-build
-	-rm -rf linux-headers
-	-rm stamp-glibc-configure
-	-rm stamp-linux-headers
-	-rm -r tmp
-
-$(PROGRAM)-clean:
-	cd $(PROGRAM) && $(MAKE) clean
 
 DIST_SUBDIRS = dnsmasq hello memcached redis mpc-bench fio
 
@@ -77,23 +57,15 @@ else
 GLIBC_CFLAGS += -UUKL_BP
 endif
 
-
 LIBC_OBJS = libc.so.6 libc_nonshared.a \
 	    ld-linux-x86-64.so.2 libuklsyms.so \
 	    libm.so.6
-
-glibc-tst:
-	make glibc-clean
-	$(MAKE) 2>&1 | tee $(shell $d)/glibc.make
 
 glibc: FORCE
 	-rm $(LIBC_OBJS)
 	make $(LIBC_OBJS)
 
 entry-patch.o: entry-patch.c
-	gcc -o $@ $< -fPIC -c
-
-undefined_sys_hack.o: undefined_sys_hack.c
 	gcc -o $@ $< -fPIC -c
 
 libuklsyms.so: uklsyms-Wl-opts.py linux/vmlinux
@@ -136,7 +108,7 @@ stamp-glibc-configure: stamp-linux-headers
 noinst_DATA += vmlinuz
 
 linux: FORCE
-	-rm vmlinuz linux/arch/x86/boot/bzImage
+	-rm vmlinuz
 	$(MAKE) vmlinuz
 
 vmlinuz: linux/arch/x86/boot/bzImage
@@ -174,15 +146,12 @@ stamp-linux-headers: linux/.config
 	rm -r tmp
 	touch $@
 
-
 #----------------------------------------------------------------------
 # Compile the program.
 
 export LIBC_OBJS
 
-# XXX This still uses the crt* files from the host system!
-# It appears that this doesn't cause any issues, but
-# we'd ideally want to pull everything from our build of glibc.
+# XXX This compiles with the crt* files of the host system
 $(PROGRAM)/UKL: $(LIBC_OBJS)
 	cd $(PROGRAM) && $(MAKE) UKL
 
@@ -199,8 +168,7 @@ data.tar.gz: $(LIBC_OBJS) libc.so $(PROGRAM)/UKL empty.o ukl-getsyms/initlib
 	-rm -r data/*	
 	cp $(LIBC_OBJS) data
 	cp libc.so data
-# XXX libm.so is supposed to be a linker script that includes
-# libmvec as needed
+# XXX libm.so is supposed to be a linker script that includes libmvec.so as-needed
 	ln -s data/libm.so.6 data/libm.so
 	cp $(PROGRAM)/UKL data
 	cp ukl-getsyms/initlib data
@@ -215,7 +183,6 @@ data.tar.gz: $(LIBC_OBJS) libc.so $(PROGRAM)/UKL empty.o ukl-getsyms/initlib
 # Build the initramfs
 
 noinst_DATA += ukl-initrd.cpio.xz
-
 
 initrd: FORCE
 	-rm -f ukl-initrd.cpio.xz initrd/ukl-initrd.cpio.xz

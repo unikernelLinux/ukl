@@ -4,6 +4,7 @@
 *.ukl
 *.so
 *.so.6
+*.txt
 
 ld-linux-x86-64.so.2
 /glibc/stamp-*
