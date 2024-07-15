@@ -265,7 +265,7 @@ boot: ukl-initrd.cpio.xz vmlinuz
 	    -kernel vmlinuz \
 	    -initrd ./ukl-initrd.cpio.xz \
 	    -nodefaults -nographic -serial stdio \
-	    -append "console=ttyS0 net.ifnames=0 biosdevname=0 nowatchdog clearcpuid=smap,smep mitigations=off mds=off ip=192.168.122.128:::255.255.255.0::eth0:none" \
+	    -append "console=ttyS0 net.ifnames=0 biosdevname=0 clearcpuid=smap,smep mitigations=off mds=off --" \
 	    -net user
 
 # Privileged (probably required if the kernel is expecting incoming
@@ -276,7 +276,7 @@ boot-priv: ukl-initrd.cpio.xz vmlinuz
 	    -kernel vmlinuz \
 	    -initrd ./ukl-initrd.cpio.xz \
 	    -nodefaults -nographic -serial stdio \
-	    -append "console=ttyS0 net.ifnames=0 biosdevname=0 nowatchdog clearcpuid=smap,smep mitigations=off mds=off ip=192.168.122.128:::255.255.255.0::eth0:none" \
+	    -append "console=ttyS0 net.ifnames=0 biosdevname=0 clearcpuid=smap,smep mitigations=off mds=off -- 192.168.122.128" \
 	    -net nic -net bridge,br=virbr0
 
 #----------------------------------------------------------------------

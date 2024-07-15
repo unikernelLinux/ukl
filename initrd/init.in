@@ -28,6 +28,24 @@ mount -t devpts devpts /dev/pts
 # Some things don't work properly without /etc/mtab.
 ln -sf /proc/mounts /etc/mtab
 
+# Configure the requested network interface by MAC($1) to use IP($2)
+if [ -n $1 ]; then
+	IP=$1
+	if [ -n $2 ]; then
+		MAC=$2
+		INF=`/usr/sbin/ip -o link | awk -F ': ' -vIGNORECASE=1 '!/link\/ieee802\.11/ && /'"$MAC"'/ { print $2 }'`
+	else
+		INF="eth0"
+	fi
+	read A B C D <<<"${IP//./ }"
+	/usr/sbin/ip address flush dev $INF
+	/usr/sbin/ip address add $IP/24 brd + dev $INF
+	/usr/sbin/ip link set $INF up
+	/usr/sbin/ip route add $A.$B.$C.1 dev $INF
+	/usr/sbin/ip route add default $A.$B.$C.1 dev $INF
+fi
+
+
 # Print cmdline
 echo "CMDLINE" >> /log
 cat /proc/cmdline >> /log

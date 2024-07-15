@@ -25,11 +25,11 @@ printf "Creating initramfs structure ... "
 
 cp ./perf /usr/sbin/
 
-binfiles="cat ls mkdir mknod mount bash top touch"
+binfiles="cat ls mkdir mknod mount bash top touch awk"
 binfiles="$binfiles umount sed sleep ln rm uname grep"
 binfiles="$binfiles readlink basename chmod ps pidof pgrep pkill"
 
-sbinfiles="halt dropbear ip rdmsr wrmsr lspci netstat"
+sbinfiles="halt dropbear ip rdmsr wrmsr lspci"
 
 unsorted=$(mktemp /tmp/unsorted.XXXXXXXXXX)
 
