@@ -31,14 +31,17 @@ CLEANFILES = \
 
 clean-all:
 	-rm -rf linux-headers tmp
-	cd glibc-build && $(MAKE) clean
+	rm -rf glibc-build/*
 	cd linux && $(MAKE) clean
-	-rm -rf initrd
 	cd initrd && $(MAKE) clean
 	cd $(PROGRAM) && $(MAKE) clean
 	-find -name config.cache -delete
 	$(MAKE) clean
 
+glibc-clean:
+	-rm stamp-glibc-configure
+	-rm $(LIBC_OBJS)
+	-rm -rfv glibc-build/*
 
 DIST_SUBDIRS = dnsmasq hello memcached redis mpc-bench fio
 
@@ -59,25 +62,30 @@ endif
 
 LIBC_OBJS = libc.so.6 libc_nonshared.a \
 	    ld-linux-x86-64.so.2 libuklsyms.so \
-	    libm.so.6
+	    libm.so.6 undefined_sys_hack.o
 
 glibc: FORCE
 	-rm $(LIBC_OBJS)
 	make $(LIBC_OBJS)
 
-entry-patch.o: entry-patch.c
-	gcc -o $@ $< -fPIC -c
+undefined_sys_hack.o: undefined_sys_hack.c
+	gcc -c undefined_sys_hack.c
 
-libuklsyms.so: uklsyms-Wl-opts.py linux/vmlinux
-	touch tmp
-	gcc tmp -o $@ -shared `nm linux/vmlinux | python uklsyms-Wl-opts.py`
-	rm tmp
+empty.o:
+	echo "" | gcc -x c - -c -o $@	
 
-libc.so.6: libuklsyms.so stamp-glibc-configure entry-patch.o undefined_sys_hack.o
+libuklsyms.so: empty.o linux/vmlinux uklsyms_syms_map
+	bash ld-uklsyms.sh
+
+# XXX this fails in the iconv subdirectory because there is no general rule
+# in the Makefiles to add libuklsyms.so to the linker's PATH, so just ignore
+# the error and assume that if we have the libc.so binary, it works
+libc.so.6: libuklsyms.so stamp-glibc-configure undefined_sys_hack.o
 	-cd glibc-build && $(MAKE)
 	cp glibc-build/libc.so $@
 
 libm.so.6: libc.so.6
+	cd glibc-build && $(MAKE) subdirs=math
 	cp glibc-build/math/libm.so $@
 
 libc_nonshared.a: libc.so.6
@@ -108,7 +116,7 @@ stamp-glibc-configure: stamp-linux-headers
 noinst_DATA += vmlinuz
 
 linux: FORCE
-	-rm vmlinuz
+	-rm vmlinuz linux/arch/x86/boot/bzImage
 	$(MAKE) vmlinuz
 
 vmlinuz: linux/arch/x86/boot/bzImage
@@ -155,17 +163,13 @@ export LIBC_OBJS
 $(PROGRAM)/UKL: $(LIBC_OBJS)
 	cd $(PROGRAM) && $(MAKE) UKL
 
-empty.o:
-	touch empty.c
-	gcc empty.c -c
-	rm empty.c
 
 ukl-getsyms/initlib: ukl-getsyms/ukl-getsyms.c ukl-getsyms/ukl-initlib.c
 	cd ukl-getsyms && $(MAKE)
 
 data.tar.gz: $(LIBC_OBJS) libc.so $(PROGRAM)/UKL empty.o ukl-getsyms/initlib
+	-rm -rf data
 	-mkdir data
-	-rm -r data/*	
 	cp $(LIBC_OBJS) data
 	cp libc.so data
 # XXX libm.so is supposed to be a linker script that includes libmvec.so as-needed
@@ -174,6 +178,7 @@ data.tar.gz: $(LIBC_OBJS) libc.so $(PROGRAM)/UKL empty.o ukl-getsyms/initlib
 	cp ukl-getsyms/initlib data
 	cp ukl-getsyms/ukl-makeso.sh data
 	cp ukl-getsyms/ukl-getsyms.ko data
+	cp uklsyms_syms_map data
 	cp empty.o data
 	cp $(PROGRAM)/data/* data
 	tar -czf data.tar.gz data
@@ -185,7 +190,7 @@ data.tar.gz: $(LIBC_OBJS) libc.so $(PROGRAM)/UKL empty.o ukl-getsyms/initlib
 noinst_DATA += ukl-initrd.cpio.xz
 
 initrd: FORCE
-	-rm -f ukl-initrd.cpio.xz initrd/ukl-initrd.cpio.xz
+	-rm -f ukl-initrd.cpio.xz initrd/ukl-initrd.cpio.xz data.tar.gz
 	$(MAKE) ukl-initrd.cpio.xz	
 
 ukl-initrd.cpio.xz: data.tar.gz
@@ -232,6 +237,17 @@ boot-gdb:
 	    -append "console=ttyS0 net.ifnames=0 biosdevname=0 nowatchdog clearcpuid=smap,smep mitigations=off mds=off ip=192.168.122.128:::255.255.255.0::eth0:none" \
 	    -net user \
 	    -s -S
+
+boot-gdb-priv:
+	sudo qemu-system-x86_64 \
+	    -cpu host,-smap,-smep -accel kvm -m 4G \
+	    -kernel vmlinuz \
+	    -initrd ./ukl-initrd.cpio.xz \
+	    -nodefaults -nographic -serial stdio \
+	    -append "console=ttyS0 net.ifnames=0 biosdevname=0 nowatchdog clearcpuid=smap,smep mitigations=off mds=off ip=192.168.122.128:::255.255.255.0::eth0:none" \
+	    -net nic -net bridge,br=virbr0 \
+	    -s -S
+
 
 #----------------------------------------------------------------------
 # Maintainers only!

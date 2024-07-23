@@ -19,11 +19,16 @@ for arg in $(./initlib $UKL_SYMS); do
         sym_name=$arg
     else
 	sym_def=$arg
-	if ((sym_def != 0)); then
-           CMD+=" --defsym=$sym_name=$sym_def"
+	if [ ! $sym_def == "(nil)" ]; then
+	    CMD+=" --defsym=$sym_name=$sym_def"
 	fi
     fi
     ((arg_count++))
 done
+
+while read -r line;
+do
+    CMD+=" --defsym=$line"
+done < /data/uklsyms_syms_map
 
 eval "$CMD"

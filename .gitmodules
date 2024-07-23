@@ -1,7 +1,7 @@
 [submodule "linux"]
 	path = linux
 	url = git.github.com:unikernelLinux/linux.git
-	branch = ukl-dynamic
+	branch = ukl-dl
 	update = checkout
 [submodule "gapbs"]
 	path = gapbs
@@ -12,7 +12,7 @@
 [submodule "glibc"]
 	path = glibc
 	url = git@github.com:unikernelLinux/glibc-1.git
-	branch = master
+	branch = ukl-dl
 	update = checkout
 [submodule "redis"]
 	path = redis/redis

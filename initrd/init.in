@@ -50,6 +50,6 @@ echo -n 0 > /proc/sys/kernel/randomize_va_space
 # load the ukl-getsyms kmod and update libuklsyms.so
 ( cd /data && ./ukl-makeso.sh )
 
+
 # start the UKL process
-sleep 5
 source /data/trigger.sh

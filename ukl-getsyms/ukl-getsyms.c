@@ -13,7 +13,7 @@ static long ukl_getsyms_ioctl(struct file *file, unsigned int cmd, unsigned long
     struct ioctl_data uData;
     int i;
     void **defs;
-    char sym_name[128] = "ukl_";
+    char sym_name[128];
     char *usym_name;
 
     switch (cmd) {
@@ -26,24 +26,10 @@ static long ukl_getsyms_ioctl(struct file *file, unsigned int cmd, unsigned long
                 return -ENOMEM;
 	    
             for (i = 0; i < uData.numSymbols; i++) {
-		/*
-		 * try ukl_NAME first, then NAME
-		 * this way we can declare ukl-specific versions of symbols
-		 * (e.g. ukl_entry_SYSCALL_64 instead of entry_SYSCALL_64)
-		 */
 		usym_name = uData.symNames[i];
 		
-		strcpy(sym_name,"ukl_");
-		strncat(sym_name,usym_name,124);
-		defs[i] = (void *)kallsyms_lookup_name(sym_name);
-		if (defs[i]) 
-			continue;
 		strncpy(sym_name,usym_name,128);
 		defs[i] = (void *)kallsyms_lookup_name(sym_name);
-		if (defs[i])
-			continue;	
-		printk(KERN_ALERT "Could not resolve symbol %s",sym_name);
-		return -ENOENT;
             }
             if (copy_to_user(uData.symDefs, defs, uData.numSymbols * sizeof (void*))) {
                 kfree(defs);
