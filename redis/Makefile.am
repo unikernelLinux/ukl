@@ -40,7 +40,7 @@ RT_LIB      = $(abs_top_builddir)/librt.a
 MATH_LIB    = $(abs_top_builddir)/libm.a
 GCC_LIBS    = $(abs_top_builddir)/libgcc.a $(abs_top_builddir)/libgcc_eh.a
 
-AM_CFLAGS   = -ggdb -mno-red-zone -mcmodel=kernel -static
+AM_CFLAGS   = $(TARGET_CFLAGS) -ggdb -mno-red-zone -mcmodel=kernel -static
 if DEFAULT_PIE
 AM_CFLAGS += -fno-PIC -no-pie -fno-PIE
 endif
