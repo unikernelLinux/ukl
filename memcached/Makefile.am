@@ -19,7 +19,7 @@
 CLEANFILES = *~ *.o *.a
 
 clean-local:
-	-cd libevent && $(MAKE) clean
+	-cd libevent/build && $(MAKE) clean
 	-cd memcached && $(MAKE) clean
 
 distclean-local:
@@ -36,6 +36,9 @@ MATH_LIB    = $(abs_top_builddir)/libm.a
 GCC_LIBS    = $(abs_top_builddir)/libgcc.a $(abs_top_builddir)/libgcc_eh.a
 
 AM_CFLAGS   = -ggdb -mno-red-zone -mcmodel=kernel -static
+if DEFAULT_PIE
+AM_CFLAGS += -fno-PIC -no-pie -fno-PIE
+endif
 
 noinst_DATA = UKL.a
 
@@ -48,12 +51,14 @@ UKL.a: memcached.o undefined_sys_hack.o
 # Build libevent.
 libevent.a: stamp-libevent-dir
 	rm -f $@
-	-cd libevent && $(MAKE) clean
+	-rm -Rf libevent/build
 	cd libevent && \
-	./autogen.sh && \
-	./configure --disable-shared CFLAGS='-ggdb -mno-red-zone -mcmodel=kernel' && \
-	make --trace
-	ar cr $@ libevent/*.o
+	mkdir build && \
+	cd build && \
+	CFLAGS='$(AM_CFLAGS)' cmake .. && \
+	sed -i 's/EVENT__LIBRARY_TYPE:STRING=DEFAULT/EVENT__LIBRARY_TYPE:STRING=STATIC/' CMakeCache.txt && \
+	CFLAGS='$(AM_CFLAGS)' make -j`nproc` event_static
+	mv libevent/build/lib/libevent.a $@
 
 # Build memcached.
 memcached.o: stamp-memcached-dir libevent.a
@@ -61,7 +66,7 @@ memcached.o: stamp-memcached-dir libevent.a
 	-cd memcached && $(MAKE) clean
 	cd memcached && \
 	./autogen.sh && \
-	./configure CFLAGS='-ggdb -mno-red-zone -mcmodel=kernel' && \
+	./configure CFLAGS='$(AM_CFLAGS)' && \
 	make --trace
 	cd memcached && \
 	ld -r -o ../$@ --allow-multiple-definition \
@@ -92,7 +97,7 @@ stamp-libevent-dir:
 stamp-memcached-dir:
 	rm -f $@
 	if ! test -d memcached; then \
-	    git clone --branch 1.6.15 git@github.com:memcached/memcached.git; \
+	    git clone --branch ukl git@github.com:unikernelLinux/memcached.git; \
 	fi
 	touch $@
 
