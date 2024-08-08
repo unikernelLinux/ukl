@@ -31,6 +31,7 @@ CLEANFILES = \
 	stamp-libgcc-build \
 	stamp-libgcc-configure \
 	ukl-initrd.cpio.xz \
+	linux/.config \
 	vmlinuz
 
 clean-local:
@@ -51,7 +52,7 @@ app-clean:
 
 kern-clean:
 	-rm vmlinuz
-	-cd linux && $(MAKE) clean
+	-cd linux && $(MAKE) clean && rm .config
 
 DIST_SUBDIRS = dnsmasq hello memcached redis mpc-bench fio
 
