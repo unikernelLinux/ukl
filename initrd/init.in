@@ -61,6 +61,9 @@ echo "Done" >> /log
 # Run sshd
 /usr/sbin/dropbear -E -R -p 22
 
+# Disable real-time task throttling
+echo -1 > /proc/sys/kernel/sched_rt_runtime_us
+
 touch /redis-event-log.txt
 
 sleep 5
