@@ -25,7 +25,7 @@ printf "Creating initramfs structure ... "
 
 cp ./perf /usr/sbin/
 
-binfiles="cat ls mkdir mknod mount bash top touch awk"
+binfiles="cat ls mkdir mknod mount bash top touch awk less"
 binfiles="$binfiles umount sed sleep ln rm uname grep"
 binfiles="$binfiles readlink basename chmod ps pidof pgrep pkill"
 
