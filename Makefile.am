@@ -214,6 +214,7 @@ vmlinuz: linux/arch/x86/boot/bzImage
 linux/arch/x86/boot/bzImage: linux/.config UKL.a
 	$(MAKE) -C $(srcdir)/linux olddefconfig O=$(abs_builddir)/linux
 	$(MAKE) -C $(srcdir)/linux WERROR=0 O=$(abs_builddir)/linux
+	$(MAKE) -C $(srcdir)/linux scripts_gdb
 
 linux/.config: saveconfig
 	rm -f $@
