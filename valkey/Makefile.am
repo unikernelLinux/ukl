@@ -16,17 +16,17 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-EXTRA_DIST = myredis.conf
+EXTRA_DIST = valkey.conf
 
 CLEANFILES = \
 	*~ *.o *.a \
-	stamp-redis-dir
+	stamp-valkey-dir
 
 clean-local:
-	-cd redis && $(MAKE) clean
+	-cd valkey && $(MAKE) clean
 
 distclean-local:
-	rm -rf redis
+	rm -rf valkey
 
 noinst_DATA = UKL.a
 
@@ -45,15 +45,15 @@ if DEFAULT_PIE
 AM_CFLAGS += -fno-PIC -no-pie -fno-PIE
 endif
 
-UKL.a: stamp-redis-dir undefined_sys_hack.o
+UKL.a: stamp-valkey-dir undefined_sys_hack.o
 	rm -f $@
-	$(MAKE) distclean -C redis
+	$(MAKE) distclean -C valkey
 # XXX We expect this to fail with undefined references to
 # set_bypass_limit / set_bypass_syscall (provided by UKL).
-	-$(MAKE) BUILD_WITH_SYSTEMD=no MALLOC=libc V=1 \
-	    CFLAGS='$(AM_CFLAGS)' -C redis
-	rm -f redis/src/{redis-server,redis-cli,redis-benchmark}
-	cd redis/deps/lua/src/ && \
+	-$(MAKE) BUILD_WITH_SYSTEMD=no MALLOC=libc OPTIMIZATION=-O2 V=1 \
+	    CFLAGS='$(AM_CFLAGS)' -C valkey
+	rm -f valkey/src/{valkey-server,valkey-cli,valkey-benchmark}
+	cd valkey/deps/lua/src/ && \
 	$(MAKE) BUILD_WITH_SYSTEMD=no MALLOC=libc V=1 \
 	CFLAGS='$(AM_CFLAGS)' luac.o print.o  && \
 	ld -r -o lua --allow-multiple-definition \
@@ -62,7 +62,7 @@ UKL.a: stamp-redis-dir undefined_sys_hack.o
 	    --whole-archive $(MATH_LIB) $(C_LIB) --no-whole-archive \
 	    $(GCC_LIBS) \
 	    --end-group $(CRT_ENDS)
-	cd redis/deps/lua/src/ && \
+	cd valkey/deps/lua/src/ && \
 	ld -r -o luac --allow-multiple-definition \
 	    $(CRT_STARTS) luac.o \
 	    print.o liblua.a \
@@ -70,34 +70,40 @@ UKL.a: stamp-redis-dir undefined_sys_hack.o
 	    --whole-archive $(MATH_LIB) $(C_LIB) --no-whole-archive \
 	    $(GCC_LIBS) \
 	    --end-group $(CRT_ENDS)
-	cd redis/src/ && \
-	ld -r -o redis-server.o --allow-multiple-definition \
+	cd valkey/src/ && \
+	ld -r -o valkey-server.o --allow-multiple-definition \
 	    $(CRT_STARTS) \
-	    adlist.o quicklist.o ae.o \
-	    anet.o dict.o server.o sds.o zmalloc.o lzf_c.o lzf_d.o pqsort.o zipmap.o sha1.o \
-	    ziplist.o release.o networking.o util.o object.o db.o replication.o rdb.o t_string.o \
-	    t_list.o t_set.o t_zset.o t_hash.o config.o aof.o pubsub.o multi.o debug.o sort.o \
-	    intset.o syncio.o cluster.o crc16.o endianconv.o slowlog.o scripting.o bio.o rio.o \
-	    rand.o memtest.o crcspeed.o crc64.o bitops.o sentinel.o notify.o setproctitle.o \
-	    blocked.o hyperloglog.o latency.o sparkline.o redis-check-rdb.o redis-check-aof.o \
-	    geo.o lazyfree.o module.o evict.o expire.o geohash.o geohash_helper.o childinfo.o \
-	    defrag.o siphash.o rax.o t_stream.o listpack.o localtime.o lolwut.o lolwut5.o \
-	    lolwut6.o acl.o gopher.o tracking.o connection.o tls.o sha256.o timeout.o setcpuaffinity.o \
-	    monotonic.o mt19937-64.o \
+	    threads_mngr.o adlist.o quicklist.o ae.o anet.o dict.o kvstore.o \
+	    server.o sds.o zmalloc.o lzf_c.o lzf_d.o pqsort.o zipmap.o sha1.o \
+	    ziplist.o release.o memory_prefetch.o io_threads.o networking.o \
+	    util.o object.o db.o replication.o rdb.o t_string.o t_list.o t_set.o \
+	    t_zset.o t_hash.o config.o aof.o pubsub.o multi.o debug.o sort.o \
+	    intset.o syncio.o cluster.o cluster_legacy.o cluster_slot_stats.o \
+	    crc16.o endianconv.o slowlog.o eval.o bio.o rio.o rand.o memtest.o \
+	    syscheck.o crcspeed.o crccombine.o crc64.o bitops.o sentinel.o \
+	    notify.o setproctitle.o blocked.o hyperloglog.o latency.o sparkline.o \
+	    valkey-check-rdb.o valkey-check-aof.o geo.o lazyfree.o module.o \
+	    evict.o expire.o geohash.o geohash_helper.o childinfo.o defrag.o \
+	    siphash.o rax.o t_stream.o listpack.o localtime.o lolwut.o lolwut5.o \
+	    lolwut6.o acl.o tracking.o socket.o tls.o sha256.o timeout.o \
+	    setcpuaffinity.o monotonic.o mt19937-64.o resp_parser.o call_reply.o \
+	    script_lua.o script.o functions.o function_lua.o commands.o strl.o \
+	    connection.o unix.o logreqres.o \
 	    ../deps/hiredis/libhiredis.a ../deps/lua/src/liblua.a \
+	    ../deps/hdr_histogram/libhdrhistogram.a ../deps/fpconv/libfpconv.a \
 	    --start-group \
 	    --whole-archive $(MATH_LIB) $(RT_LIB) $(PTHREAD_LIB) $(C_LIB) --no-whole-archive \
 	    $(GCC_LIBS) \
 	    --end-group $(CRT_ENDS)
-	ar cr UKL.a redis/src/redis-server.o undefined_sys_hack.o
+	ar cr UKL.a valkey/src/valkey-server.o undefined_sys_hack.o
 	objcopy --prefix-symbols=ukl_ UKL.a
 	objcopy --redefine-syms=$(top_srcdir)/redef_sym_names UKL.a
 
-# Check out a local copy of redis.
-stamp-redis-dir:
+# Check out a local copy of valkey.
+stamp-valkey-dir:
 	rm -f $@
-	if ! test -d redis; then \
-	    git clone -b redis-ukl https://github.com/unikernelLinux/redis.git; \
+	if ! test -d valkey; then \
+	    git clone -b valkey-ukl https://github.com/unikernelLinux/valkey.git; \
 	fi
 	touch $@
 
@@ -110,7 +116,7 @@ undefined_sys_hack.c: $(top_builddir)/undefined_sys_hack.c
 .c.o:
 	$(CC) $(CFLAGS) $(AM_CFLAGS) -c $< -o $@
 
-# Configuration file used by redis.
-data.tar.gz: myredis.conf
+# Configuration file used by valkey.
+data.tar.gz: valkey.conf
 	rm -f $@
-	tar -zcf $@ -C $(srcdir) myredis.conf
+	tar -zcf $@ -C $(srcdir) valkey.conf

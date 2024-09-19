@@ -54,7 +54,7 @@ kern-clean:
 	-rm vmlinuz
 	-cd linux && $(MAKE) clean && rm .config
 
-DIST_SUBDIRS = dnsmasq hello memcached redis mpc-bench fio
+DIST_SUBDIRS = dnsmasq hello memcached valkey mpc-bench fio
 
 #----------------------------------------------------------------------
 # Build libgcc and static libstdc++.

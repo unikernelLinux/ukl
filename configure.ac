@@ -150,5 +150,5 @@ AC_CONFIG_FILES([Makefile \
                  memcached/Makefile \
 		 mpc-bench/Makefile \
 		 fio/Makefile \
-                 redis/Makefile])
+                 valkey/Makefile])
 AC_OUTPUT
