@@ -3,17 +3,23 @@
 	url = git.github.com:unikernelLinux/linux.git
 	branch = ukl-dl
 	update = checkout
+
 [submodule "gapbs"]
 	path = gapbs
 	url = https://github.com/unikernelLinux/gapbs
+	branch = f2af9c9 
+
 [submodule "dnsmasq/dnsmasq"]
 	path = dnsmasq/dnsmasq
 	url = https://github.com/rwmjones/dnsmasq
+	branch = acdd964 
+
 [submodule "glibc"]
 	path = glibc
 	url = git@github.com:unikernelLinux/glibc-1.git
 	branch = ukl-dl
 	update = checkout
+
 [submodule "redis"]
 	path = redis/redis
 	url = git@github.com:unikernelLinux/redis.git

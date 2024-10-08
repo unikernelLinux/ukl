@@ -56,3 +56,4 @@ linux-headers
 
 /lebench.ukl
 /new_lebench
+ukl-getsyms/*.{cmd,order,ko,mod}
