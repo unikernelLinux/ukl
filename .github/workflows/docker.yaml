@@ -1,0 +1,30 @@
+name: "Why isn't docker working T_T"
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc "/usr/local/share/boost" "$AGENT_TOOLSDIRECTORY" /usr/local/lib/android
+
+      - name: Install dependencies
+        run: |
+          sudo apt install -y bc binutils bison dwarves flex gcc git gnupg2 gzip libelf-dev libncurses5-dev libssl-dev make openssl pahole perl-base rsync tar xz-utils
+          sudo apt install -y docker automake autoconf qemu
+
+      - name: Build
+        run: |
+          autoreconf -i
+          ./configure --with-program=redis
+          mkdir data
+          tar cvf redis/data.tar.gz data
+          make ukl-initrd.cpio.xz
+          ls initrd

@@ -1,0 +1,35 @@
+name: "Test that UKL is still working"
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc "/usr/local/share/boost" "$AGENT_TOOLSDIRECTORY" /usr/local/lib/android
+
+      - name: Install dependencies
+        run: |
+          sudo apt install -y bc binutils bison dwarves flex gcc git gnupg2 gzip libelf-dev libncurses5-dev libssl-dev make openssl pahole perl-base rsync tar xz-utils
+          sudo apt install -y docker automake autoconf qemu
+
+      - name: Build
+        run: |
+          git submodule update --init
+          autoreconf -i
+          ./configure --with-program=redis
+          make
+          timeout 5m make boot
+          if [ "$?" == "124" ];
+            exit 0
+          fi
+          exit 1
+
+
