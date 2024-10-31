@@ -163,7 +163,6 @@ export LIBC_OBJS
 $(PROGRAM)/UKL: $(LIBC_OBJS)
 	cd $(PROGRAM) && $(MAKE) UKL
 
-
 ukl-getsyms/initlib: ukl-getsyms/ukl-getsyms.c ukl-getsyms/ukl-initlib.c
 	cd ukl-getsyms && $(MAKE)
 

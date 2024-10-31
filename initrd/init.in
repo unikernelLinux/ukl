@@ -1,5 +1,4 @@
 #!/bin/bash
-
 set -x
 export HOME=/root
 export LOGNAME=root
@@ -29,14 +28,32 @@ mount -t devpts devpts /dev/pts
 # Some things don't work properly without /etc/mtab.
 ln -sf /proc/mounts /etc/mtab
 
+# Configure the requested network interface by MAC($1) to use IP($2)
+if [ -n "${1}" ]; then
+	IP=$1
+	if [ -n "${2}" ]; then
+		MAC=$2
+		INF=`/usr/sbin/ip -o link | awk -F ': ' -vIGNORECASE=1 '!/link\/ieee802\.11/ && /'"$MAC"'/ { print $2 }'`
+	else
+		INF="eth0"
+	fi
+	read A B C D <<<"${IP//./ }"
+	/usr/sbin/ip address flush dev $INF
+	/usr/sbin/ip address add $IP/24 brd + dev $INF
+	/usr/sbin/ip link set $INF up
+	/usr/sbin/ip route add $A.$B.$C.1 dev $INF
+	/usr/sbin/ip route add default $A.$B.$C.1 dev $INF
+fi
+
+
 # Print cmdline
 echo "CMDLINE" >> /log
 cat /proc/cmdline >> /log
 
-# Running performance scripts
+# Running experimental setup scripts
 echo "Running Setup scripts" >> /log
-./perf/disable_ht.sh >> /log
-./perf/turbo-boost.sh disable >> /log
+./exp/disable_ht.sh >> /log
+./exp/turbo-boost.sh disable >> /log
 echo "Done" >> /log
 
 /usr/sbin/ip address
@@ -44,13 +61,17 @@ echo "Done" >> /log
 # Run sshd
 /usr/sbin/dropbear -E -R -p 22
 
-# this is not necessary, but makes your life much easier when debugging
-echo -n 0 > /proc/sys/kernel/randomize_va_space
+# Disable real-time task throttling
+echo -1 > /proc/sys/kernel/sched_rt_runtime_us
+
+touch /redis-event-log.txt
+
+sleep 5
 
 # load the ukl-getsyms kmod and update libuklsyms.so
 ( cd /data && ./ukl-makeso.sh )
 
+echo "UKL BOOTED"
 
 # start the UKL process
-echo "UKL BOOTED"
 source /data/trigger.sh
