@@ -141,5 +141,6 @@ AC_CONFIG_FILES([Makefile \
 		 mpc-bench/Makefile \
 		 fio/Makefile \
                  redis/Makefile \
+                 valkey/Makefile								 
 		 libc.so])
 AC_OUTPUT

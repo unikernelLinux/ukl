@@ -52,4 +52,5 @@ echo -n 0 > /proc/sys/kernel/randomize_va_space
 
 
 # start the UKL process
+echo "UKL BOOTED"
 source /data/trigger.sh
