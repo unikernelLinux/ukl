@@ -35,3 +35,4 @@ ukl_workitem_queue_consume_event workitem_queue_consume_event
 ukl_ukl_worker_sleep ukl_worker_sleep
 ukl_init_upcall_handler init_upcall_handler
 ukl_check_sched check_sched
+ukl_ukl_tsc_log ukl_tsc_log

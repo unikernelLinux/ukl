@@ -4881,7 +4881,7 @@ CONFIG_SBITMAP=y
 #
 # Kernel hacking
 #
-# CONFIG_TSC_LOGGER is not set
+CONFIG_TSC_LOGGER=y
 
 #
 # printk and dmesg options
