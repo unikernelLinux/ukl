@@ -41,12 +41,10 @@ clean-local:
 	-cd initrd && $(MAKE) clean
 	-find -name config.cache -delete
 
-min-clean:
-	-cd linux && $(MAKE) clean
-	-rm UKL.a
-	-cd $(PROGRAM) && $(MAKE) clean
+min-clean: app-clean kern-clean
 
 app-clean:
+	-cd libupcall && $(MAKE) clean
 	-rm UKL.a vmlinuz linux/vmlinux linux/arch/x86/boot/bzImage
 	-cd $(PROGRAM) && $(MAKE) clean
 
@@ -239,10 +237,19 @@ endif
 #----------------------------------------------------------------------
 # Compile the program.
 
+if ENABLE_LIBUPCALL
+UPCALL_LIB = $(abs_top_builddir)/libupcall/libupcall.a
+else
+UPCALL_LIB =
+endif
+
+$(abs_top_builddir)/libupcall/libupcall.a:
+	cd $(abs_top_builddir)/libupcall && $(MAKE) 
+
 UKL.a: $(PROGRAM)/UKL.a
 	cp $< $@
 
-$(PROGRAM)/UKL.a: $(CRT_OBJS) $(LIBC_OBJS)
+$(PROGRAM)/UKL.a: $(CRT_OBJS) $(LIBC_OBJS) $(UPCALL_LIB)
 	cd $(PROGRAM) && $(MAKE) UKL.a
 
 #----------------------------------------------------------------------

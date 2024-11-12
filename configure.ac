@@ -140,11 +140,21 @@ AC_ARG_ENABLE([shortcuts],
 AM_CONDITIONAL([ENABLE_SHORTCUT], [test "x$ENABLE_SHORTCUT" = "xyes"])
 AC_MSG_RESULT([$ENABLE_SHORTCUT])
 
+AC_MSG_CHECKING([if we should enable and use libupcall])
+AC_ARG_ENABLE([libupcall],
+    [AS_HELP_STRING([--enable-libupcall],
+	[enable libupcall @<:@default=no@:>@])],
+	[ENABLE_LIBUPCALL="$enableval"],
+	[ENABLE_LIBUPCALL="no"])
+AM_CONDITIONAL([ENABLE_LIBUPCALL], [test "x$ENABLE_LIBUPCALL" = "xyes"])
+AC_MSG_RESULT([$ENABLE_LIBUPCALL])
+
 dnl Produce output files.
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile \
 		 initrd/init \
 		 initrd/Makefile \
+		 libupcall/Makefile \
                  dnsmasq/Makefile \
                  hello/Makefile \
                  memcached/Makefile \

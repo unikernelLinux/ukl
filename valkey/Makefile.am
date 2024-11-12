@@ -39,10 +39,19 @@ PTHREAD_LIB = $(abs_top_builddir)/libpthread.a
 RT_LIB      = $(abs_top_builddir)/librt.a
 MATH_LIB    = $(abs_top_builddir)/libm.a
 GCC_LIBS    = $(abs_top_builddir)/libgcc.a $(abs_top_builddir)/libgcc_eh.a
+if ENABLE_LIBUPCALL
+UPCALL_LIB  = $(abs_top_builddir)/libupcall/libupcall.a
+else
+UPCALL_LIB  =
+endif
 
 AM_CFLAGS   = $(TARGET_CFLAGS) -ggdb -mno-red-zone -mcmodel=kernel -static
 if DEFAULT_PIE
 AM_CFLAGS += -fno-PIC -no-pie -fno-PIE
+endif
+
+if ENABLE_LIBUPCALL
+AM_CFLAGS += -I$(abs_top_builddir)/libupcall -D_HAVE_LIBUPCALL_
 endif
 
 UKL.a: stamp-valkey-dir undefined_sys_hack.o
@@ -92,7 +101,7 @@ UKL.a: stamp-valkey-dir undefined_sys_hack.o
 	    ../deps/hiredis/libhiredis.a ../deps/lua/src/liblua.a \
 	    ../deps/hdr_histogram/libhdrhistogram.a ../deps/fpconv/libfpconv.a \
 	    --start-group \
-	    --whole-archive $(MATH_LIB) $(RT_LIB) $(PTHREAD_LIB) $(C_LIB) --no-whole-archive \
+	    --whole-archive $(UPCALL_LIB) $(MATH_LIB) $(RT_LIB) $(PTHREAD_LIB) $(C_LIB) --no-whole-archive \
 	    $(GCC_LIBS) \
 	    --end-group $(CRT_ENDS)
 	ar cr UKL.a valkey/src/valkey-server.o undefined_sys_hack.o

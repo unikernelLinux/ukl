@@ -34,10 +34,19 @@ PTHREAD_LIB = $(abs_top_builddir)/libpthread.a
 RT_LIB      = $(abs_top_builddir)/librt.a
 MATH_LIB    = $(abs_top_builddir)/libm.a
 GCC_LIBS    = $(abs_top_builddir)/libgcc.a $(abs_top_builddir)/libgcc_eh.a
+if ENABLE_LIBUPCALL
+UPCALL_LIB  = $(abs_top_builddir)/libupcall/libupcall.a 
+else
+UPCALL_LIB  =
+endif
 
 AM_CFLAGS   = -ggdb -mno-red-zone -mcmodel=kernel -static
 if DEFAULT_PIE
 AM_CFLAGS += -fno-PIC -no-pie -fno-PIE
+endif
+
+if ENABLE_LIBUPCALL
+AM_CFLAGS += -I$(abs_top_builddir)/libupcall -D_HAVE_LIBUPCALL_
 endif
 
 noinst_DATA = UKL.a
@@ -81,7 +90,7 @@ memcached.o: stamp-memcached-dir libevent.a
 	    memcached-crc32c.o memcached-storage.o memcached-slab_automove_extstore.o \
 	    --start-group \
 	    ../libevent.a \
-	    --whole-archive $(PTHREAD_LIB) $(C_LIB) --no-whole-archive \
+	    --whole-archive $(UPCALL_LIB) $(PTHREAD_LIB) $(C_LIB) --no-whole-archive \
 	    $(GCC_LIBS) \
 	    --end-group \
 	    $(CRT_ENDS)
