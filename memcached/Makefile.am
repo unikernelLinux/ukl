@@ -66,7 +66,7 @@ memcached.o: stamp-memcached-dir libevent.a
 	-cd memcached && $(MAKE) clean
 	cd memcached && \
 	./autogen.sh && \
-	./configure CFLAGS='$(AM_CFLAGS)'
+	./configure CFLAGS='$(AM_CFLAGS) --disable-extstore'
 	-cd memcached && \
 	make --trace
 	cd memcached && \
