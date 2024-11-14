@@ -50,6 +50,7 @@ app-clean:
 
 kern-clean:
 	-rm vmlinuz
+	-cd initrd && $(MAKE) clean
 	-cd linux && $(MAKE) clean && rm .config
 
 DIST_SUBDIRS = dnsmasq hello memcached valkey mpc-bench fio
