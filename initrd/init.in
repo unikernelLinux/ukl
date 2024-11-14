@@ -41,7 +41,6 @@ if [ -n "${1}" ]; then
 	/usr/sbin/ip address flush dev $INF
 	/usr/sbin/ip address add $IP/24 brd + dev $INF
 	/usr/sbin/ip link set $INF up
-	/usr/sbin/ip route add $A.$B.$C.1 dev $INF
 	/usr/sbin/ip route add default $A.$B.$C.1 dev $INF
 fi
 
