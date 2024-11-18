@@ -21,7 +21,7 @@ CLEANFILES = UKL
 noinst_DATA = UKL
 
 UKL: hello-world.c
-	gcc -o $@  \
+	gcc -o hello-world  \
 	    -ggdb -mno-red-zone \
 	    -Wl,-rpath=/data -L$(abs_top_builddir) \
 	    -Wl,-rpath-link=$(abs_top_builddir) \
@@ -29,3 +29,4 @@ UKL: hello-world.c
 	    -Wl,--dynamic-linker=/data/ld-linux-x86-64.so.2 \
 	    $< \
 	    -lc -luklsyms
+	mv hello-world data

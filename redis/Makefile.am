@@ -25,12 +25,9 @@ CLEANFILES = \
 clean-local:
 	-cd redis && $(MAKE) clean
 
-data: redis.conf trigger.sh
-	-rm -rf $@
-	mkdir $@
-	cp redis.conf $@
-	cp trigger.sh $@
 
-UKL: data
-	cd redis && $(MAKE) MALLOC=libc 
-	cd redis/src && cp redis-server ../../UKL 
+UKL:
+	$(MAKE) -C redis MALLOC=libc 
+	cp redis/src/redis-server data
+	patchelf --set-interpreter /data/ld-linux-x86-64.so.2 --set-rpath /data data/redis-server
+

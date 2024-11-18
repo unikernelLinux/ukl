@@ -27,7 +27,8 @@ CLEANFILES = \
 	*~ *.o *.a *.so *.so.[0-9] *.txt \
 	stamp-* \
 	vmlinuz \
-	data.tar.gz *.cpio.xz 
+	data.tar.gz *.cpio.xz \
+	enable-bypass
 
 clean-all:
 	-rm -rf linux-headers tmp
@@ -79,13 +80,14 @@ libuklsyms.so: empty.o linux/vmlinux uklsyms_syms_map
 
 # XXX this fails in the iconv subdirectory because there is no general rule
 # in the Makefiles to add libuklsyms.so to the linker's PATH, so just ignore
-# the error and assume that if we have the libc.so binary, it works
+# the error and assume that if we have the libc.so binary, then the build 
+# succeeded and all other deps (ld-linux-x86-64.so.2, libm.so, etc.) are also present
 libc.so.6: libuklsyms.so stamp-glibc-configure undefined_sys_hack.o
-	-cd glibc-build && $(MAKE)
+	$(MAKE) -C glibc-build
 	cp glibc-build/libc.so $@
 
 libm.so.6: libc.so.6
-	cd glibc-build && $(MAKE) subdirs=math
+	$(MAKE) -C glibc-build subdirs=math
 	cp glibc-build/math/libm.so $@
 
 libc_nonshared.a: libc.so.6
@@ -167,20 +169,25 @@ $(PROGRAM)/UKL: $(LIBC_OBJS)
 ukl-getsyms/initlib: ukl-getsyms/ukl-getsyms.c ukl-getsyms/ukl-initlib.c
 	cd ukl-getsyms && $(MAKE)
 
-data.tar.gz: $(LIBC_OBJS) libc.so $(PROGRAM)/UKL empty.o ukl-getsyms/initlib
+enable-bypass: enable-bypass.c libuklsyms.so
+	gcc -o $@ $< -L. -luklsyms -Wl,-rpath=/data -Wl,--dynamic-linker=/data/ld-linux-x86-64.so.2
+
+data.tar.gz: $(LIBC_OBJS) libc.so $(PROGRAM)/UKL empty.o ukl-getsyms/initlib enable-bypass
 	-rm -rf data
 	-mkdir data
 	cp $(LIBC_OBJS) data
 	cp libc.so data
 # XXX libm.so is supposed to be a linker script that includes libmvec.so as-needed
 	ln -s data/libm.so.6 data/libm.so
-	cp $(PROGRAM)/UKL data
 	cp ukl-getsyms/initlib data
 	cp ukl-getsyms/ukl-makeso.sh data
 	cp ukl-getsyms/ukl-getsyms.ko data
 	cp uklsyms_syms_map data
 	cp empty.o data
-	cp $(PROGRAM)/data/* data
+# it's expected that the PROGRAM subdir create it's own data dir with the UKL application, 
+# any data that app needs to run, and and an entry.sh entrypoint script
+	cp -r $(PROGRAM)/data/* data
+	cp enable-bypass data
 	tar -czf data.tar.gz data
 	cp $@ initrd	
 
@@ -189,13 +196,12 @@ data.tar.gz: $(LIBC_OBJS) libc.so $(PROGRAM)/UKL empty.o ukl-getsyms/initlib
 
 noinst_DATA += ukl-initrd.cpio.xz
 
-initrd: FORCE
-	-rm -f ukl-initrd.cpio.xz initrd/ukl-initrd.cpio.xz data.tar.gz
-	$(MAKE) ukl-initrd.cpio.xz	
+ukl-initrd.cpio.xz: stamp-initrd
 
-ukl-initrd.cpio.xz: data.tar.gz
-	$(MAKE) -C $(srcdir)/initrd $@
-	cp initrd/$@ $@
+stamp-initrd: data.tar.gz
+	$(MAKE) -C $(srcdir)/initrd stamp-initrd
+	cp initrd/ukl-initrd.cpio.xz .
+	touch $@
 
 #----------------------------------------------------------------------
 # Boot the unikernel under qemu.

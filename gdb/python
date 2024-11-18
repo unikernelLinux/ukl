@@ -1,0 +1,2 @@
+target remote :1234
+symbol-file data/install/bin/python3.14 -o 0x0000555555554000

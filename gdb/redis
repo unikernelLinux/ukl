@@ -1,7 +1,3 @@
 target remote :1234
-symbol-file redis/UKL -o 0x555555554000
+symbol-file redis/redis-server -o 0x555555554000
 hbreak main
-c
-delete -y
-hbreak *0xffffffff82200190
-c

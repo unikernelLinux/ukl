@@ -7,11 +7,9 @@
 *.txt
 *.tar.gz
 .ukl-*.cmd
+stamp-*
 
 ld-linux-x86-64.so.2
-/glibc/stamp-*
-
-/stamp-*
 UKL
 Makefile
 Makefile.in

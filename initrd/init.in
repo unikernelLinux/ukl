@@ -50,6 +50,10 @@ echo -n 0 > /proc/sys/kernel/randomize_va_space
 # load the ukl-getsyms kmod and update libuklsyms.so
 ( cd /data && ./ukl-makeso.sh )
 
+# we can run this program even if --enable-bypass was not configured
+# because glibc will only use bypass if -DUKL_BP was passed as a CFLAG
+# during its compilation. All this does is enable bypass in the kernel
+/data/enable-bypass
 
 # start the UKL process
-source /data/trigger.sh
+source /data/entry.sh
