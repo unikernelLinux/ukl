@@ -235,9 +235,10 @@ int init_event_handler(enum concurrency_models evqueue_model, unsigned int thrd_
 		}
 
 		for (unsigned int j = 0; j < thrd_cnt; j++) {
-			workers[i + j].dying = 0;
-			workers[i + j].setup_fn = setup_fn;
-			if (pthread_create(&(workers[i + j].me), &attrs, park_context, &workers[i + j])) {
+			int index = i * thrd_cnt + j;
+			workers[index].dying = 0;
+			workers[index].setup_fn = setup_fn;
+			if (pthread_create(&(workers[index].me), &attrs, park_context, &workers[index])) {
 				perror("Failed to create event thread");
 				free(clusters);
 				return EINVAL;
