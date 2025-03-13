@@ -92,6 +92,7 @@ void *worker_func(void *arg);
 static void init_threads(void)
 {
 	pthread_attr_t attrs;
+	pthread_t dummy;
 	cpu_set_t *worker_cpu;
 
 	threads = calloc(nr_cpus, sizeof(struct worker_thread));
@@ -130,7 +131,10 @@ static void init_threads(void)
 			exit(1);
 		}
 
-
+		if (pthread_create(&dummy, &attr, worker_func, &threads[i])) {
+			perror("pthread_create():");
+			exit(1);
+		}
 	}
 
 	CPU_FREE(worker_cpu);
