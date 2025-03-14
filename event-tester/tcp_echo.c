@@ -131,7 +131,7 @@ static void init_threads(void)
 			exit(1);
 		}
 
-		if (pthread_create(&dummy, &attr, worker_func, &threads[i])) {
+		if (pthread_create(&dummy, &attrs, worker_func, &threads[i])) {
 			perror("pthread_create():");
 			exit(1);
 		}

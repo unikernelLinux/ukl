@@ -15,6 +15,9 @@
 #include <getopt.h>
 #include <errno.h>
 #include <pthread.h>
+#include <poll.h>
+
+#include <arpa/inet.h>
 
 #ifndef DEFAULT_PORT
 #define DEFAULT_PORT 7272
@@ -120,6 +123,43 @@ static void client_recv(int sock, uint8_t *buf, size_t len)
 	} while (cursor < len);
 }
 
+static void wait_for_connect(int sock, const struct sockaddr *addr, socklen_t len)
+{
+	int so_error = EINPROGRESS;
+	socklen_t optlen = sizeof(int);
+	struct pollfd list[1];
+	int ret;
+
+	if (connect(sock, addr, len) < 0) {
+		if (errno != EINPROGRESS) {
+			perror("client connect():");
+			exit(1);
+		}
+
+		list[0].fd = sock;
+		list[0].events = POLLOUT;
+		if ((ret = poll(list, 1, 1000)) == -1 ) {
+			perror("poll():");
+			exit(1);
+		} else if (ret == 0) {
+			fprintf(stderr, "Timed out waiting for connection\n");
+			exit(1);
+		}
+
+		while (so_error == EINPROGRESS) {
+			if (getsockopt(sock, SOL_SOCKET, SO_ERROR, &so_error, &optlen) != 0) {
+				perror("connect getsockopt():");
+				exit(1);
+			}
+		}
+
+		if (so_error && so_error != EISCONN) {
+			fprintf(stderr, "Non blocking connect failed: %d\n", so_error);
+			exit(1);
+		}
+	}
+}
+
 static void *worker_func(void *arg)
 {
 	struct client *clients;
@@ -130,7 +170,6 @@ static void *worker_func(void *arg)
 	int rdy;
 	struct epoll_event *events;
 	struct epoll_event config;
-	struct addrinfo res;
 	//struct worker *me = (struct worker*)arg;
 
 	epoll_fd = epoll_create1(0);
@@ -151,14 +190,10 @@ static void *worker_func(void *arg)
 		exit(1);
 	}
 
-	memcpy(server, &res, sizeof(struct addrinfo));
-	res.ai_addr = malloc(res.ai_addrlen);
-	memcpy(server->ai_addr, res.ai_addr, res.ai_addrlen);
-
 	config.events = EPOLLIN;
 
 	for (i = 0; i < clients_per_thread; i++) {
-		clients[i].sock = socket(res.ai_family, res.ai_socktype | SOCK_NONBLOCK, res.ai_protocol);
+		clients[i].sock = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
 		if (clients[i].sock < 0) {
 			perror("client socket():");
 			exit(1);
@@ -197,10 +232,7 @@ static void *worker_func(void *arg)
 
 	// Run Experiment
 	for (i = 0; i < clients_per_thread; i++) {
-		if (connect(clients[i].sock, res.ai_addr, res.ai_addrlen) < 0) {
-			perror("client connect():");
-			exit(1);
-		}
+		wait_for_connect(clients[i].sock, server->ai_addr, server->ai_addrlen);
 	
 		client_send(clients[i].sock, clients[i].buf, clients[i].buf_size);
 	}
@@ -227,15 +259,18 @@ static void *worker_func(void *arg)
 
 			clients[j].batch_remaining--;
 			if (clients[j].batch_remaining == 0) {
-				if (shutdown(clients[j].sock, SHUT_RDWR)) {
-					perror("shutdown():");
-					exit(1);
-				}
+				epoll_ctl(epoll_fd, EPOLL_CTL_DEL, clients[j].sock, NULL);
+				close(clients[j].sock);
 
 				clients[j].batch_remaining = batch_size;
 
-				if (connect(clients[i].sock, res.ai_addr, res.ai_addrlen) < 0) {
-					perror("client connect():");
+				clients[j].sock = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
+
+				wait_for_connect(clients[j].sock, server->ai_addr, server->ai_addrlen); 
+
+				config.data.u32 = j;
+				if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, clients[j].sock, &config) < 0) {
+					perror("epoll_ctl add client:");
 					exit(1);
 				}
 			}
@@ -244,6 +279,8 @@ static void *worker_func(void *arg)
 		}
 		memset(events, 0, sizeof(struct epoll_event) * clients_per_thread);
 	}
+
+	fprintf(stderr, "%lu clients each sent %lu transactions\n", clients_per_thread, transaction_count);
 
 	// Finished
 	return NULL;
@@ -277,6 +314,7 @@ int main(int argc, char **argv)
 	msg_size = PAYLOAD_SIZE;
 	clients_per_thread = CLIENTS_PER_THREAD;
 	batch_size = BATCH_SIZE;
+	transaction_count = TXN_COUNT;
 
 	while ((ret = getopt_long(argc, argv, opt_str, long_opts, NULL)) != -1) {
 		switch (ret) {
@@ -324,14 +362,19 @@ int main(int argc, char **argv)
 
 	host = argv[optind];
 
-	fprintf(stderr, "Connecting to '%s:%s'\n", host, port_str);
-
 	memset(&hints, 0, sizeof(struct addrinfo));
 
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 
 	getaddrinfo(host, port_str, &hints, &server);
+
+	char ipstr[INET6_ADDRSTRLEN];
+	// We are expecting ipv4 and anything else is incorrect
+
+	struct sockaddr_in *ipv4 = (struct sockaddr_in *)server->ai_addr;
+	inet_ntop(server->ai_family, &ipv4->sin_addr, ipstr, sizeof(ipstr));
+	fprintf(stderr, "Connecting to %s:%s\n", ipstr, port_str);
 
 	threads = calloc(nr_cpus, sizeof(struct worker));
 
