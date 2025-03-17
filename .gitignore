@@ -5,7 +5,7 @@
 
 Makefile
 Makefile.in
-ukl-initrd.cpio.xz
+*.cpio.xz
 
 /aclocal.m4
 /autom4te.cache/
@@ -14,7 +14,10 @@ ukl-initrd.cpio.xz
 /config.h.in
 /config.log
 /config.status
+/config.guess
+/config.sub
 /configure
+/depcomp
 /dnsmasq/undefined_sys_hack.c
 /hello/undefined_sys_hack.c
 /hello/data.tar.gz
@@ -22,18 +25,26 @@ ukl-initrd.cpio.xz
 /memcached/stamp-libevent-dir
 /memcached/stamp-memcached-dir
 /memcached/undefined_sys_hack.c
+/memcached/libevent/
+/memcached/memcached/
+/memcached/data.tar.gz
 /missing
 /valkey/valkey
 /valkey/stamp-valkey-dir
 /valkey/undefined_sys_hack.c
+/valkey/data.tar.gz
 /stamp-gcc-prereq
 /stamp-glibc-configure
 /stamp-libgcc-build
 /stamp-libgcc-configure
 /stamp-h1
-/vmlinuz
+/vmlinuz*
 /initrd/init
 /initrd/data.tar.gz
+/event-tester/data.tar.gz
+/event-tester/tcp_client
+/event-tester/undefined_sys_hack.c
+initrd/perf
 
 /lebench.ukl
 /new_lebench
