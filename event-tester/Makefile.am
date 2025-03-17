@@ -38,7 +38,10 @@ endif
 data.tar.gz:
 	touch data.tar.gz
 
-UKL.a: tcp_echo.o undefined_sys_hack.o
+tcp_client: tcp_client.c
+	gcc -o $@ $< -ggdb -Wall -Werror -lpthread
+
+UKL.a: tcp_echo.o undefined_sys_hack.o tcp_client
 	rm -f $@ temp.o
 	ld -r -o temp.o -allow-multiple-definition \
 	    $(CRT_STARTS) \

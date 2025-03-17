@@ -16,8 +16,13 @@
 #include <errno.h>
 #include <pthread.h>
 #include <poll.h>
+#include <fcntl.h>
 
 #include <arpa/inet.h>
+
+#define UKL_USER
+#include "tsc_logger.h"
+#undef UKL_USER
 
 #ifndef DEFAULT_PORT
 #define DEFAULT_PORT 7272
@@ -39,15 +44,27 @@
 #define TXN_COUNT 1000
 #endif
 
-#ifndef THREAD_COUNT
-#define THREAD_COUNT 4
+#ifndef OUT_FILE
+#define OUT_FILE "timers.tsv"
 #endif
+
+#define SOCKET_START		0
+#define SOCKET_DONE		1
+#define CONNECT_START	2
+#define CONNECT_DONE		3
+#define SEND_START		4
+#define SEND_DONE		5
+#define RECV_START		6
+#define RECV_DONE		7
 
 static size_t msg_size;
 static size_t nr_cpus;
+static size_t nr_threads;
 static size_t batch_size;
 static size_t transaction_count;
 static size_t clients_per_thread;
+static size_t hdr_size;
+static size_t entry_size;
 
 static size_t init_count;
 static pthread_mutex_t worker_hang_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -56,8 +73,9 @@ static pthread_cond_t init_cond = PTHREAD_COND_INITIALIZER;
 
 struct worker {
 	pthread_t id;
+	uint64_t index;
 	struct stats *stats;
-	struct TscLog *tsc_log;
+	struct TscLog *log;
 };
 
 struct client {
@@ -68,13 +86,14 @@ struct client {
 	size_t batch_remaining;
 };
 
-#define OPTION(opts, text)      fprintf(stderr, " %-25s  %s\n", opts, text)
-#define CONT(text)              fprintf(stderr, " %-25s  %s\n", "", text)
+#define OPTION(opts, text)      fprintf(stderr, " %-30s  %s\n", opts, text)
+#define CONT(text)              fprintf(stderr, " %-30s  %s\n", "", text)
 
 static void usage(void)
 {
-        fprintf(stderr, "tcp_client [options] host-ip\n");
+        fprintf(stderr, "tcp_client [options] host-ip tsc-khz\n");
 	fprintf(stderr, "host-ip is required and is an IPv4 dotted quad\n");
+	fprintf(stderr, "tsc-khz is required and is the TSC frequency for this machine in KHz");
         fprintf(stderr, "options:\n");
         OPTION("--help,-h", "Print this message");
         OPTION("--port,-p [port]", "Use the requested port instead of 7272");
@@ -82,6 +101,10 @@ static void usage(void)
 	OPTION("--batch-size,-b [size]", "Send [size] transactions before reconnecting. Default is 1");
 	OPTION("--txn-count,-t [count]", "Have each client send [count] requests. Default is 1000");
 	OPTION("--clients,-c [count]", "Start [count] clients per thread. Default is 4");
+	OPTION("--thread-count,-T [count]", "Use [count] threads. Default is 1 per online CPU");
+	CONT("The client will start at max 1 thread per online CPU.");
+	OPTION("--output,-o [name]", "Use [name] for the timer tab separated value file.");
+	CONT("Default is timers.tsv");
 }
 
 extern int errno;
@@ -125,7 +148,7 @@ static void client_recv(int sock, uint8_t *buf, size_t len)
 
 static void wait_for_connect(int sock, const struct sockaddr *addr, socklen_t len)
 {
-	int so_error = EINPROGRESS;
+	int so_error;
 	socklen_t optlen = sizeof(int);
 	struct pollfd list[1];
 	int ret;
@@ -135,6 +158,8 @@ static void wait_for_connect(int sock, const struct sockaddr *addr, socklen_t le
 			perror("client connect():");
 			exit(1);
 		}
+
+		so_error = errno;
 
 		list[0].fd = sock;
 		list[0].events = POLLOUT;
@@ -170,7 +195,23 @@ static void *worker_func(void *arg)
 	int rdy;
 	struct epoll_event *events;
 	struct epoll_event config;
-	//struct worker *me = (struct worker*)arg;
+	struct worker *me = (struct worker*)arg;
+
+	me->log = calloc(hdr_size + entry_size + L1_CACHE_BYTES, 1);
+	if (!me->log) {
+		perror("OOM:");
+		exit(1);
+	}
+
+	// Align the timer log
+	if ((uint64_t)me->log & (L1_CACHE_BYTES - 1))
+		me->log = (struct TscLog*)(((uint64_t)me->log + L1_CACHE_BYTES) &
+				~((uint64_t)L1_CACHE_BYTES - 1));
+
+	me->log->hdr.info.cur = &(me->log->entries[0]);
+	me->log->hdr.info.end = (void *)((uint64_t)me->log->hdr.info.cur + entry_size);
+	me->log->hdr.info.overflow = 0;
+	me->log->hdr.info.valperentry = 4;
 
 	epoll_fd = epoll_create1(0);
 	if (epoll_fd < 0) {
@@ -193,18 +234,6 @@ static void *worker_func(void *arg)
 	config.events = EPOLLIN;
 
 	for (i = 0; i < clients_per_thread; i++) {
-		clients[i].sock = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
-		if (clients[i].sock < 0) {
-			perror("client socket():");
-			exit(1);
-		}
-
-		config.data.u32 = i;
-		if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, clients[i].sock, &config) < 0) {
-			perror("epoll_ctl add client:");
-			exit(1);
-		}
-
 		clients[i].buf = malloc(msg_size);
 		if (!clients[i].buf) {
 			perror("OOM");
@@ -232,9 +261,27 @@ static void *worker_func(void *arg)
 
 	// Run Experiment
 	for (i = 0; i < clients_per_thread; i++) {
+		tsclog_4(me->log, me->index, i, transaction_count - clients[i].txn_remaining, SOCKET_START);
+		clients[i].sock = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
+		if (clients[i].sock < 0) {
+			perror("client socket():");
+			exit(1);
+		}
+		tsclog_4(me->log, me->index, i, transaction_count - clients[i].txn_remaining, SOCKET_DONE);
+
+		config.data.u32 = i;
+		if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, clients[i].sock, &config) < 0) {
+			perror("epoll_ctl add client:");
+			exit(1);
+		}
+
+		tsclog_4(me->log, me->index, i, transaction_count - clients[i].txn_remaining, CONNECT_START);
 		wait_for_connect(clients[i].sock, server->ai_addr, server->ai_addrlen);
+		tsclog_4(me->log, me->index, i, transaction_count - clients[i].txn_remaining, CONNECT_DONE);
 	
+		tsclog_4(me->log, me->index, i, transaction_count - clients[i].txn_remaining, SEND_START);
 		client_send(clients[i].sock, clients[i].buf, clients[i].buf_size);
+		tsclog_4(me->log, me->index, i, transaction_count - clients[i].txn_remaining, SEND_DONE);
 	}
 
 	while (complete < total)
@@ -247,7 +294,9 @@ static void *worker_func(void *arg)
 
 		for (i = 0; i < rdy; i++) {
 			j = events[i].data.u32;
+			tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, RECV_START);
 			client_recv(clients[j].sock, clients[j].buf, clients[j].buf_size);
+			tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, RECV_DONE);
 
 			complete++;
 			clients[j].txn_remaining--;
@@ -264,9 +313,17 @@ static void *worker_func(void *arg)
 
 				clients[j].batch_remaining = batch_size;
 
+				tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, SOCKET_START);
 				clients[j].sock = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
+				if (clients[j].sock < 0) {
+					perror("socket():");
+					exit(1);
+				}
+				tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, SOCKET_DONE);
 
+				tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, CONNECT_START);
 				wait_for_connect(clients[j].sock, server->ai_addr, server->ai_addrlen); 
+				tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, CONNECT_DONE);
 
 				config.data.u32 = j;
 				if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, clients[j].sock, &config) < 0) {
@@ -275,12 +332,12 @@ static void *worker_func(void *arg)
 				}
 			}
 
+			tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, SEND_START);
 			client_send(clients[j].sock, clients[j].buf, clients[j].buf_size);
+			tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, SEND_DONE);
 		}
 		memset(events, 0, sizeof(struct epoll_event) * clients_per_thread);
 	}
-
-	fprintf(stderr, "%lu clients each sent %lu transactions\n", clients_per_thread, transaction_count);
 
 	// Finished
 	return NULL;
@@ -291,22 +348,29 @@ int main(int argc, char **argv)
 {
 	int port;
 	int ret;
+	int fd;
 	char port_str[6];
 	char *host;
+	char *out_file;
 	size_t i;
+	size_t max_events;
+	size_t tsc_khz;
+	struct TscLogEntry *cursor, *end;
 	struct worker *threads;
 	struct addrinfo hints;
 	pthread_attr_t attrs;
 	cpu_set_t *worker_cpu;
 
-	char opt_str[] = "hp:m:c:b:t:";
+	char opt_str[] = "hp:m:c:b:t:T:o:";
 	struct option long_opts[] = {
-		{"help",		no_argument, NULL, 'h'},
+		{"help",		no_argument,       NULL, 'h'},
 		{"port",		required_argument, NULL, 'p'},
 		{"msg-size",		required_argument, NULL, 'm'},
 		{"clients",		required_argument, NULL, 'c'},
 		{"batch-size",		required_argument, NULL, 'b'},
 		{"txn-count",		required_argument, NULL, 't'},
+		{"thread-count",	required_argument, NULL, 'T'},
+		{"output",		required_argument, NULL, 'o'},
 		{0}
 	};
 
@@ -315,6 +379,7 @@ int main(int argc, char **argv)
 	clients_per_thread = CLIENTS_PER_THREAD;
 	batch_size = BATCH_SIZE;
 	transaction_count = TXN_COUNT;
+	out_file = OUT_FILE;
 
 	while ((ret = getopt_long(argc, argv, opt_str, long_opts, NULL)) != -1) {
 		switch (ret) {
@@ -343,6 +408,10 @@ int main(int argc, char **argv)
 			transaction_count = strtol(optarg, NULL, 10);
 			break;
 
+		case 'T':
+			nr_threads = strtol(optarg, NULL, 10);
+			break;
+
 		default:
 			usage();
 			return -1;
@@ -354,13 +423,37 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
+	if (optind > argc - 2) {
+		fprintf(stderr, "Missing required arguments\n");
+		usage();
+		exit(1);
+	}
+
+	host = argv[optind];
+	tsc_khz = strtol(argv[optind + 1], NULL, 10);
+
 	nr_cpus = sysconf(_SC_NPROCESSORS_ONLN);
+	if (nr_threads > nr_cpus)
+		nr_threads = nr_cpus;
+
+	// Each transaction will have at least read and write start and stop
+	max_events = 4 * transaction_count;
+	/*
+	 * Count the connection events, each has socket and connect start and stop
+	 * we have at least 1 connect set at start and then 1 per batch_size
+	 */
+	max_events += 4 * (2 + transaction_count / batch_size);
+	
+	/*
+	 * Include an extra cache line size to ensure that we can align the beginning
+	 * of the allocation.
+	 */
+	hdr_size = sizeof(struct TscLog);
+	entry_size = sizeof(struct TscLog) * max_events;
 
 	srandom(time(NULL));
 
 	snprintf(port_str, 6, "%d", port);
-
-	host = argv[optind];
 
 	memset(&hints, 0, sizeof(struct addrinfo));
 
@@ -370,13 +463,16 @@ int main(int argc, char **argv)
 	getaddrinfo(host, port_str, &hints, &server);
 
 	char ipstr[INET6_ADDRSTRLEN];
-	// We are expecting ipv4 and anything else is incorrect
 
+	// We are expecting ipv4 and anything else is incorrect
 	struct sockaddr_in *ipv4 = (struct sockaddr_in *)server->ai_addr;
 	inet_ntop(server->ai_family, &ipv4->sin_addr, ipstr, sizeof(ipstr));
+
 	fprintf(stderr, "Connecting to %s:%s\n", ipstr, port_str);
 
-	threads = calloc(nr_cpus, sizeof(struct worker));
+	my_pid.pid = getpid();
+
+	threads = calloc(nr_threads, sizeof(struct worker));
 
 	// Start threads
 	pthread_mutex_lock(&worker_hang_lock);
@@ -386,7 +482,8 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	for (i = 0; i < nr_cpus; i++) {
+	for (i = 0; i < nr_threads; i++) {
+		threads[i].index = i;
 		CPU_ZERO_S(CPU_ALLOC_SIZE(nr_cpus), worker_cpu);
 		CPU_SET_S(i, CPU_ALLOC_SIZE(nr_cpus), worker_cpu);
 		if (pthread_attr_setaffinity_np(&attrs, CPU_ALLOC_SIZE(nr_cpus), worker_cpu)) {
@@ -403,15 +500,39 @@ int main(int argc, char **argv)
 	CPU_FREE(worker_cpu);
 
 	pthread_mutex_lock(&init_lock);
-	while (init_count < nr_cpus) {
+	while (init_count < nr_threads) {
 		pthread_cond_wait(&init_cond, &init_lock);
 	}
 	pthread_mutex_unlock(&init_lock);
 	pthread_mutex_unlock(&worker_hang_lock);
 
-	for (i = 0; i < nr_cpus; i++) {
+	for (i = 0; i < nr_threads; i++) {
 		pthread_join(threads[i].id, NULL);
 	}
+
+	fd = open(out_file,
+			O_WRONLY | O_CREAT | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH | O_TRUNC);
+	if (fd < 0) {
+		perror("open():");
+		exit(1);
+	}
+
+	dprintf(fd, "CPU\tTSC\tWORKER\tCLIENT\tTRANSACTION ID\tEVENT ID\tTSC_KHZ\n");
+
+	for (i = 0; i < nr_threads; i++) {
+		cursor = (struct TscLogEntry *)&(threads[i].log->entries[0]);
+		end = threads[i].log->hdr.info.cur;
+		while (cursor != end) {
+			dprintf(fd, "%u\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\n",
+					cursor->cpu, cursor->tsc, cursor->values[0], cursor->values[1],
+					cursor->values[2], cursor->values[3], tsc_khz);
+		}
+	}
+
+	close(fd);
+
+	fprintf(stderr, "%lu threads with %lu clients each sent %lu transactions\n",
+			nr_threads, clients_per_thread, transaction_count);
 
 	// Time for stats!
 	return 0;
