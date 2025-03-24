@@ -56,7 +56,7 @@ if [ -n "${1}" ]; then
 	if [ -n "${3}" ]; then
 		# Receive queue affinity has been requested, we will try and create a receive queue per CPU and
 		# bind each one to a single CPU to preserve data locality
-		CPU_CNT=$(nrcpu)
+		CPU_CNT=$(nproc)
 		/usr/sbin/ethtool -L ${CPU_CNT} ${INF}
 		
 		PCI_ADDR=$(basename $(readlink /sys/class/net/${INF}/device))
