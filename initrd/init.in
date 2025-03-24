@@ -28,7 +28,17 @@ mount -t devpts devpts /dev/pts
 # Some things don't work properly without /etc/mtab.
 ln -sf /proc/mounts /etc/mtab
 
-# Configure the requested network interface by MAC($1) to use IP($2)
+# Print cmdline
+echo "CMDLINE" >> /log
+cat /proc/cmdline >> /log
+
+# Running experimental setup scripts
+echo "Running Setup scripts" >> /log
+./exp/disable_ht.sh >> /log
+./exp/turbo-boost.sh disable >> /log
+echo "Done" >> /log
+
+# Configure the requested network interface by MAC($2) to use IP($1)
 if [ -n "${1}" ]; then
 	IP=$1
 	if [ -n "${2}" ]; then
@@ -42,18 +52,22 @@ if [ -n "${1}" ]; then
 	/usr/sbin/ip address add $IP/24 brd + dev $INF
 	/usr/sbin/ip link set $INF up
 	/usr/sbin/ip route add default $A.$B.$C.1 dev $INF
+
+	if [ -n "${3}" ]; then
+		# Receive queue affinity has been requested, we will try and create a receive queue per CPU and
+		# bind each one to a single CPU to preserve data locality
+		CPU_CNT=$(nrcpu)
+		/usr/sbin/ethtool -L ${CPU_CNT} ${INF}
+		
+		PCI_ADDR=$(basename $(readlink /sys/class/net/${INF}/device))
+		CPU_IDX=0
+		grep ${PCI_ADDR} /proc/interrupts | while read -r line; do
+			IRQ=$(echo $line | cut -d ':' -f1)
+			echo "${CPU_IDX}" > /proc/irq/${IRQ}/smp_affinity_list
+			((CPU_IDQ++))
+		done
+	fi
 fi
-
-
-# Print cmdline
-echo "CMDLINE" >> /log
-cat /proc/cmdline >> /log
-
-# Running experimental setup scripts
-echo "Running Setup scripts" >> /log
-./exp/disable_ht.sh >> /log
-./exp/turbo-boost.sh disable >> /log
-echo "Done" >> /log
 
 /usr/sbin/ip address
 
@@ -62,8 +76,6 @@ echo "Done" >> /log
 
 # Disable real-time task throttling
 echo -1 > /proc/sys/kernel/sched_rt_runtime_us
-
-touch /redis-event-log.txt
 
 sleep 5
 
