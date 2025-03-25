@@ -47,11 +47,9 @@ if [ -n "${1}" ]; then
 	else
 		INF="eth0"
 	fi
-	read A B C D <<<"${IP//./ }"
 	/usr/sbin/ip address flush dev $INF
 	/usr/sbin/ip address add $IP/24 brd + dev $INF
 	/usr/sbin/ip link set $INF up
-	/usr/sbin/ip route add default $A.$B.$C.1 dev $INF
 
 	if [ -n "${3}" ]; then
 		# Receive queue affinity has been requested, we will try and create a receive queue per CPU and
@@ -64,7 +62,10 @@ if [ -n "${1}" ]; then
 		grep ${PCI_ADDR} /proc/interrupts | while read -r line; do
 			IRQ=$(echo $line | cut -d ':' -f1)
 			echo "${CPU_IDX}" > /proc/irq/${IRQ}/smp_affinity_list
-			((CPU_IDQ++))
+			((CPU_IDX++))
+			if (( CPU_IDX >= CPU_CNT )); then
+				CPU_IDX=0
+			fi
 		done
 	fi
 fi
