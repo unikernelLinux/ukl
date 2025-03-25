@@ -376,7 +376,7 @@ void *worker_func(void *arg)
 		exit(1);
 	}
 
-	epoll_fd = epoll_create1(0);
+	epoll_fd = epoll_create(1);
 	if (epoll_fd < 0) {
 		perror("epoll_create1():");
 		exit(1);

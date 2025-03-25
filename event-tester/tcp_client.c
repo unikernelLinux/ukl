@@ -93,7 +93,7 @@ static void usage(void)
 {
         fprintf(stderr, "tcp_client [options] host-ip tsc-khz\n");
 	fprintf(stderr, "host-ip is required and is an IPv4 dotted quad\n");
-	fprintf(stderr, "tsc-khz is required and is the TSC frequency for this machine in KHz");
+	fprintf(stderr, "tsc-khz is required and is the TSC frequency for this machine in KHz\n");
         fprintf(stderr, "options:\n");
         OPTION("--help,-h", "Print this message");
         OPTION("--port,-p [port]", "Use the requested port instead of 7272");
@@ -163,12 +163,11 @@ static void wait_for_connect(int sock, const struct sockaddr *addr, socklen_t le
 
 		list[0].fd = sock;
 		list[0].events = POLLOUT;
-		if ((ret = poll(list, 1, 1000)) == -1 ) {
+		if ((ret = poll(list, 1, 100000)) == -1 ) {
 			perror("poll():");
 			exit(1);
 		} else if (ret == 0) {
 			fprintf(stderr, "Timed out waiting for connection\n");
-			exit(1);
 		}
 
 		while (so_error == EINPROGRESS) {
@@ -183,6 +182,7 @@ static void wait_for_connect(int sock, const struct sockaddr *addr, socklen_t le
 			exit(1);
 		}
 	}
+	fprintf(stderr, "Connected?\n");
 }
 
 static void *worker_func(void *arg)
@@ -412,6 +412,10 @@ int main(int argc, char **argv)
 			nr_threads = strtol(optarg, NULL, 10);
 			break;
 
+		case 'o':
+			out_file = optarg;
+			break;
+
 		default:
 			usage();
 			return -1;
@@ -433,7 +437,7 @@ int main(int argc, char **argv)
 	tsc_khz = strtol(argv[optind + 1], NULL, 10);
 
 	nr_cpus = sysconf(_SC_NPROCESSORS_ONLN);
-	if (nr_threads > nr_cpus)
+	if (nr_threads == 0 || nr_threads > nr_cpus)
 		nr_threads = nr_cpus;
 
 	// Each transaction will have at least read and write start and stop
