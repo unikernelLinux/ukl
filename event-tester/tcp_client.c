@@ -605,6 +605,7 @@ int main(int argc, char **argv)
 			dprintf(fd, "%u\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\n",
 					cursor->cpu, cursor->tsc, cursor->values[0], cursor->values[1],
 					cursor->values[2], cursor->values[3], tsc_khz);
+			cursor = (struct TscLogEntry *)((uint8_t*)cursor + TscLogEntrySize(4));
 		}
 	}
 
