@@ -155,7 +155,7 @@ static inline void tsclog_3(struct TscLog *log, TscLogValue_t v0, TscLogValue_t 
 
 static inline void tsclog_4(struct TscLog *log, TscLogValue_t v0, TscLogValue_t v1,
 	 			TscLogValue_t v2, TscLogValue_t v3) {
-	TSCLOG_INFO(log,3);
+	TSCLOG_INFO(log,4);
 	tsc_writeval(e,0,v0);
 	tsc_writeval(e,1,v1);
 	tsc_writeval(e,2,v2);

@@ -33,7 +33,7 @@
 #endif
 
 #ifndef CLIENTS_PER_THREAD
-#define CLIENTS_PER_THREAD 4
+#define CLIENTS_PER_THREAD 1
 #endif
 
 #ifndef BATCH_SIZE
@@ -71,19 +71,30 @@ static pthread_mutex_t worker_hang_lock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t init_lock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t init_cond = PTHREAD_COND_INITIALIZER;
 
-struct worker {
-	pthread_t id;
-	uint64_t index;
-	struct stats *stats;
-	struct TscLog *log;
+enum state {
+	INIT,
+	CONNECTING,
+	READY,
+	SENT,
+	DONE
 };
 
 struct client {
 	int sock;
 	uint8_t *buf;
+	enum state state;
 	size_t buf_size;
 	size_t txn_remaining;
 	size_t batch_remaining;
+};
+
+struct worker {
+	pthread_t id;
+	uint64_t index;
+	int epoll_fd;
+	struct stats *stats;
+	struct TscLog *log;
+	struct client *clients;
 };
 
 #define OPTION(opts, text)      fprintf(stderr, " %-30s  %s\n", opts, text)
@@ -100,7 +111,7 @@ static void usage(void)
         OPTION("--msg-size,-m [size]", "Use the requested message size instead of 32");
 	OPTION("--batch-size,-b [size]", "Send [size] transactions before reconnecting. Default is 1");
 	OPTION("--txn-count,-t [count]", "Have each client send [count] requests. Default is 1000");
-	OPTION("--clients,-c [count]", "Start [count] clients per thread. Default is 4");
+	OPTION("--clients,-c [count]", "Start [count] clients per thread. Default is 1");
 	OPTION("--thread-count,-T [count]", "Use [count] threads. Default is 1 per online CPU");
 	CONT("The client will start at max 1 thread per online CPU.");
 	OPTION("--output,-o [name]", "Use [name] for the timer tab separated value file.");
@@ -146,57 +157,166 @@ static void client_recv(int sock, uint8_t *buf, size_t len)
 	} while (cursor < len);
 }
 
-static void wait_for_connect(int sock, const struct sockaddr *addr, socklen_t len)
+static enum state do_connect(int sock, const struct sockaddr *addr, socklen_t len)
 {
-	int so_error;
-	socklen_t optlen = sizeof(int);
-	struct pollfd list[1];
-	int ret;
-
 	if (connect(sock, addr, len) < 0) {
 		if (errno != EINPROGRESS) {
 			perror("client connect():");
 			exit(1);
 		}
+		return CONNECTING;
+	}
 
-		so_error = errno;
+	return READY;
+}
 
-		list[0].fd = sock;
-		list[0].events = POLLOUT;
-		if ((ret = poll(list, 1, 100000)) == -1 ) {
-			perror("poll():");
+/*
+ * This function is called when we can transition a client to a new state.
+ * It will recursively call itself until the client is in a state where we
+ * need to wait on input from epoll to proceed further.
+ */
+static int do_state_transition(struct worker *me, uint32_t j)
+{
+	struct client *clients = me->clients;
+	int epoll_fd = me->epoll_fd;
+	int so_err;
+	socklen_t len = sizeof(so_err);
+	struct epoll_event config;
+
+	switch (clients[j].state) {
+	case INIT:
+		/*
+		 * The specified client does not have a socket, set it up and try to connect.
+		 *
+		 * Valid state transitions from here are CONNECTING or READY.
+		 */
+		clients[j].batch_remaining = batch_size;
+
+		tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, SOCKET_START);
+		clients[j].sock = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
+		if (clients[j].sock < 0) {
+			perror("socket():");
 			exit(1);
-		} else if (ret == 0) {
-			fprintf(stderr, "Timed out waiting for connection\n");
 		}
+		tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, SOCKET_DONE);
 
-		while (so_error == EINPROGRESS) {
-			if (getsockopt(sock, SOL_SOCKET, SO_ERROR, &so_error, &optlen) != 0) {
-				perror("connect getsockopt():");
+		tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, CONNECT_START);
+		clients[j].state = do_connect(clients[j].sock, server->ai_addr, server->ai_addrlen);
+		if (clients[j].state != READY) {
+			// INIT -> CONNECTING
+			config.events = EPOLLOUT | EPOLLONESHOT;
+			config.data.u32 = j;
+			if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, clients[j].sock, &config) < 0) {
+				perror("epoll_ctl add client:");
 				exit(1);
 			}
+			return 0;
 		}
 
-		if (so_error && so_error != EISCONN) {
-			fprintf(stderr, "Non blocking connect failed: %d\n", so_error);
+		// INIT -> READY
+		tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, CONNECT_DONE);
+		return do_state_transition(me, j);
+
+	case CONNECTING:
+		/*
+		 * The specified client did not complete connecting and now has or has failed.
+		 *
+		 * Valid state transitions from here are: READY
+		 */
+		tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, CONNECT_DONE);
+
+		if (epoll_ctl(epoll_fd, EPOLL_CTL_DEL, clients[j].sock, NULL) < 0) {
+			perror("epoll_ctl del client:");
 			exit(1);
 		}
+
+		if (getsockopt(clients[j].sock, SOL_SOCKET, SO_ERROR, &so_err, &len) < 0) {
+			perror("getsockopt(SO_ERROR):");
+			exit(1);
+		}
+
+		if (so_err != 0) {
+			errno = so_err;
+			perror("Connection failed:");
+			exit(1);
+		}
+
+		clients[j].state = READY;
+
+		return do_state_transition(me, j);
+
+	case READY:
+		/*
+		 * The specified client is ready to send a request.
+		 *
+		 * Valid state transitions from here are: SENT
+		 */
+		config.events = EPOLLIN;
+		config.data.u32 = j;
+		if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, clients[j].sock, &config) < 0) {
+			perror("epoll_ctl add client:");
+			exit(1);
+		}
+		tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, SEND_START);
+		client_send(clients[j].sock, clients[j].buf, clients[j].buf_size);
+		tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, SEND_DONE);
+
+		clients[j].state = SENT;
+		return 0;
+
+	case SENT:
+		/*
+		 * The specified client is ready to receive a response.
+		 *
+		 * Valid state transitions from here are: INIT, READY, DONE
+		 */
+		tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, RECV_START);
+		client_recv(clients[j].sock, clients[j].buf, clients[j].buf_size);
+		tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, RECV_DONE);
+
+		clients[j].txn_remaining--;
+		if (clients[j].txn_remaining == 0) {
+			// SENT -> DONE
+			epoll_ctl(epoll_fd, EPOLL_CTL_DEL, clients[j].sock, NULL);
+			close(clients[j].sock);
+			return 1;
+		}
+
+		clients[j].batch_remaining--;
+		if (clients[j].batch_remaining == 0) {
+			// SENT -> INIT
+			epoll_ctl(epoll_fd, EPOLL_CTL_DEL, clients[j].sock, NULL);
+			close(clients[j].sock);
+			clients[j].state = INIT;
+			return 1 + do_state_transition(me, j);
+		}
+
+		// SENT -> READY
+		clients[j].state = READY;
+		return 1 + do_state_transition(me, j);
+
+	default:
+		if (clients[j].state == DONE)
+			fprintf(stderr, "Receieved event on DONE client?\n");
+		else
+			fprintf(stderr, "Invalid client state %d.\n", clients[j].state);
+		exit(1);
 	}
-	fprintf(stderr, "Connected?\n");
 }
 
 static void *worker_func(void *arg)
 {
-	struct client *clients;
 	size_t i, j;
 	size_t complete = 0;
 	size_t total = transaction_count * clients_per_thread;
-	int epoll_fd;
 	int rdy;
 	struct epoll_event *events;
-	struct epoll_event config;
 	struct worker *me = (struct worker*)arg;
 
+	/*
+	 * Include an extra cache line size to ensure that we can align the beginning
+	 * of the allocation.
+	 */
 	me->log = calloc(hdr_size + entry_size + L1_CACHE_BYTES, 1);
 	if (!me->log) {
 		perror("OOM:");
@@ -213,14 +333,14 @@ static void *worker_func(void *arg)
 	me->log->hdr.info.overflow = 0;
 	me->log->hdr.info.valperentry = 4;
 
-	epoll_fd = epoll_create1(0);
-	if (epoll_fd < 0) {
+	me->epoll_fd = epoll_create1(0);
+	if (me->epoll_fd < 0) {
 		perror("epoll_create1():");
 		exit(1);
 	}
 	
-	clients = calloc(clients_per_thread, sizeof(struct client));
-	if (!clients) {
+	me->clients = calloc(clients_per_thread, sizeof(struct client));
+	if (!me->clients) {
 		perror("OOM");
 		exit(1);
 	}
@@ -231,24 +351,22 @@ static void *worker_func(void *arg)
 		exit(1);
 	}
 
-	config.events = EPOLLIN;
-
 	for (i = 0; i < clients_per_thread; i++) {
-		clients[i].buf = malloc(msg_size);
-		if (!clients[i].buf) {
+		me->clients[i].buf = malloc(msg_size);
+		if (!me->clients[i].buf) {
 			perror("OOM");
 			exit(1);
 		}
 
-		clients[i].buf_size = msg_size;
+		me->clients[i].buf_size = msg_size;
 
 		// Fill our buffers with random values
 		for (j = 0; j < msg_size; j++) {
-			clients[i].buf[j] = (uint8_t)random();
+			me->clients[i].buf[j] = (uint8_t)random();
 		}
 
-		clients[i].txn_remaining = transaction_count;
-		clients[i].batch_remaining = batch_size;
+		me->clients[i].txn_remaining = transaction_count;
+		me->clients[i].batch_remaining = batch_size;
 	}
 
 	// Setup Complete
@@ -261,32 +379,23 @@ static void *worker_func(void *arg)
 
 	// Run Experiment
 	for (i = 0; i < clients_per_thread; i++) {
-		tsclog_4(me->log, me->index, i, transaction_count - clients[i].txn_remaining, SOCKET_START);
-		clients[i].sock = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
-		if (clients[i].sock < 0) {
-			perror("client socket():");
-			exit(1);
-		}
-		tsclog_4(me->log, me->index, i, transaction_count - clients[i].txn_remaining, SOCKET_DONE);
-
-		config.data.u32 = i;
-		if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, clients[i].sock, &config) < 0) {
-			perror("epoll_ctl add client:");
-			exit(1);
-		}
-
-		tsclog_4(me->log, me->index, i, transaction_count - clients[i].txn_remaining, CONNECT_START);
-		wait_for_connect(clients[i].sock, server->ai_addr, server->ai_addrlen);
-		tsclog_4(me->log, me->index, i, transaction_count - clients[i].txn_remaining, CONNECT_DONE);
-	
-		tsclog_4(me->log, me->index, i, transaction_count - clients[i].txn_remaining, SEND_START);
-		client_send(clients[i].sock, clients[i].buf, clients[i].buf_size);
-		tsclog_4(me->log, me->index, i, transaction_count - clients[i].txn_remaining, SEND_DONE);
+		/*
+		 * Initialize all our clients, when this funciton returns here we know that all our clients 
+		 * need epoll to tell us that there is work to do. We don't expect any completed
+		 * transactions here, but for completeness
+		 */
+		complete += do_state_transition(me, i);
 	}
 
 	while (complete < total)
 	{
-		rdy = epoll_wait(epoll_fd, events, clients_per_thread, -1);
+		rdy = epoll_wait(me->epoll_fd, events, clients_per_thread, 10000);
+
+		if (rdy == 0) {
+			fprintf(stderr, "Nothing happened in 10 seconds, is the server alive?\n");
+			exit(1);
+		}
+
 		if (rdy < 0) {
 			perror("epoll_wait():");
 			exit(1);
@@ -294,51 +403,16 @@ static void *worker_func(void *arg)
 
 		for (i = 0; i < rdy; i++) {
 			j = events[i].data.u32;
-			tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, RECV_START);
-			client_recv(clients[j].sock, clients[j].buf, clients[j].buf_size);
-			tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, RECV_DONE);
-
-			complete++;
-			clients[j].txn_remaining--;
-			if (clients[j].txn_remaining == 0) {
-				epoll_ctl(epoll_fd, EPOLL_CTL_DEL, clients[j].sock, NULL);
-				close(clients[j].sock);
-				continue;
-			}
-
-			clients[j].batch_remaining--;
-			if (clients[j].batch_remaining == 0) {
-				epoll_ctl(epoll_fd, EPOLL_CTL_DEL, clients[j].sock, NULL);
-				close(clients[j].sock);
-
-				clients[j].batch_remaining = batch_size;
-
-				tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, SOCKET_START);
-				clients[j].sock = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
-				if (clients[j].sock < 0) {
-					perror("socket():");
-					exit(1);
-				}
-				tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, SOCKET_DONE);
-
-				tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, CONNECT_START);
-				wait_for_connect(clients[j].sock, server->ai_addr, server->ai_addrlen); 
-				tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, CONNECT_DONE);
-
-				config.data.u32 = j;
-				if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, clients[j].sock, &config) < 0) {
-					perror("epoll_ctl add client:");
-					exit(1);
-				}
-			}
-
-			tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, SEND_START);
-			client_send(clients[j].sock, clients[j].buf, clients[j].buf_size);
-			tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, SEND_DONE);
+			complete += do_state_transition(me, j);
 		}
 		memset(events, 0, sizeof(struct epoll_event) * clients_per_thread);
 	}
 
+	for (i = 0; i < clients_per_thread; i++) {
+		free(me->clients[i].buf);
+	}
+	free(me->clients);
+	free(events);
 	// Finished
 	return NULL;
 }
@@ -440,18 +514,19 @@ int main(int argc, char **argv)
 	if (nr_threads == 0 || nr_threads > nr_cpus)
 		nr_threads = nr_cpus;
 
-	// Each transaction will have at least read and write start and stop
+	/*
+	 * Each transaction will have at least read and write start and stop for a
+	 * total of at least 4 events per transaction
+	 */
 	max_events = 4 * transaction_count;
 	/*
 	 * Count the connection events, each has socket and connect start and stop
-	 * we have at least 1 connect set at start and then 1 per batch_size
+	 * we have at least 1 connect pair at start and then 1 per batch_size. So
+	 * that is 4 events per connect attempt with 1 initial attempt + 1 attempt
+	 * per batch.
 	 */
-	max_events += 4 * (2 + transaction_count / batch_size);
+	max_events += 4 * (1 + transaction_count / batch_size);
 	
-	/*
-	 * Include an extra cache line size to ensure that we can align the beginning
-	 * of the allocation.
-	 */
 	hdr_size = sizeof(struct TscLog);
 	entry_size = sizeof(struct TscLog) * max_events;
 
@@ -514,8 +589,8 @@ int main(int argc, char **argv)
 		pthread_join(threads[i].id, NULL);
 	}
 
-	fd = open(out_file,
-			O_WRONLY | O_CREAT | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH | O_TRUNC);
+	fd = open(out_file, O_WRONLY | O_CREAT | O_TRUNC,
+			S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 	if (fd < 0) {
 		perror("open():");
 		exit(1);
