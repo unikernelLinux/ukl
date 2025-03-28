@@ -16,6 +16,8 @@
 #include <sys/epoll.h>
 #include <sys/eventfd.h>
 
+#include <arpa/inet.h>
+
 #ifndef DEFAULT_PORT
 #define DEFAULT_PORT 7272
 #endif
@@ -438,6 +440,7 @@ int main(int argc, char **argv)
 	int index = 0;
 	unsigned int port;
 	char prt_str[6];
+	char addr_str[INET6_ADDRSTRLEN];
 
 	char opt_str[] = "hp:m:";
 	struct option long_opts[] = {
@@ -475,7 +478,7 @@ int main(int argc, char **argv)
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = AI_PASSIVE | AI_NUMERICSERV;
+	hints.ai_flags = AI_PASSIVE | AI_NUMERICHOST | AI_NUMERICSERV;
 
 	if (port > 65535) {
 		fprintf(stderr, "Invalid port number\n");
@@ -495,6 +498,13 @@ int main(int argc, char **argv)
 
 	init_threads();
 
+	if (!inet_ntop(AF_INET, &(((struct sockaddr_in*)res->ai_addr)->sin_addr),
+				addr_str, INET6_ADDRSTRLEN)) {
+		perror("inet_ntop():");
+		exit(1);
+	}
+
+	fprintf(stderr, "Listening on %s:%s\n", addr_str, port_str);
 	fprintf(stderr, "Started %lu threads, server is ready.\n");
 
 	while(1) {
