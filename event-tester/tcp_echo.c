@@ -504,7 +504,7 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	fprintf(stderr, "Listening on %s:%s\n", addr_str, port_str);
+	fprintf(stderr, "Listening on %s:%s\n", addr_str, prt_str);
 	fprintf(stderr, "Started %lu threads, server is ready.\n");
 
 	while(1) {
