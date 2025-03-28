@@ -478,14 +478,14 @@ int main(int argc, char **argv)
 	hints.ai_flags = AI_PASSIVE | AI_NUMERICSERV;
 
 	if (port > 65535) {
-		printf("Invalid port number\n");
+		fprintf(stderr, "Invalid port number\n");
 		goto out_ret;
 	}
 
 	snprintf(prt_str, 6, "%u", port);
 
 	if ((status = getaddrinfo(NULL, prt_str, &hints, &res))) {
-		printf("getaddrinfo failed: %s\n", gai_strerror(status));
+		fprintf(stderr, "getaddrinfo failed: %s\n", gai_strerror(status));
 		goto out_ret;
 	}
 
@@ -494,6 +494,8 @@ int main(int argc, char **argv)
 	init_conns();
 
 	init_threads();
+
+	fprintf(stderr, "Started %lu threads, server is ready.\n");
 
 	while(1) {
 		sleep(90000);
