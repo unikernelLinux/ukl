@@ -189,7 +189,7 @@ int on_read(struct connection *conn)
 {
 	ssize_t ret;
 	size_t size;
-	size_t cursor = 0;
+	size_t cursor;
 
 	if (!conn->buffer) {
 		conn->buffer = (unsigned char *)malloc(msg_size);
@@ -200,6 +200,7 @@ int on_read(struct connection *conn)
 	}
 
 	while (1) {
+		cursor = 0;
 
 		do {
 			if ((ret = read(conn->fd, &(conn->buffer[cursor]), msg_size - cursor)) <= 0) {
@@ -216,11 +217,10 @@ int on_read(struct connection *conn)
 			cursor += ret;
 		} while (cursor < msg_size);
 
-		size = cursor;
 		cursor = 0;
 
 		do {
-			if ((ret = write(conn->fd, &(conn->buffer[cursor]), size - cursor)) <= 0) {
+			if ((ret = write(conn->fd, &(conn->buffer[cursor]), msg_size - cursor)) <= 0) {
 				if (ret == 0) {
 					return CLOSED;
 				} else if (errno == EAGAIN || errno == EWOULDBLOCK) {
@@ -230,7 +230,7 @@ int on_read(struct connection *conn)
 				exit(1);
 			}
 			cursor += ret;
-		} while (cursor < size);
+		} while (cursor < msg_size);
 	}
 
 	return SUCCESS;
@@ -295,8 +295,8 @@ void on_event(struct worker_thread *me) {
 		exit(1);
 	}
 
+	pthread_mutex_lock(&me->incoming.lock);
 	while (me->incoming.list != NULL) {
-		pthread_mutex_lock(&me->incoming.lock);
 		newbie = me->incoming.list;
 		me->incoming.list = newbie->next;
 		pthread_mutex_unlock(&me->incoming.lock);
@@ -314,7 +314,9 @@ void on_event(struct worker_thread *me) {
 			perror("epoll_ctl client fd:");
 			exit(1);
 		}
+		pthread_mutex_lock(&me->incoming.lock);
 	}
+	pthread_mutex_unlock(&me->incoming.lock);
 }
 
 void on_close(struct worker_thread *me, int closed_fd)
@@ -504,8 +506,8 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	fprintf(stderr, "Listening on %s:%s\n", addr_str, prt_str);
-	fprintf(stderr, "Started %lu threads, server is ready.\n");
+	printf("Listening on %s:%s\n", addr_str, prt_str);
+	printf("Started %lu threads, server is ready.\n", nr_cpus);
 
 	while(1) {
 		sleep(90000);
