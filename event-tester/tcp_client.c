@@ -44,6 +44,11 @@
 #define TXN_COUNT 1000
 #endif
 
+#ifndef EVENT_BACKLOG
+#define EVENT_BACKLOG 20
+#endif
+
+
 #ifndef OUT_FILE
 #define OUT_FILE "timers.tsv"
 #endif
@@ -345,7 +350,7 @@ static void *worker_func(void *arg)
 		exit(1);
 	}
 
-	events = calloc(clients_per_thread, sizeof(struct epoll_event));
+	events = calloc(EVENT_BACKLOG, sizeof(struct epoll_event));
 	if (!events) {
 		perror("OOM");
 		exit(1);
@@ -389,7 +394,7 @@ static void *worker_func(void *arg)
 
 	while (complete < total)
 	{
-		rdy = epoll_wait(me->epoll_fd, events, clients_per_thread, 10000);
+		rdy = epoll_wait(me->epoll_fd, events, EVENT_BACKLOG, 10000);
 
 		if (rdy == 0) {
 			fprintf(stderr, "Nothing happened in 10 seconds after %lu transactions, is the server alive?\n", complete);
