@@ -70,6 +70,7 @@ static size_t transaction_count;
 static size_t clients_per_thread;
 static size_t hdr_size;
 static size_t entry_size;
+static struct worker *threads;
 
 static size_t init_count;
 static pthread_mutex_t worker_hang_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -97,7 +98,7 @@ struct worker {
 	pthread_t id;
 	uint64_t index;
 	int epoll_fd;
-	struct stats *stats;
+	int dying;
 	struct TscLog *log;
 	struct client *clients;
 };
@@ -129,6 +130,13 @@ extern char *optarg;
 
 static struct addrinfo *server;
 
+static void set_dying(void)
+{
+	size_t i;
+	for (i = 0; i < nr_threads; i++)
+		threads[i].dying = 1;
+}
+
 static void client_send(int sock, uint8_t *buf, size_t len)
 {
 	ssize_t ret;
@@ -138,7 +146,8 @@ static void client_send(int sock, uint8_t *buf, size_t len)
 		ret = send(sock, &(buf[cursor]), len - cursor, 0);
 		if (ret < 0) {
 			perror("client send():");
-			exit(1);
+			set_dying();
+			return;
 		}
 
 		cursor += ret;
@@ -155,7 +164,8 @@ static void client_recv(int sock, uint8_t *buf, size_t len)
 		ret = recv(sock, &(buf[cursor]), len - cursor, 0);
 		if (ret < 0) {
 			perror("client recv():");
-			exit(1);
+			set_dying();
+			return;
 		}
 
 		cursor += ret;
@@ -167,7 +177,8 @@ static enum state do_connect(int sock, const struct sockaddr *addr, socklen_t le
 	if (connect(sock, addr, len) < 0) {
 		if (errno != EINPROGRESS) {
 			perror("client connect():");
-			exit(1);
+			set_dying();
+			return DONE;
 		}
 		return CONNECTING;
 	}
@@ -201,7 +212,8 @@ static int do_state_transition(struct worker *me, uint32_t j)
 		clients[j].sock = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
 		if (clients[j].sock < 0) {
 			perror("socket():");
-			exit(1);
+			set_dying();
+			return 0;
 		}
 		tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, SOCKET_DONE);
 
@@ -213,7 +225,8 @@ static int do_state_transition(struct worker *me, uint32_t j)
 			config.data.u32 = j;
 			if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, clients[j].sock, &config) < 0) {
 				perror("epoll_ctl add client:");
-				exit(1);
+				set_dying();
+				return 0;
 			}
 			return 0;
 		}
@@ -232,18 +245,21 @@ static int do_state_transition(struct worker *me, uint32_t j)
 
 		if (epoll_ctl(epoll_fd, EPOLL_CTL_DEL, clients[j].sock, NULL) < 0) {
 			perror("epoll_ctl del client:");
-			exit(1);
+			set_dying();
+			return 0;
 		}
 
 		if (getsockopt(clients[j].sock, SOL_SOCKET, SO_ERROR, &so_err, &len) < 0) {
 			perror("getsockopt(SO_ERROR):");
-			exit(1);
+			set_dying();
+			return 0;
 		}
 
 		if (so_err != 0) {
 			errno = so_err;
 			perror("Connection failed:");
-			exit(1);
+			set_dying();
+			return 0;
 		}
 
 		clients[j].state = READY;
@@ -260,7 +276,8 @@ static int do_state_transition(struct worker *me, uint32_t j)
 		config.data.u32 = j;
 		if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, clients[j].sock, &config) < 0) {
 			perror("epoll_ctl add client:");
-			exit(1);
+			set_dying();
+			return 0;
 		}
 		tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, SEND_START);
 		client_send(clients[j].sock, clients[j].buf, clients[j].buf_size);
@@ -282,9 +299,8 @@ static int do_state_transition(struct worker *me, uint32_t j)
 		clients[j].txn_remaining--;
 		if (clients[j].txn_remaining == 0) {
 			// SENT -> DONE
-			epoll_ctl(epoll_fd, EPOLL_CTL_DEL, clients[j].sock, NULL);
-			close(clients[j].sock);
-			return 1;
+			clients[j].state = DONE;
+			return 1 + do_state_transition(me, j);
 		}
 
 		clients[j].batch_remaining--;
@@ -300,12 +316,48 @@ static int do_state_transition(struct worker *me, uint32_t j)
 		clients[j].state = READY;
 		return 1 + do_state_transition(me, j);
 
+	case DONE:
+		/*
+		 * The specified client is done and needs to be cleaned up.
+		 *
+		 * There are no valid state transitions from here.
+		 */
+		epoll_ctl(epoll_fd, EPOLL_CTL_DEL, clients[j].sock, NULL);
+		close(clients[j].sock);
+		clients[j].sock = -1;
+		return 0;
+
 	default:
-		if (clients[j].state == DONE)
-			fprintf(stderr, "Receieved event on DONE client?\n");
-		else
-			fprintf(stderr, "Invalid client state %d.\n", clients[j].state);
-		exit(1);
+		fprintf(stderr, "Invalid client state %d.\n", clients[j].state);
+		set_dying();
+		return 0;
+	}
+}
+
+static void cleanup(struct worker *me)
+{
+	size_t i;
+
+	for (i = 0; i < clients_per_thread; i++) {
+		if (me->clients[i].sock >= 0) {
+			close(me->clients[i].sock);
+			me->clients[i].sock = -1;
+		}
+
+		if (me->clients[i].buf) {
+			free(me->clients[i].buf);
+			me->clients[i].buf = NULL;
+		}
+	}
+
+	if (me->clients) {
+		free(me->clients);
+		me->clients = NULL;
+	}
+
+	if (me->epoll_fd >= 0) {
+		close(me->epoll_fd);
+		me->epoll_fd = -1;
 	}
 }
 
@@ -392,18 +444,18 @@ static void *worker_func(void *arg)
 		complete += do_state_transition(me, i);
 	}
 
-	while (complete < total)
+	while (!me->dying && complete < total)
 	{
 		rdy = epoll_wait(me->epoll_fd, events, EVENT_BACKLOG, 10000);
 
 		if (rdy == 0) {
 			fprintf(stderr, "Nothing happened in 10 seconds after %lu transactions, is the server alive?\n", complete);
-			exit(1);
+			goto out_err;
 		}
 
 		if (rdy < 0) {
 			perror("epoll_wait():");
-			exit(1);
+			goto out_err;
 		}
 
 		for (i = 0; i < rdy; i++) {
@@ -413,12 +465,14 @@ static void *worker_func(void *arg)
 		memset(events, 0, sizeof(struct epoll_event) * clients_per_thread);
 	}
 
-	for (i = 0; i < clients_per_thread; i++) {
-		free(me->clients[i].buf);
-	}
-	free(me->clients);
-	free(events);
+	cleanup(me);
+
 	// Finished
+	return NULL;
+
+out_err:
+	cleanup(me);
+	set_dying();
 	return NULL;
 }
 
@@ -435,7 +489,6 @@ int main(int argc, char **argv)
 	size_t max_events;
 	size_t tsc_khz;
 	struct TscLogEntry *cursor, *end;
-	struct worker *threads;
 	struct addrinfo hints;
 	pthread_attr_t attrs;
 	cpu_set_t *worker_cpu;
@@ -594,6 +647,13 @@ int main(int argc, char **argv)
 		pthread_join(threads[i].id, NULL);
 	}
 
+	for (i = 0; i < nr_threads; i++) {
+		if (threads[i].dying) {
+			fprintf(stderr, "Worker threads failed, skipping stats output.\n");
+			exit(1);
+		}
+	}
+
 	fd = open(out_file, O_WRONLY | O_CREAT | O_TRUNC,
 			S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 	if (fd < 0) {
@@ -619,7 +679,6 @@ int main(int argc, char **argv)
 	fprintf(stderr, "%lu threads with %lu clients each sent %lu transactions\n",
 			nr_threads, clients_per_thread, transaction_count);
 
-	// Time for stats!
 	return 0;
 }
 
