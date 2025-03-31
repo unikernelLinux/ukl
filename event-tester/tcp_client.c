@@ -392,7 +392,7 @@ static void *worker_func(void *arg)
 		rdy = epoll_wait(me->epoll_fd, events, clients_per_thread, 10000);
 
 		if (rdy == 0) {
-			fprintf(stderr, "Nothing happened in 10 seconds, is the server alive?\n");
+			fprintf(stderr, "Nothing happened in 10 seconds after %lu transactions, is the server alive?\n", complete);
 			exit(1);
 		}
 
