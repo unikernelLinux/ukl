@@ -80,6 +80,7 @@ static pthread_cond_t init_cond = PTHREAD_COND_INITIALIZER;
 enum state {
 	INIT,
 	CONNECTING,
+	NEW,
 	READY,
 	SENT,
 	DONE
@@ -239,7 +240,7 @@ static int do_state_transition(struct worker *me, uint32_t j)
 		/*
 		 * The specified client did not complete connecting and now has or has failed.
 		 *
-		 * Valid state transitions from here are: READY
+		 * Valid state transitions from here are: NEW
 		 */
 		tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, CONNECT_DONE);
 
@@ -262,15 +263,15 @@ static int do_state_transition(struct worker *me, uint32_t j)
 			return 0;
 		}
 
-		clients[j].state = READY;
+		clients[j].state = NEW;
 
 		return do_state_transition(me, j);
 
-	case READY:
+	case NEW:
 		/*
-		 * The specified client is ready to send a request.
+		 * The specified client is connected and needs the fd added to epoll.
 		 *
-		 * Valid state transitions from here are: SENT
+		 * Valid state transitions from here are: READY
 		 */
 		config.events = EPOLLIN;
 		config.data.u32 = j;
@@ -279,6 +280,16 @@ static int do_state_transition(struct worker *me, uint32_t j)
 			set_dying();
 			return 0;
 		}
+
+		clients[j].state = READY;
+		return do_state_transition(me, j);
+
+	case READY:
+		/*
+		 * The specified client is ready to send a request.
+		 *
+		 * Valid state transitions from here are: SENT
+		 */
 		tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, SEND_START);
 		client_send(clients[j].sock, clients[j].buf, clients[j].buf_size);
 		tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, SEND_DONE);
@@ -323,6 +334,7 @@ static int do_state_transition(struct worker *me, uint32_t j)
 		 * There are no valid state transitions from here.
 		 */
 		epoll_ctl(epoll_fd, EPOLL_CTL_DEL, clients[j].sock, NULL);
+		shutdown(clients[j].sock, SHUT_RDWR);
 		close(clients[j].sock);
 		clients[j].sock = -1;
 		return 0;
@@ -462,7 +474,7 @@ static void *worker_func(void *arg)
 			j = events[i].data.u32;
 			complete += do_state_transition(me, j);
 		}
-		memset(events, 0, sizeof(struct epoll_event) * clients_per_thread);
+		memset(events, 0, sizeof(struct epoll_event) * rdy);
 	}
 
 	cleanup(me);
@@ -661,15 +673,15 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	dprintf(fd, "CPU\tTSC\tWORKER\tCLIENT\tTRANSACTION ID\tEVENT ID\tTSC_KHZ\n");
+	dprintf(fd, "WORKER\tCLIENT\tTRANSACTION ID\tEVENT ID\tTSC\tTSC_KHZ\n");
 
 	for (i = 0; i < nr_threads; i++) {
 		cursor = (struct TscLogEntry *)&(threads[i].log->entries[0]);
 		end = threads[i].log->hdr.info.cur;
 		while (cursor != end) {
-			dprintf(fd, "%u\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\n",
-					cursor->cpu, cursor->tsc, cursor->values[0], cursor->values[1],
-					cursor->values[2], cursor->values[3], tsc_khz);
+			dprintf(fd, "%lu\t%lu\t%lu\t%lu\t%lu\t%lu\n",
+					cursor->values[0], cursor->values[1], cursor->values[2],
+					cursor->values[3], cursor->tsc, tsc_khz);
 			cursor = (struct TscLogEntry *)((uint8_t*)cursor + TscLogEntrySize(4));
 		}
 	}

@@ -69,6 +69,7 @@ struct worker_thread {
 	int event_fd;
 	int epoll_fd;
 	int cpu;
+	int index;
 };
 static struct worker_thread *threads;
 
@@ -88,66 +89,6 @@ static size_t nr_cpus;
 
 #define SUCCESS 0
 #define CLOSED  1
-
-void *worker_func(void *arg);
-
-static void init_threads(void)
-{
-	pthread_attr_t attrs;
-	pthread_t dummy;
-	cpu_set_t *worker_cpu;
-
-	threads = calloc(nr_cpus, sizeof(struct worker_thread));
-	if (threads == NULL) {
-		perror("calloc():");
-		exit(1);
-	}
-
-	worker_cpu = CPU_ALLOC(nr_cpus);
-
-	if (pthread_attr_init(&attrs)) {
-		perror("Failed to initialize pthread_attrs");
-		exit(1);
-	}
-
-	if (pthread_attr_setdetachstate(&attrs, PTHREAD_CREATE_DETACHED)) {
-		perror("Cannot set detatched state attr");
-		exit(1);
-	}
-
-	pthread_mutex_lock(&worker_hang_lock);
-
-	for (int i = 0; i < nr_cpus; i++) {
-		threads[i].event_fd = eventfd(0, EFD_NONBLOCK);
-		if (threads[i].event_fd < 0) {
-			perror("eventfd():");
-			exit(1);
-		}
-
-		pthread_mutex_init(&threads[i].incoming.lock, NULL);
-
-		CPU_ZERO_S(CPU_ALLOC_SIZE(nr_cpus), worker_cpu);
-		CPU_SET_S(i, CPU_ALLOC_SIZE(nr_cpus), worker_cpu);
-		if (pthread_attr_setaffinity_np(&attrs, CPU_ALLOC_SIZE(nr_cpus), worker_cpu)) {
-			perror("Cannot set affinity in attr");
-			exit(1);
-		}
-
-		if (pthread_create(&dummy, &attrs, worker_func, &threads[i])) {
-			perror("pthread_create():");
-			exit(1);
-		}
-	}
-
-	CPU_FREE(worker_cpu);
-
-	pthread_mutex_lock(&init_lock);
-	while (init_count < nr_cpus) {
-		pthread_cond_wait(&init_cond, &init_lock);
-	}
-	pthread_mutex_unlock(&init_lock);
-	pthread_mutex_unlock(&worker_hang_lock);
-}
 
 static void init_conns(void)
 {
@@ -185,10 +126,9 @@ static struct connection *new_conn(int fd)
 	return conn;
 }
 
-int on_read(struct connection *conn)
+static int on_read(struct connection *conn)
 {
 	ssize_t ret;
-	size_t size;
 	size_t cursor;
 
 	if (!conn->buffer) {
@@ -236,7 +176,7 @@ int on_read(struct connection *conn)
 	return SUCCESS;
 }
 
-void on_accept(int listen_sock)
+static void on_accept(int listen_sock)
 {
 	int cpu;
 	uint64_t u = 1;
@@ -279,7 +219,7 @@ void on_accept(int listen_sock)
 	}
 }
 
-void on_event(struct worker_thread *me) {
+static void on_event(struct worker_thread *me) {
 	struct waiting_conn *newbie;
 	struct connection *conn;
 	struct epoll_event cfg;
@@ -319,7 +259,7 @@ void on_event(struct worker_thread *me) {
 	pthread_mutex_unlock(&me->incoming.lock);
 }
 
-void on_close(struct worker_thread *me, int closed_fd)
+static void on_close(struct worker_thread *me, int closed_fd)
 {
 	struct connection *conn = conns[closed_fd];
 
@@ -339,9 +279,9 @@ void on_close(struct worker_thread *me, int closed_fd)
  * The coordinator thread will fill this information in and then the workers
  * will all use it to setup their local listen sockets.
  */
-struct addrinfo *res;
+static struct addrinfo *res;
 
-void *worker_func(void *arg)
+static void *worker_func(void *arg)
 {
 	struct worker_thread *me = (struct worker_thread *)arg;
 	struct epoll_event cfg;
@@ -413,6 +353,16 @@ void *worker_func(void *arg)
 	while((ret = epoll_wait(epoll_fd, events, BACKLOG, -1)) > 0) {
 		for (i = 0; i < ret; i++) {
 			int closed;
+			if ((events[i].events & EPOLLERR) || (events[i].events & EPOLLHUP)) {
+				// Not much to do but clean up this connection and close the fd
+				if (events[i].data.fd == listen_sock || events[i].data.fd == me->event_fd) {
+					// Yikes
+					printf("Error on listen_sock or event_fd, exitting\n");
+					exit(1);
+				}
+				on_close(me, events[i].data.fd);
+			}
+
 			if (events[i].data.fd == listen_sock) {
 				on_accept(listen_sock);
 			} else if (events[i].data.fd == me->event_fd) {
@@ -428,6 +378,75 @@ void *worker_func(void *arg)
 	// If we get here, epoll_wait returned an error
 	perror("epoll_wait():");
 	exit(1);
+}
+
+static void *dummy_worker(void *arg)
+{
+	sleep(900000000);
+	return NULL;
+}
+
+static void init_threads(void)
+{
+	pthread_attr_t attrs;
+	pthread_t dummy;
+	cpu_set_t *worker_cpu;
+
+	threads = calloc(nr_cpus, sizeof(struct worker_thread));
+	if (threads == NULL) {
+		perror("calloc():");
+		exit(1);
+	}
+
+	worker_cpu = CPU_ALLOC(nr_cpus);
+
+	if (pthread_attr_init(&attrs)) {
+		perror("Failed to initialize pthread_attrs");
+		exit(1);
+	}
+
+	if (pthread_attr_setdetachstate(&attrs, PTHREAD_CREATE_DETACHED)) {
+		perror("Cannot set detatched state attr");
+		exit(1);
+	}
+
+	pthread_mutex_lock(&worker_hang_lock);
+
+	pthread_create(&dummy, &attrs, dummy_worker, NULL);
+
+	for (int i = 0; i < nr_cpus; i++) {
+		threads[i].event_fd = eventfd(0, EFD_NONBLOCK);
+		if (threads[i].event_fd < 0) {
+			perror("eventfd():");
+			exit(1);
+		}
+
+		threads[i].index = i;
+
+		pthread_mutex_init(&threads[i].incoming.lock, NULL);
+
+		CPU_ZERO_S(CPU_ALLOC_SIZE(nr_cpus), worker_cpu);
+		CPU_SET_S(i, CPU_ALLOC_SIZE(nr_cpus), worker_cpu);
+		if (pthread_attr_setaffinity_np(&attrs, CPU_ALLOC_SIZE(nr_cpus), worker_cpu)) {
+			perror("Cannot set affinity in attr");
+			exit(1);
+		}
+
+		printf("Starting thread %d\n", i);
+		if (pthread_create(&dummy, &attrs, worker_func, &threads[i])) {
+			perror("pthread_create():");
+			exit(1);
+		}
+	}
+
+	CPU_FREE(worker_cpu);
+
+	pthread_mutex_lock(&init_lock);
+	while (init_count < nr_cpus) {
+		pthread_cond_wait(&init_cond, &init_lock);
+	}
+	pthread_mutex_unlock(&init_lock);
+	pthread_mutex_unlock(&worker_hang_lock);
 }
 
 extern int errno;
@@ -496,7 +515,11 @@ int main(int argc, char **argv)
 
 	nr_cpus = sysconf(_SC_NPROCESSORS_ONLN);
 
+	printf("Setting up connection structures\n");
+
 	init_conns();
+
+	printf("Starting %lu worker threads\n", nr_cpus);
 
 	init_threads();
 
@@ -516,3 +539,4 @@ int main(int argc, char **argv)
 out_ret:
 	return ret;
 }
+
