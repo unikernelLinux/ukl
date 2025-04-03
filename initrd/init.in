@@ -51,7 +51,7 @@ if [ -n "${1}" ]; then
 	/usr/sbin/ip address add $IP/24 brd + dev $INF
 	/usr/sbin/ip link set $INF up
 
-	if [ -n "${3}" ]; then
+	if [ -n "${4}" ]; then
 		# Receive queue affinity has been requested, we will try and create a receive queue per CPU and
 		# bind each one to a single CPU to preserve data locality
 		CPU_CNT=$(nproc)
@@ -83,5 +83,5 @@ sleep 5
 echo "UKL BOOTED"
 
 # Start UKL process
-@TRIGGER@
+@TRIGGER@ ${3}
 
