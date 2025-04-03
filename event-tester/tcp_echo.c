@@ -139,39 +139,38 @@ static int on_read(struct connection *conn)
 		}
 	}
 
-	while (1) {
-		cursor = 0;
+		cursor = conn->cursor;
 
-		do {
-			if ((ret = read(conn->fd, &(conn->buffer[cursor]), msg_size - cursor)) <= 0) {
-				if (ret == 0) {
-					return CLOSED;
-				} else if (errno == EAGAIN || errno == EWOULDBLOCK) {
-					// Nothing to do here, just return
-					return SUCCESS;
-				}
-				// Any other problem is a real one
-				perror("read from client:");
-				exit(1);
+	do {
+		if ((ret = read(conn->fd, &(conn->buffer[cursor]), msg_size - cursor)) <= 0) {
+			if (ret == 0) {
+				return CLOSED;
+			} else if (errno == EAGAIN || errno == EWOULDBLOCK) {
+				// Nothing to do here, just return. We need to wait for thre remainder of the message
+				conn->cursor = cursor;
+				return SUCCESS;
 			}
-			cursor += ret;
-		} while (cursor < msg_size);
+			// Any other problem is a real one
+			perror("read from client:");
+			exit(1);
+		}
+		cursor += ret;
+	} while (cursor < msg_size);
 
-		cursor = 0;
+	conn->cursor = cursor = 0;
 
-		do {
-			if ((ret = write(conn->fd, &(conn->buffer[cursor]), msg_size - cursor)) <= 0) {
-				if (ret == 0) {
-					return CLOSED;
-				} else if (errno == EAGAIN || errno == EWOULDBLOCK) {
-					continue;
-				}
-				perror("write to client:");
-				exit(1);
+	do {
+		if ((ret = write(conn->fd, &(conn->buffer[cursor]), msg_size - cursor)) <= 0) {
+			if (ret == 0) {
+				return CLOSED;
+			} else if (errno == EAGAIN || errno == EWOULDBLOCK) {
+				continue;
 			}
-			cursor += ret;
-		} while (cursor < msg_size);
-	}
+			perror("write to client:");
+			exit(1);
+		}
+		cursor += ret;
+	} while (cursor < msg_size);
 
 	return SUCCESS;
 }
