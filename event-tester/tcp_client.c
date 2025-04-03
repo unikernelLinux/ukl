@@ -89,6 +89,7 @@ enum state {
 struct client {
 	int sock;
 	uint8_t *buf;
+	size_t cursor;
 	enum state state;
 	size_t buf_size;
 	size_t txn_remaining;
@@ -156,7 +157,7 @@ static void client_send(int sock, uint8_t *buf, size_t len)
 
 }
 
-static void client_recv(int sock, uint8_t *buf, size_t len)
+static size_t client_recv(int sock, uint8_t *buf, size_t len)
 {
 	ssize_t ret;
 	size_t cursor = 0;
@@ -164,13 +165,20 @@ static void client_recv(int sock, uint8_t *buf, size_t len)
 	do {
 		ret = recv(sock, &(buf[cursor]), len - cursor, 0);
 		if (ret < 0) {
+			if (errno == EAGAIN || errno == EWOULDBLOCK) {
+				// We need to come back when more data arrives
+				return cursor;
+			}
+
 			perror("client recv():");
 			set_dying();
-			return;
+			return 0;
 		}
 
 		cursor += ret;
 	} while (cursor < len);
+
+	return cursor;
 }
 
 static enum state do_connect(int sock, const struct sockaddr *addr, socklen_t len)
@@ -301,12 +309,19 @@ static int do_state_transition(struct worker *me, uint32_t j)
 		/*
 		 * The specified client is ready to receive a response.
 		 *
-		 * Valid state transitions from here are: INIT, READY, DONE
+		 * Valid state transitions from here are: INIT, READY, SENT, DONE
 		 */
 		tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, RECV_START);
-		client_recv(clients[j].sock, clients[j].buf, clients[j].buf_size);
+		clients[j].cursor += client_recv(clients[j].sock,
+				&clients[j].buf[clients[j].cursor], clients[j].buf_size - clients[j].cursor);
 		tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, RECV_DONE);
+		if (clients[j].cursor < clients[j].buf_size) {
+			// We didn't get the entire response and need to come back here
+			// SENT -> SENT
+			return 0;
+		}
 
+		clients[j].cursor = 0;
 		clients[j].txn_remaining--;
 		if (clients[j].txn_remaining == 0) {
 			// SENT -> DONE
