@@ -43,6 +43,7 @@ Makefile.in
 /initrd/data.tar.gz
 /event-tester/data.tar.gz
 /event-tester/tcp_client
+/event-tester/tcp_echo
 /event-tester/undefined_sys_hack.c
 initrd/perf
 

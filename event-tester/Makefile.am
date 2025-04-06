@@ -16,7 +16,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-CLEANFILES = *~ *.o *.a undefined_sys_hack.c tcp_client
+CLEANFILES = *~ *.o *.a undefined_sys_hack.c tcp_client tcp_echo
 
 noinst_DATA = UKL.a
 

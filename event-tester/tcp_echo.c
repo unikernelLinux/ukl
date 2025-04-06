@@ -16,6 +16,7 @@
 #include <sys/epoll.h>
 #include <sys/eventfd.h>
 #include <sys/ioctl.h>
+#include<sys/syscall.h>
 
 #include <arpa/inet.h>
 
@@ -475,19 +476,10 @@ extern int errno;
 extern int optind;
 extern char *optarg;
 
-#ifdef UKL
-extern int __do_sys_perf_event_open(struct perf_event_attr *attr, pid_t pid, int cpu, int group_fd, unsigned long flags);
-static inline int open_perf(struct perf_event_attr *attr, pid_t pid, int cpu, int group_fd, unsigned long flags)
-{
-	return __do_sys_perf_event_open(attr, pid, cpu, group_fd, flags);
-}
-#else
-#include<sys/syscall.h>
 static inline int open_perf(struct perf_event_attr *attr, pid_t pid, int cpu, int group_fd, unsigned long flags)
 {
 	return syscall(SYS_perf_event_open, attr, pid, cpu, group_fd, flags);
 }
-#endif
 
 static void config_event(struct perf_event_attr *pe, uint32_t type, uint64_t config, int disabled)
 {
