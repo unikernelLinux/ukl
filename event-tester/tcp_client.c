@@ -28,6 +28,10 @@
 #define DEFAULT_PORT 7272
 #endif
 
+#ifndef DEFAULT_STATS
+#define DEFAULT_STATS 8383
+#endif
+
 #ifndef PAYLOAD_SIZE
 #define PAYLOAD_SIZE 32
 #endif
@@ -48,9 +52,12 @@
 #define EVENT_BACKLOG 20
 #endif
 
-
 #ifndef OUT_FILE
 #define OUT_FILE "timers.tsv"
+#endif
+
+#ifndef PERF_FILE
+#define PERF_FILE "perf-stats.tsv"
 #endif
 
 #define SOCKET_START		0
@@ -116,6 +123,7 @@ static void usage(void)
         fprintf(stderr, "options:\n");
         OPTION("--help,-h", "Print this message");
         OPTION("--port,-p [port]", "Use the requested port instead of 7272");
+        OPTION("--stats-port,-s [port]", "Use the requested port to fetch perf stats instead of 8383");
         OPTION("--msg-size,-m [size]", "Use the requested message size instead of 32");
 	OPTION("--batch-size,-b [size]", "Send [size] transactions before reconnecting. Default is 1");
 	OPTION("--txn-count,-t [count]", "Have each client send [count] requests. Default is 1000");
@@ -124,6 +132,8 @@ static void usage(void)
 	CONT("The client will start at max 1 thread per online CPU.");
 	OPTION("--output,-o [name]", "Use [name] for the timer tab separated value file.");
 	CONT("Default is timers.tsv");
+	OPTION("--perf-stats,-S [name]", "Use [name] for the perf stats tab seperated value file.");
+	CONT("Default is perf-stats.tsv");
 }
 
 extern int errno;
@@ -205,6 +215,7 @@ static int do_state_transition(struct worker *me, uint32_t j)
 	struct client *clients = me->clients;
 	int epoll_fd = me->epoll_fd;
 	int so_err;
+	int optval = 1;
 	socklen_t len = sizeof(so_err);
 	struct epoll_event config;
 
@@ -221,6 +232,11 @@ static int do_state_transition(struct worker *me, uint32_t j)
 		clients[j].sock = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
 		if (clients[j].sock < 0) {
 			perror("socket():");
+			set_dying();
+			return 0;
+		}
+		if (setsockopt(clients[j].sock, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval)) < 0) {
+			perror("setsockopt():");
 			set_dying();
 			return 0;
 		}
@@ -507,11 +523,16 @@ out_err:
 int main(int argc, char **argv)
 {
 	int port;
+	int stats;
 	int ret;
 	int fd;
+	int stat_sock;
+	int optval = 1;
 	char port_str[6];
+	char stat_str[6];
 	char *host;
 	char *out_file;
+	char *stat_file;
 	size_t i;
 	size_t max_events;
 	size_t tsc_khz;
@@ -519,26 +540,32 @@ int main(int argc, char **argv)
 	struct addrinfo hints;
 	pthread_attr_t attrs;
 	cpu_set_t *worker_cpu;
+	struct addrinfo *stats_server;
+	char perf_buf[8192] = {0};
 
-	char opt_str[] = "hp:m:c:b:t:T:o:";
+	char opt_str[] = "hp:m:c:b:t:T:o:s:S:";
 	struct option long_opts[] = {
 		{"help",		no_argument,       NULL, 'h'},
 		{"port",		required_argument, NULL, 'p'},
+		{"stats-port",		required_argument, NULL, 's'},
 		{"msg-size",		required_argument, NULL, 'm'},
 		{"clients",		required_argument, NULL, 'c'},
 		{"batch-size",		required_argument, NULL, 'b'},
 		{"txn-count",		required_argument, NULL, 't'},
 		{"thread-count",	required_argument, NULL, 'T'},
 		{"output",		required_argument, NULL, 'o'},
+		{"perf-stats",		required_argument, NULL, 'S'},
 		{0}
 	};
 
 	port = DEFAULT_PORT;
+	stats = DEFAULT_STATS;
 	msg_size = PAYLOAD_SIZE;
 	clients_per_thread = CLIENTS_PER_THREAD;
 	batch_size = BATCH_SIZE;
 	transaction_count = TXN_COUNT;
 	out_file = OUT_FILE;
+	stat_file = PERF_FILE;
 
 	while ((ret = getopt_long(argc, argv, opt_str, long_opts, NULL)) != -1) {
 		switch (ret) {
@@ -549,6 +576,10 @@ int main(int argc, char **argv)
 
 		case 'p':
 			port = (int)strtol(optarg, NULL, 10);
+			break;
+
+		case 's':
+			stats = (int)strtol(optarg, NULL, 10);
 			break;
 
 		case 'm':
@@ -575,6 +606,10 @@ int main(int argc, char **argv)
 			out_file = optarg;
 			break;
 
+		case 'S':
+			stat_file = optarg;
+			break;
+
 		default:
 			usage();
 			return -1;
@@ -582,6 +617,11 @@ int main(int argc, char **argv)
 	}
 
 	if (port <= 0 || port > 65536) {
+		fprintf(stderr, "Invalid port selected.\n");
+		exit(1);
+	}
+
+	if (stats <= 0 || stats > 65536) {
 		fprintf(stderr, "Invalid port selected.\n");
 		exit(1);
 	}
@@ -618,6 +658,7 @@ int main(int argc, char **argv)
 	srandom(time(NULL));
 
 	snprintf(port_str, 6, "%d", port);
+	snprintf(stat_str, 6, "%d", stats);
 
 	memset(&hints, 0, sizeof(struct addrinfo));
 
@@ -625,6 +666,7 @@ int main(int argc, char **argv)
 	hints.ai_socktype = SOCK_STREAM;
 
 	getaddrinfo(host, port_str, &hints, &server);
+	getaddrinfo(host, stat_str, &hints, &stats_server);
 
 	char ipstr[INET6_ADDRSTRLEN];
 
@@ -700,6 +742,42 @@ int main(int argc, char **argv)
 			cursor = (struct TscLogEntry *)((uint8_t*)cursor + TscLogEntrySize(4));
 		}
 	}
+
+	close(fd);
+
+	fd = open(stat_file, O_WRONLY | O_CREAT | O_TRUNC,
+			S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+	if (fd < 0) {
+		perror("open():");
+		exit(1);
+	}
+
+	stat_sock = socket(AF_INET, SOCK_STREAM, 0);
+	if (stat_sock < 0) {
+		perror("socket():");
+		close(fd);
+		exit(1);
+	}
+
+	if (setsockopt(stat_sock, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval)) < 0) {
+		perror("setsockopt():");
+		close(fd);
+		close(stat_sock);
+		exit(1);
+	}
+
+	if (do_connect(stat_sock, stats_server->ai_addr, stats_server->ai_addrlen) != READY) {
+		close(fd);
+		close(stat_sock);
+		exit(1);
+	}
+
+	shutdown(stat_sock, SHUT_WR);
+	if (read(stat_sock, perf_buf, 8191) > 0) {
+		dprintf(fd, "%s", perf_buf);
+	}
+
+	close(stat_sock);
 
 	close(fd);
 

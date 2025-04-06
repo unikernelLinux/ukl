@@ -30,7 +30,7 @@ RT_LIB      = $(abs_top_builddir)/librt.a
 MATH_LIB    = $(abs_top_builddir)/libm.a
 GCC_LIBS    = $(abs_top_builddir)/libgcc.a $(abs_top_builddir)/libgcc_eh.a
 
-AM_CFLAGS   = -ggdb -mno-red-zone -mcmodel=kernel -static
+AM_CFLAGS   = -ggdb -mno-red-zone -mcmodel=kernel -static -DUKL
 if DEFAULT_PIE
 AM_CFLAGS  += -fno-PIC -no-pie -fno-PIE
 endif
@@ -41,7 +41,10 @@ data.tar.gz:
 tcp_client: tcp_client.c
 	gcc -o $@ $< -ggdb -Wall -Werror -lpthread
 
-UKL.a: tcp_echo.o undefined_sys_hack.o tcp_client
+tcp_echo: tcp_echo.c tsc_logger.h
+	gcc -o $@ $< -ggdb -Wall -Werror -lpthread
+
+UKL.a: tcp_echo.o tsc_logger.h undefined_sys_hack.o tcp_client
 	rm -f $@ temp.o
 	ld -r -o temp.o -allow-multiple-definition \
 	    $(CRT_STARTS) \

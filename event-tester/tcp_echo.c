@@ -15,11 +15,18 @@
 #include <sys/resource.h>
 #include <sys/epoll.h>
 #include <sys/eventfd.h>
+#include <sys/ioctl.h>
 
 #include <arpa/inet.h>
 
+#include <linux/perf_event.h>
+
 #ifndef DEFAULT_PORT
 #define DEFAULT_PORT 7272
+#endif
+
+#ifndef DEFAULT_STATS
+#define DEFAULT_STATS 8383
 #endif
 
 #ifndef PAYLOAD_SIZE
@@ -34,6 +41,8 @@
 #define MAX_CONNS 1024
 #endif
 
+#define TOTAL_EVENTS 5
+
 #define OPTION(opts, text)	fprintf(stderr, " %-25s  %s\n", opts, text)
 #define CONT(text) 		fprintf(stderr, " %-25s  %s\n", "", text)
 
@@ -45,6 +54,7 @@ static void usage(void)
 	OPTION("--help,-h", "Print this message");
 	OPTION("--port,-p [port]", "Use the requested port instead of 7272");
 	OPTION("--msg-size,-m [size]", "Use the requested message size instead of 32");
+	OPTION("--stats-port,-s [port]", "Listen on this port instead of 8383 for stats connections");
 }
 
 struct connection {
@@ -72,6 +82,14 @@ struct worker_thread {
 	int index;
 };
 static struct worker_thread *threads;
+
+struct read_format {
+	uint64_t nr;
+	struct {
+		uint64_t value;
+		uint64_t id;
+	} values[TOTAL_EVENTS];
+};
 
 /*
  * Number of worker threads that have finished setting themselves up.
@@ -379,6 +397,9 @@ static void *worker_func(void *arg)
 	exit(1);
 }
 
+/**
+ * TODO MASSIVE HAX
+ */
 static void *dummy_worker(void *arg)
 {
 	sleep(900000000);
@@ -411,6 +432,9 @@ static void init_threads(void)
 
 	pthread_mutex_lock(&worker_hang_lock);
 
+	/*
+	 * TODO MASSIVE HAX
+	 */
 	pthread_create(&dummy, &attrs, dummy_worker, NULL);
 
 	for (int i = 0; i < nr_cpus; i++) {
@@ -431,7 +455,6 @@ static void init_threads(void)
 			exit(1);
 		}
 
-		printf("Starting thread %d\n", i);
 		if (pthread_create(&dummy, &attrs, worker_func, &threads[i])) {
 			perror("pthread_create():");
 			exit(1);
@@ -452,25 +475,89 @@ extern int errno;
 extern int optind;
 extern char *optarg;
 
+#ifdef UKL
+extern int __do_sys_perf_event_open(struct perf_event_attr *attr, pid_t pid, int cpu, int group_fd, unsigned long flags);
+static inline int open_perf(struct perf_event_attr *attr, pid_t pid, int cpu, int group_fd, unsigned long flags)
+{
+	return __do_sys_perf_event_open(attr, pid, cpu, group_fd, flags);
+}
+#else
+#include<sys/syscall.h>
+static inline int open_perf(struct perf_event_attr *attr, pid_t pid, int cpu, int group_fd, unsigned long flags)
+{
+	return syscall(SYS_perf_event_open, attr, pid, cpu, group_fd, flags);
+}
+#endif
+
+static void config_event(struct perf_event_attr *pe, uint32_t type, uint64_t config, int disabled)
+{
+	pe->type = type;
+	pe->size = sizeof(struct perf_event_attr);
+	pe->config = config;
+	pe->disabled = !!(disabled);
+	pe->read_format = PERF_FORMAT_GROUP | PERF_FORMAT_ID;
+}
+
+static void setup_perf(int *fds, int *ids)
+{
+	struct perf_event_attr pe[TOTAL_EVENTS];
+
+	memset(pe, 0, sizeof(struct perf_event_attr) * TOTAL_EVENTS);
+	config_event(&pe[0], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CPU_CYCLES, 1);
+	config_event(&pe[1], PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS, 0);
+	config_event(&pe[2], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_REFERENCES, 0);
+	config_event(&pe[3], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_MISSES, 0);
+	config_event(&pe[4], PERF_TYPE_HW_CACHE,
+			PERF_COUNT_HW_CACHE_L1I |
+			(PERF_COUNT_HW_CACHE_OP_READ << 8) |
+			(PERF_COUNT_HW_CACHE_RESULT_MISS << 16), 0);
+
+	fds[0] = open_perf(&pe[0], 0, -1, -1, 0);
+	if (fds[0] < 0) {
+		perror("perf_event_open:");
+		exit(1);
+	}
+	ioctl(fds[0], PERF_EVENT_IOC_ID, &ids[0]);
+	for (int i = 1; i < TOTAL_EVENTS; i++) {
+		fds[i] = open_perf(&pe[i], 0, -1, fds[0], 0);
+		if (fds[i] < 0) {
+			perror("perf_event_open:");
+			exit(1);
+		}
+		ioctl(fds[i], PERF_EVENT_IOC_ID, &ids[i]);
+	}
+}
+
 int main(int argc, char **argv)
 {
 	int status;
 	struct addrinfo hints;
 	int ret = 0;
 	int index = 0;
-	unsigned int port;
-	char prt_str[6];
+	unsigned int port, stats;
+	int stats_fd;
+	int epoll_fd;
+	int perf_fds[TOTAL_EVENTS];
+	int perf_ids[TOTAL_EVENTS];
+	uint64_t perf_values[TOTAL_EVENTS] = {0};
+	int out;
+	char prt_str[6], stats_str[6];
 	char addr_str[INET6_ADDRSTRLEN];
+	struct addrinfo *statsaddr;
+	struct epoll_event evt;
+	struct read_format perf_stats;
 
-	char opt_str[] = "hp:m:";
+	char opt_str[] = "hp:m:s:";
 	struct option long_opts[] = {
 		{"help",	no_argument, NULL, 'h'},
 		{"port",	required_argument, NULL, 'p'},
 		{"msg-size",	required_argument, NULL, 'm'},
+		{"stats-port",	required_argument, NULL, 's'},
 		{0}
 	};
 
 	port = DEFAULT_PORT;
+	stats = DEFAULT_STATS;
 	msg_size = PAYLOAD_SIZE;
 
 	while ((ret = getopt_long(argc, argv, opt_str, long_opts, &index)) != -1) {
@@ -488,12 +575,18 @@ int main(int argc, char **argv)
 			msg_size = strtol(optarg, NULL, 10);
 			break;
 
+		case 's':
+			stats = strtol(optarg, NULL, 10);
+			break;
+
 		default:
 			usage();
 			return -1;
 		}
 	}
 	ret = -1;
+
+	setup_perf(perf_fds, perf_ids);
 	
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_INET;
@@ -505,10 +598,50 @@ int main(int argc, char **argv)
 		goto out_ret;
 	}
 
+	if (stats > 65535) {
+		fprintf(stderr, "Invalid stats port number\n");
+		goto out_ret;
+	}
+
 	snprintf(prt_str, 6, "%u", port);
+	snprintf(stats_str, 6, "%u", stats);
 
 	if ((status = getaddrinfo(NULL, prt_str, &hints, &res))) {
 		fprintf(stderr, "getaddrinfo failed: %s\n", gai_strerror(status));
+		goto out_ret;
+	}
+
+	if ((status = getaddrinfo(NULL, stats_str, &hints, &statsaddr))) {
+		fprintf(stderr, "getaddrinfo failed: %s\n", gai_strerror(status));
+		goto out_ret;
+	}
+
+	stats_fd = socket(statsaddr->ai_family, statsaddr->ai_socktype, statsaddr->ai_protocol);
+	if (stats_fd < 0) {
+		perror("stats socket:");
+		goto out_ret;
+	}
+
+	if (bind(stats_fd, statsaddr->ai_addr, statsaddr->ai_addrlen)) {
+		perror("stats bind:");
+		goto out_ret;
+	}
+
+	if (listen(stats_fd, BACKLOG)) {
+		perror("stats listen");
+		goto out_ret;
+	}
+
+	epoll_fd = epoll_create(1);
+	if (epoll_fd < 0) {
+		perror("stats epoll_create:");
+		goto out_ret;
+	}
+
+	evt.events = EPOLLIN;
+	evt.data.fd = stats_fd;
+	if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, stats_fd, &evt)) {
+		perror("stats epoll_ctl:");
 		goto out_ret;
 	}
 
@@ -529,11 +662,67 @@ int main(int argc, char **argv)
 	}
 
 	printf("Listening on %s:%s\n", addr_str, prt_str);
-	printf("Started %lu threads, server is ready.\n", nr_cpus);
 
-	while(1) {
-		sleep(90000);
+	ioctl(perf_fds[0], PERF_EVENT_IOC_RESET, 0);
+	ioctl(perf_fds[0], PERF_EVENT_IOC_ENABLE, 0);
+
+	printf("Started %lu threads\n!! Server is ready. !!\n", nr_cpus);
+
+	evt.events = 0;
+	evt.data.fd = 0;
+	while(epoll_wait(epoll_fd, &evt, 1, -1) > 0) {
+		if (evt.events & (EPOLLERR | EPOLLHUP)) {
+			if (evt.data.fd == stats_fd) {
+				printf("Epoll error on stats port, exitting.\n");
+				goto out_ret;
+			}
+			epoll_ctl(epoll_fd, EPOLL_CTL_DEL, evt.data.fd, NULL);
+			close(evt.data.fd);
+		} else if (evt.data.fd == stats_fd) {
+			char header[] = "CYCLES\tINSTRUCTIONS\tCACHE_READS\tCACHE_MISSES\tICACHE_MISSES";
+			char output[4096] = {0};
+			/*
+			 * Any connection to the stats port will get a 4 byte network order size followed
+			 * by the stats in ascii text. We then shutdown the write side and wait for the other
+			 * end to close the connection before we close the fd on our side.
+			 * The stats format is a tab separated value with a header row and a single data row.
+			 */
+			ioctl(perf_fds[0], PERF_EVENT_IOC_DISABLE, 0);
+
+			out = accept(stats_fd, NULL, NULL);
+			if (out < 0) {
+				perror("stats accept:");
+				goto out_ret;
+			}
+
+			if (read(perf_fds[0], &perf_stats, sizeof(struct read_format)) <= 0) {
+				perror("perf event read:");
+				goto out_ret;
+			}
+			evt.events = EPOLLERR | EPOLLHUP;
+			evt.data.fd = out;
+			epoll_ctl(epoll_fd, EPOLL_CTL_ADD, out, &evt);
+			shutdown(out, SHUT_RD);
+
+			for (int i = 0; i < perf_stats.nr; i++) {
+				for (int j = 0; j < TOTAL_EVENTS; j++) {
+					if (perf_stats.values[i].id == perf_ids[j]) {
+						perf_values[j] = perf_stats.values[i].value;
+						break;
+					}
+				}
+			}
+
+			snprintf(output, 4096, "%s\n%lu\t%lu\t%lu\t%lu\t%lu\n", header,
+					perf_values[0], perf_values[1], perf_values[2], perf_values[3], perf_values[4]);
+
+			write(out, output, strlen(output) + 1);
+
+			shutdown(out, SHUT_WR);
+		}
+		memset(&evt, 0, sizeof(evt));
 	}
+	perror("stats epoll_wait:");
 
 out_ret:
 	return ret;
