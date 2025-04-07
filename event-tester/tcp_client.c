@@ -60,14 +60,12 @@
 #define PERF_FILE "perf-stats.tsv"
 #endif
 
-#define SOCKET_START		0
-#define SOCKET_DONE		1
-#define CONNECT_START	2
-#define CONNECT_DONE		3
-#define SEND_START		4
-#define SEND_DONE		5
-#define RECV_START		6
-#define RECV_DONE		7
+#define CONNECT_START		0
+#define CONNECT_DONE		1
+#define SEND_START		2
+#define SEND_DONE		3
+#define RECV_START		4
+#define RECV_DONE		5
 
 static size_t msg_size;
 static size_t nr_cpus;
@@ -228,7 +226,6 @@ static int do_state_transition(struct worker *me, uint32_t j)
 		 */
 		clients[j].batch_remaining = batch_size;
 
-		tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, SOCKET_START);
 		clients[j].sock = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
 		if (clients[j].sock < 0) {
 			perror("socket():");
@@ -236,11 +233,15 @@ static int do_state_transition(struct worker *me, uint32_t j)
 			return 0;
 		}
 		if (setsockopt(clients[j].sock, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval)) < 0) {
-			perror("setsockopt():");
+			perror("setsockopt(SO_REUSEPORT):");
 			set_dying();
 			return 0;
 		}
-		tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, SOCKET_DONE);
+		if (setsockopt(clients[j].sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0) {
+			perror("setsockopt(SO_REUSEPORT):");
+			set_dying();
+			return 0;
+		}
 
 		tsclog_4(me->log, me->index, j, transaction_count - clients[j].txn_remaining, CONNECT_START);
 		clients[j].state = do_connect(clients[j].sock, server->ai_addr, server->ai_addrlen);
@@ -528,6 +529,7 @@ int main(int argc, char **argv)
 	int fd;
 	int stat_sock;
 	int optval = 1;
+	int index = 0;
 	char port_str[6];
 	char stat_str[6];
 	char *host;
@@ -535,13 +537,15 @@ int main(int argc, char **argv)
 	char *stat_file;
 	size_t i;
 	size_t max_events;
+	size_t min_io;
 	size_t tsc_khz;
 	struct TscLogEntry *cursor, *end;
 	struct addrinfo hints;
 	pthread_attr_t attrs;
 	cpu_set_t *worker_cpu;
 	struct addrinfo *stats_server;
-	char perf_buf[8192] = {0};
+	uint64_t perf_sz = 0;
+	char *perf_buf;
 
 	char opt_str[] = "hp:m:c:b:t:T:o:s:S:";
 	struct option long_opts[] = {
@@ -640,17 +644,29 @@ int main(int argc, char **argv)
 		nr_threads = nr_cpus;
 
 	/*
-	 * Each transaction will have at least read and write start and stop for a
-	 * total of at least 4 events per transaction
+	 * Calculate the minumum number of sends and receives needed per transaction.
+	 * Assume a standard MTU of 1500 - max header sizes of 120
 	 */
-	max_events = 4 * transaction_count;
+	min_io = 1 + (msg_size / 1380);
+
 	/*
-	 * Count the connection events, each has socket and connect start and stop
+	 * Each transaction will have min_io sends and min_io recvs
+	 */
+	max_events = 2 * min_io * transaction_count;
+
+	/*
+	 * Count the connection events, each has connect start and stop
 	 * we have at least 1 connect pair at start and then 1 per batch_size. So
-	 * that is 4 events per connect attempt with 1 initial attempt + 1 attempt
+	 * that is 2 events per connect attempt with 1 initial attempt + 1 attempt
 	 * per batch.
 	 */
-	max_events += 4 * (1 + transaction_count / batch_size);
+	max_events += 2 * (1 + transaction_count / batch_size);
+
+	/*
+	 * max_events is per client but we manage event list per thread so scale for
+	 * number of clients per thread
+	 */
+	max_events *= 2 * clients_per_thread;
 	
 	hdr_size = sizeof(struct TscLog);
 	entry_size = sizeof(struct TscLog) * max_events;
@@ -772,10 +788,36 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	shutdown(stat_sock, SHUT_WR);
-	if (read(stat_sock, perf_buf, 8191) > 0) {
-		dprintf(fd, "%s", perf_buf);
+	if (read(stat_sock, &perf_sz, sizeof(uint64_t)) <= 0) {
+		perror("read buf size:");
+		printf("Failed to get buffer size for perf events, aborting\n");
+		close(fd);
+		close(stat_sock);
+		exit(1);
 	}
+
+	perf_buf = calloc(perf_sz, 1);
+	if (!perf_buf) {
+		perror("OOM:");
+		close(fd);
+		close(stat_sock);
+		exit(1);
+	}
+
+	do {
+		optval = read(stat_sock, &perf_buf[index], perf_sz - index);
+		if (optval < 0) {
+			perror("perf stat read:");
+			close(fd);
+			close(stat_sock);
+			exit(1);
+		}
+		index += optval;
+	} while (optval > 0 && index < perf_sz);
+
+	shutdown(stat_sock, SHUT_WR);
+
+	dprintf(fd, "%s", perf_buf);
 
 	close(stat_sock);
 

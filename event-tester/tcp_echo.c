@@ -43,6 +43,10 @@
 #endif
 
 #define TOTAL_EVENTS 5
+#define CONN_EVENT (uint64_t)(1)
+#define CONN_MASK (uint64_t)(0xFFFFFFFF)
+#define STATS_EVENT (CONN_EVENT << 32)
+#define STATS_MASK (CONN_MASK << 32)
 
 #define OPTION(opts, text)	fprintf(stderr, " %-25s  %s\n", opts, text)
 #define CONT(text) 		fprintf(stderr, " %-25s  %s\n", "", text)
@@ -79,8 +83,10 @@ struct worker_thread {
 	struct conn_queue incoming;
 	int event_fd;
 	int epoll_fd;
-	int cpu;
 	int index;
+	int perf_fds[TOTAL_EVENTS];
+	int perf_ids[TOTAL_EVENTS];
+	char perf_line[23 + 21 * TOTAL_EVENTS];
 };
 static struct worker_thread *threads;
 
@@ -237,21 +243,12 @@ static void on_accept(int listen_sock)
 	}
 }
 
-static void on_event(struct worker_thread *me) {
+static void handle_new_conns(struct worker_thread *me)
+{
 	struct waiting_conn *newbie;
 	struct connection *conn;
 	struct epoll_event cfg;
-	uint64_t dummy;
-
 	cfg.events = EPOLLIN;
-
-	if (read(me->event_fd, &dummy, sizeof(dummy)) != sizeof(dummy)) {
-		if (errno == EAGAIN || errno == EWOULDBLOCK) {
-			return;
-		}
-		perror("read from event fd:");
-		exit(1);
-	}
 
 	pthread_mutex_lock(&me->incoming.lock);
 	while (me->incoming.list != NULL) {
@@ -277,6 +274,56 @@ static void on_event(struct worker_thread *me) {
 	pthread_mutex_unlock(&me->incoming.lock);
 }
 
+static void write_perf_stats(struct worker_thread *me)
+{
+	uint64_t perf_values[TOTAL_EVENTS] = {0};
+	struct read_format perf_stats;
+
+	ioctl(me->perf_fds[0], PERF_EVENT_IOC_DISABLE, 0);
+
+	if (read(me->perf_fds[0], &perf_stats, sizeof(struct read_format)) <= 0) {
+		perror("perf event read:");
+		exit(1);
+	}
+
+	for (int i = 0; i < perf_stats.nr; i++) {
+		for (int j = 0; j < TOTAL_EVENTS; j++) {
+			if (perf_stats.values[i].id == me->perf_ids[j]) {
+				perf_values[j] = perf_stats.values[i].value;
+				break;
+			}
+		}
+	}
+
+	snprintf(me->perf_line, 23 + 21 * TOTAL_EVENTS, "%d\t%lu\t%lu\t%lu\t%lu\t%lu\n",
+			me->index, perf_values[0], perf_values[1], perf_values[2],
+			perf_values[3], perf_values[4]);
+
+	pthread_mutex_lock(&init_lock);
+	init_count++;
+	pthread_cond_signal(&init_cond);
+	pthread_mutex_unlock(&init_lock);
+}
+
+static void on_event(struct worker_thread *me)
+{
+	uint64_t cause;
+
+	if (read(me->event_fd, &cause, sizeof(cause)) != sizeof(cause)) {
+		if (errno == EAGAIN || errno == EWOULDBLOCK) {
+			return;
+		}
+		perror("read from event fd:");
+		exit(1);
+	}
+
+	if (cause & CONN_MASK)
+		handle_new_conns(me);
+
+	if (cause & STATS_MASK)
+		write_perf_stats(me);
+}
+
 static void on_close(struct worker_thread *me, int closed_fd)
 {
 	struct connection *conn = conns[closed_fd];
@@ -291,6 +338,50 @@ static void on_close(struct worker_thread *me, int closed_fd)
 	close(closed_fd);
 
 	free(conn);
+}
+
+static inline int open_perf(struct perf_event_attr *attr, pid_t pid, int cpu, int group_fd, unsigned long flags)
+{
+	return syscall(SYS_perf_event_open, attr, pid, cpu, group_fd, flags);
+}
+
+static void config_event(struct perf_event_attr *pe, uint32_t type, uint64_t config, int disabled)
+{
+	pe->type = type;
+	pe->size = sizeof(struct perf_event_attr);
+	pe->config = config;
+	pe->disabled = !!(disabled);
+	pe->read_format = PERF_FORMAT_GROUP | PERF_FORMAT_ID;
+}
+
+static void setup_perf(int *fds, int *ids, int cpu)
+{
+	struct perf_event_attr pe[TOTAL_EVENTS];
+
+	memset(pe, 0, sizeof(struct perf_event_attr) * TOTAL_EVENTS);
+	config_event(&pe[0], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CPU_CYCLES, 1);
+	config_event(&pe[1], PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS, 0);
+	config_event(&pe[2], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_REFERENCES, 0);
+	config_event(&pe[3], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_MISSES, 0);
+	config_event(&pe[4], PERF_TYPE_HW_CACHE,
+			PERF_COUNT_HW_CACHE_L1I |
+			(PERF_COUNT_HW_CACHE_OP_READ << 8) |
+			(PERF_COUNT_HW_CACHE_RESULT_MISS << 16), 0);
+
+	fds[0] = open_perf(&pe[0], 0, cpu, -1, 0);
+	if (fds[0] < 0) {
+		perror("perf_event_open:");
+		exit(1);
+	}
+	ioctl(fds[0], PERF_EVENT_IOC_ID, &ids[0]);
+	for (int i = 1; i < TOTAL_EVENTS; i++) {
+		fds[i] = open_perf(&pe[i], 0, cpu, fds[0], 0);
+		if (fds[i] < 0) {
+			perror("perf_event_open:");
+			exit(1);
+		}
+		ioctl(fds[i], PERF_EVENT_IOC_ID, &ids[i]);
+	}
 }
 
 /*
@@ -358,6 +449,7 @@ static void *worker_func(void *arg)
 		exit(1);
 	}
 	
+	setup_perf(me->perf_fds, me->perf_ids, me->index);
 
 	// Notify that setup is done
 	pthread_mutex_lock(&init_lock);
@@ -366,6 +458,9 @@ static void *worker_func(void *arg)
 	pthread_mutex_unlock(&init_lock);
 	pthread_mutex_lock(&worker_hang_lock);
 	pthread_mutex_unlock(&worker_hang_lock);
+
+	ioctl(me->perf_fds[0], PERF_EVENT_IOC_RESET, 0);
+	ioctl(me->perf_fds[0], PERF_EVENT_IOC_ENABLE, 0);
 
 	/* Worker Event Loop */
 	while((ret = epoll_wait(epoll_fd, events, BACKLOG, -1)) > 0) {
@@ -476,50 +571,6 @@ extern int errno;
 extern int optind;
 extern char *optarg;
 
-static inline int open_perf(struct perf_event_attr *attr, pid_t pid, int cpu, int group_fd, unsigned long flags)
-{
-	return syscall(SYS_perf_event_open, attr, pid, cpu, group_fd, flags);
-}
-
-static void config_event(struct perf_event_attr *pe, uint32_t type, uint64_t config, int disabled)
-{
-	pe->type = type;
-	pe->size = sizeof(struct perf_event_attr);
-	pe->config = config;
-	pe->disabled = !!(disabled);
-	pe->read_format = PERF_FORMAT_GROUP | PERF_FORMAT_ID;
-}
-
-static void setup_perf(int *fds, int *ids)
-{
-	struct perf_event_attr pe[TOTAL_EVENTS];
-
-	memset(pe, 0, sizeof(struct perf_event_attr) * TOTAL_EVENTS);
-	config_event(&pe[0], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CPU_CYCLES, 1);
-	config_event(&pe[1], PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS, 0);
-	config_event(&pe[2], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_REFERENCES, 0);
-	config_event(&pe[3], PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_MISSES, 0);
-	config_event(&pe[4], PERF_TYPE_HW_CACHE,
-			PERF_COUNT_HW_CACHE_L1I |
-			(PERF_COUNT_HW_CACHE_OP_READ << 8) |
-			(PERF_COUNT_HW_CACHE_RESULT_MISS << 16), 0);
-
-	fds[0] = open_perf(&pe[0], 0, -1, -1, 0);
-	if (fds[0] < 0) {
-		perror("perf_event_open:");
-		exit(1);
-	}
-	ioctl(fds[0], PERF_EVENT_IOC_ID, &ids[0]);
-	for (int i = 1; i < TOTAL_EVENTS; i++) {
-		fds[i] = open_perf(&pe[i], 0, -1, fds[0], 0);
-		if (fds[i] < 0) {
-			perror("perf_event_open:");
-			exit(1);
-		}
-		ioctl(fds[i], PERF_EVENT_IOC_ID, &ids[i]);
-	}
-}
-
 int main(int argc, char **argv)
 {
 	int status;
@@ -529,15 +580,11 @@ int main(int argc, char **argv)
 	unsigned int port, stats;
 	int stats_fd;
 	int epoll_fd;
-	int perf_fds[TOTAL_EVENTS];
-	int perf_ids[TOTAL_EVENTS];
-	uint64_t perf_values[TOTAL_EVENTS] = {0};
 	int out;
 	char prt_str[6], stats_str[6];
 	char addr_str[INET6_ADDRSTRLEN];
 	struct addrinfo *statsaddr;
 	struct epoll_event evt;
-	struct read_format perf_stats;
 
 	char opt_str[] = "hp:m:s:";
 	struct option long_opts[] = {
@@ -578,8 +625,6 @@ int main(int argc, char **argv)
 	}
 	ret = -1;
 
-	setup_perf(perf_fds, perf_ids);
-	
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
@@ -655,9 +700,6 @@ int main(int argc, char **argv)
 
 	printf("Listening on %s:%s\n", addr_str, prt_str);
 
-	ioctl(perf_fds[0], PERF_EVENT_IOC_RESET, 0);
-	ioctl(perf_fds[0], PERF_EVENT_IOC_ENABLE, 0);
-
 	printf("Started %lu threads\n!! Server is ready. !!\n", nr_cpus);
 
 	evt.events = 0;
@@ -671,15 +713,10 @@ int main(int argc, char **argv)
 			epoll_ctl(epoll_fd, EPOLL_CTL_DEL, evt.data.fd, NULL);
 			close(evt.data.fd);
 		} else if (evt.data.fd == stats_fd) {
-			char header[] = "CYCLES\tINSTRUCTIONS\tCACHE_READS\tCACHE_MISSES\tICACHE_MISSES";
-			char output[4096] = {0};
-			/*
-			 * Any connection to the stats port will get a 4 byte network order size followed
-			 * by the stats in ascii text. We then shutdown the write side and wait for the other
-			 * end to close the connection before we close the fd on our side.
-			 * The stats format is a tab separated value with a header row and a single data row.
-			 */
-			ioctl(perf_fds[0], PERF_EVENT_IOC_DISABLE, 0);
+			char header[] = "CPU\tCYCLES\tINSTRUCTIONS\tCACHE_READS\tCACHE_MISSES\tICACHE_MISSES\n";
+			uint64_t ev = STATS_EVENT;
+			uint64_t size = 0;
+			size_t cursor = 0;
 
 			out = accept(stats_fd, NULL, NULL);
 			if (out < 0) {
@@ -687,29 +724,51 @@ int main(int argc, char **argv)
 				goto out_ret;
 			}
 
-			if (read(perf_fds[0], &perf_stats, sizeof(struct read_format)) <= 0) {
-				perror("perf event read:");
-				goto out_ret;
-			}
 			evt.events = EPOLLERR | EPOLLHUP;
 			evt.data.fd = out;
 			epoll_ctl(epoll_fd, EPOLL_CTL_ADD, out, &evt);
 			shutdown(out, SHUT_RD);
 
-			for (int i = 0; i < perf_stats.nr; i++) {
-				for (int j = 0; j < TOTAL_EVENTS; j++) {
-					if (perf_stats.values[i].id == perf_ids[j]) {
-						perf_values[j] = perf_stats.values[i].value;
-						break;
-					}
+			init_count = 0;
+
+			for (int i = 0; i < nr_cpus; i++)
+				write(threads[i].event_fd, &ev, sizeof(ev));
+
+			pthread_mutex_lock(&init_lock);
+			while (init_count < nr_cpus)
+				pthread_cond_wait(&init_cond, &init_lock);
+			pthread_mutex_unlock(&init_lock);
+
+			size = strlen(header);
+			for (int i = 0; i < nr_cpus; i++)
+				size += strlen(threads[i].perf_line);
+
+			write(out, &size, sizeof(size));
+ 
+			size = strlen(header);
+			do {
+				index = write(out, &header[cursor], size - cursor);
+				if (index <= 0) {
+					perror("perf write:");
+					close(out);
+					exit(1);
 				}
+				cursor += index;
+			} while (cursor < size);
+
+			for (int i = 0; i < nr_cpus; i++) {
+				size = strlen(threads[i].perf_line);
+				cursor = 0;
+				do {
+					index = write(out, &threads[i].perf_line[cursor], size - cursor);
+					if (index <= 0) {
+						perror("perf write:");
+						close(out);
+						exit(1);
+					}
+					cursor += index;
+				} while (cursor < size);
 			}
-
-			snprintf(output, 4096, "%s\n%lu\t%lu\t%lu\t%lu\t%lu\n", header,
-					perf_values[0], perf_values[1], perf_values[2], perf_values[3], perf_values[4]);
-
-			write(out, output, strlen(output) + 1);
-
 			shutdown(out, SHUT_WR);
 		}
 		memset(&evt, 0, sizeof(evt));
