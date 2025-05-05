@@ -13,40 +13,16 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/resource.h>
-#include <sys/epoll.h>
 #include <sys/eventfd.h>
 #include <sys/ioctl.h>
-#include<sys/syscall.h>
+#include <sys/syscall.h>
+#include <sys/epoll.h>
 
 #include <arpa/inet.h>
 
 #include <linux/perf_event.h>
 
-#ifndef DEFAULT_PORT
-#define DEFAULT_PORT 7272
-#endif
-
-#ifndef DEFAULT_STATS
-#define DEFAULT_STATS 8383
-#endif
-
-#ifndef PAYLOAD_SIZE
-#define PAYLOAD_SIZE 32
-#endif
-
-#ifndef BACKLOG
-#define BACKLOG 20
-#endif
-
-#ifndef MAX_CONNS
-#define MAX_CONNS 1024
-#endif
-
-#define TOTAL_EVENTS 5
-#define CONN_EVENT (uint64_t)(1)
-#define CONN_MASK (uint64_t)(0xFFFFFFFF)
-#define STATS_EVENT (CONN_EVENT << 32)
-#define STATS_MASK (CONN_MASK << 32)
+#include "tcp_echo.h"
 
 #define OPTION(opts, text)	fprintf(stderr, " %-25s  %s\n", opts, text)
 #define CONT(text) 		fprintf(stderr, " %-25s  %s\n", "", text)
@@ -62,58 +38,23 @@ static void usage(void)
 	OPTION("--stats-port,-s [port]", "Listen on this port instead of 8383 for stats connections");
 }
 
-struct connection {
-	int fd;
-	size_t cursor;
-	unsigned char *buffer;
-};
-
-struct waiting_conn {
-	int fd;
-	struct waiting_conn *next;
-};
-
-struct conn_queue {
-	pthread_mutex_t lock;
-	struct waiting_conn *list;
-};
-
-struct worker_thread {
-	pthread_t thread_id;
-	struct conn_queue incoming;
-	int event_fd;
-	int epoll_fd;
-	int index;
-	int perf_fds[TOTAL_EVENTS];
-	int perf_ids[TOTAL_EVENTS];
-	char perf_line[23 + 21 * TOTAL_EVENTS];
-};
-static struct worker_thread *threads;
-
-struct read_format {
-	uint64_t nr;
-	struct {
-		uint64_t value;
-		uint64_t id;
-	} values[TOTAL_EVENTS];
-};
+struct worker_thread *threads;
 
 /*
  * Number of worker threads that have finished setting themselves up.
  */
-static size_t init_count;
-static pthread_mutex_t worker_hang_lock = PTHREAD_MUTEX_INITIALIZER;
-static pthread_mutex_t init_lock = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t init_cond = PTHREAD_COND_INITIALIZER;
+size_t init_count;
+pthread_mutex_t worker_hang_lock = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t init_lock = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t init_cond = PTHREAD_COND_INITIALIZER;
 
-static struct connection **conns;
+struct connection **conns;
 
 static size_t msg_size;
 
 static size_t nr_cpus;
 
-#define SUCCESS 0
-#define CLOSED  1
+__thread struct worker_thread *me;
 
 static void init_conns(void)
 {
@@ -139,7 +80,7 @@ static void init_conns(void)
 	}
 }
 
-static struct connection *new_conn(int fd)
+struct connection *new_conn(int fd)
 {
 	struct connection *conn = calloc(1, sizeof(struct connection));
 	if (!conn) {
@@ -151,7 +92,7 @@ static struct connection *new_conn(int fd)
 	return conn;
 }
 
-static int on_read(struct connection *conn)
+void on_read(struct connection *conn)
 {
 	ssize_t ret;
 	size_t cursor;
@@ -169,11 +110,12 @@ static int on_read(struct connection *conn)
 	do {
 		if ((ret = read(conn->fd, &(conn->buffer[cursor]), msg_size - cursor)) <= 0) {
 			if (ret == 0) {
-				return CLOSED;
+				on_close(conn->fd);
+				return;
 			} else if (errno == EAGAIN || errno == EWOULDBLOCK) {
 				// Nothing to do here, just return. We need to wait for thre remainder of the message
 				conn->cursor = cursor;
-				return SUCCESS;
+				return;
 			}
 			// Any other problem is a real one
 			perror("read from client:");
@@ -187,7 +129,8 @@ static int on_read(struct connection *conn)
 	do {
 		if ((ret = write(conn->fd, &(conn->buffer[cursor]), msg_size - cursor)) <= 0) {
 			if (ret == 0) {
-				return CLOSED;
+				on_close(conn->fd);
+				return;
 			} else if (errno == EAGAIN || errno == EWOULDBLOCK) {
 				continue;
 			}
@@ -196,85 +139,9 @@ static int on_read(struct connection *conn)
 		}
 		cursor += ret;
 	} while (cursor < msg_size);
-
-	return SUCCESS;
 }
 
-static void on_accept(int listen_sock)
-{
-	int cpu;
-	uint64_t u = 1;
-	struct worker_thread *owner;
-	struct waiting_conn *newbie;
-	socklen_t size = sizeof(cpu);
-
-	while (1) {
-		newbie = malloc(sizeof(struct waiting_conn));
-
-		if (!newbie) {
-			perror("malloc:");
-			exit(1);
-		}
-
-		if ((newbie->fd = accept4(listen_sock, NULL, NULL, SOCK_NONBLOCK)) < 0) {
-			if (errno == EAGAIN || errno == EWOULDBLOCK) {
-				free(newbie);
-				return;
-			}
-			perror("accept4:");
-			exit(1);
-		}
-
-		if (getsockopt(newbie->fd, SOL_SOCKET, SO_INCOMING_CPU, &cpu, &size) < 0) {
-			perror("getsockopt:");
-			exit(1);
-		}
-
-		owner = &(threads[cpu]);
-		pthread_mutex_lock(&owner->incoming.lock);
-		newbie->next = owner->incoming.list;
-		owner->incoming.list = newbie;
-		pthread_mutex_unlock(&owner->incoming.lock);
-
-		if (write(owner->event_fd, &u, sizeof(u)) != sizeof(u)) {
-			perror("write to event_fd:");
-			exit(1);
-		}
-	}
-}
-
-static void handle_new_conns(struct worker_thread *me)
-{
-	struct waiting_conn *newbie;
-	struct connection *conn;
-	struct epoll_event cfg;
-	cfg.events = EPOLLIN;
-
-	pthread_mutex_lock(&me->incoming.lock);
-	while (me->incoming.list != NULL) {
-		newbie = me->incoming.list;
-		me->incoming.list = newbie->next;
-		pthread_mutex_unlock(&me->incoming.lock);
-
-		conns[newbie->fd] = conn = new_conn(newbie->fd);
-		if (!conn) {
-			perror("calloc new connection:");
-			exit(1);
-		}
-
-		free(newbie);
-
-		cfg.data.fd = conn->fd;
-		if (epoll_ctl(me->epoll_fd, EPOLL_CTL_ADD, conn->fd, &cfg)) {
-			perror("epoll_ctl client fd:");
-			exit(1);
-		}
-		pthread_mutex_lock(&me->incoming.lock);
-	}
-	pthread_mutex_unlock(&me->incoming.lock);
-}
-
-static void write_perf_stats(struct worker_thread *me)
+void write_perf_stats(void)
 {
 	uint64_t perf_values[TOTAL_EVENTS] = {0};
 	struct read_format perf_stats;
@@ -295,49 +162,15 @@ static void write_perf_stats(struct worker_thread *me)
 		}
 	}
 
-	snprintf(me->perf_line, 23 + 21 * TOTAL_EVENTS, "%d\t%lu\t%lu\t%lu\t%lu\t%lu\n",
+	// We use TOTAL_EVENTS + 2 because we emit two per thread counters here as well (accept and connection count)
+	snprintf(me->perf_line, 23 + 21 * (TOTAL_EVENTS + 2), "%d\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\n",
 			me->index, perf_values[0], perf_values[1], perf_values[2],
-			perf_values[3], perf_values[4]);
+			perf_values[3], perf_values[4], me->accept_count, me->conn_count);
 
 	pthread_mutex_lock(&init_lock);
 	init_count++;
 	pthread_cond_signal(&init_cond);
 	pthread_mutex_unlock(&init_lock);
-}
-
-static void on_event(struct worker_thread *me)
-{
-	uint64_t cause;
-
-	if (read(me->event_fd, &cause, sizeof(cause)) != sizeof(cause)) {
-		if (errno == EAGAIN || errno == EWOULDBLOCK) {
-			return;
-		}
-		perror("read from event fd:");
-		exit(1);
-	}
-
-	if (cause & CONN_MASK)
-		handle_new_conns(me);
-
-	if (cause & STATS_MASK)
-		write_perf_stats(me);
-}
-
-static void on_close(struct worker_thread *me, int closed_fd)
-{
-	struct connection *conn = conns[closed_fd];
-
-	conns[closed_fd] = NULL;
-
-	if (epoll_ctl(me->epoll_fd, EPOLL_CTL_DEL, closed_fd, NULL)) {
-		perror("epoll_ctl remove closed:");
-		exit(1);
-	}
-
-	close(closed_fd);
-
-	free(conn);
 }
 
 static inline int open_perf(struct perf_event_attr *attr, pid_t pid, int cpu, int group_fd, unsigned long flags)
@@ -354,7 +187,7 @@ static void config_event(struct perf_event_attr *pe, uint32_t type, uint64_t con
 	pe->read_format = PERF_FORMAT_GROUP | PERF_FORMAT_ID;
 }
 
-static void setup_perf(int *fds, int *ids, int cpu)
+void setup_perf(int *fds, int *ids, int cpu)
 {
 	struct perf_event_attr pe[TOTAL_EVENTS];
 
@@ -388,184 +221,7 @@ static void setup_perf(int *fds, int *ids, int cpu)
  * The coordinator thread will fill this information in and then the workers
  * will all use it to setup their local listen sockets.
  */
-static struct addrinfo *res;
-
-static void *worker_func(void *arg)
-{
-	struct worker_thread *me = (struct worker_thread *)arg;
-	struct epoll_event cfg;
-	int epoll_fd;
-	int ret;
-	int listen_sock;
-	int i = 1;
-	struct epoll_event events[BACKLOG];
-
-	memset(events, 0, sizeof(struct epoll_event) * BACKLOG);
-
-	// Do our setup
-	listen_sock = socket(res->ai_family, res->ai_socktype | SOCK_NONBLOCK, res->ai_protocol);
-	if (listen_sock < 0) {
-		perror("socket():");
-		exit(1);
-	}
-
-	if (setsockopt(listen_sock, SOL_SOCKET, SO_REUSEPORT, &i, sizeof(i))) {
-		perror("setsockopt():");
-		exit(1);
-	}
-
-	if (setsockopt(listen_sock, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i))) {
-		perror("setsockopt():");
-		exit(1);
-	}
-
-	if (bind(listen_sock, res->ai_addr, res->ai_addrlen)) {
-		perror("bind():");
-		exit(1);
-	}
-
-	if (listen(listen_sock, BACKLOG)) {
-		perror("listen():");
-		exit(1);
-	}
-
-	epoll_fd = epoll_create(1);
-	if (epoll_fd < 0) {
-		perror("epoll_create1():");
-		exit(1);
-	}
-	me->epoll_fd = epoll_fd;
-
-	cfg.events = EPOLLIN;
-	cfg.data.fd = me->event_fd;
-	if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, me->event_fd, &cfg)) {
-		perror("epoll_ctl event_fd:");
-		exit(1);
-	}
-
-	cfg.data.fd = listen_sock;
-	if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, listen_sock, &cfg)) {
-		perror("epoll_ctl listen_sock:");
-		exit(1);
-	}
-	
-	setup_perf(me->perf_fds, me->perf_ids, me->index);
-
-	// Notify that setup is done
-	pthread_mutex_lock(&init_lock);
-	init_count++;
-	pthread_cond_signal(&init_cond);
-	pthread_mutex_unlock(&init_lock);
-	pthread_mutex_lock(&worker_hang_lock);
-	pthread_mutex_unlock(&worker_hang_lock);
-
-	ioctl(me->perf_fds[0], PERF_EVENT_IOC_RESET, 0);
-	ioctl(me->perf_fds[0], PERF_EVENT_IOC_ENABLE, 0);
-
-	/* Worker Event Loop */
-	while((ret = epoll_wait(epoll_fd, events, BACKLOG, -1)) > 0) {
-		for (i = 0; i < ret; i++) {
-			int closed;
-			if ((events[i].events & EPOLLERR) || (events[i].events & EPOLLHUP)) {
-				// Not much to do but clean up this connection and close the fd
-				if (events[i].data.fd == listen_sock || events[i].data.fd == me->event_fd) {
-					// Yikes
-					printf("Error on listen_sock or event_fd, exitting\n");
-					exit(1);
-				}
-				on_close(me, events[i].data.fd);
-			}
-
-			if (events[i].data.fd == listen_sock) {
-				on_accept(listen_sock);
-			} else if (events[i].data.fd == me->event_fd) {
-				on_event(me);
-			} else {
-				closed = on_read(conns[events[i].data.fd]);
-				if (closed == CLOSED)
-					on_close(me, events[i].data.fd);
-			}
-		}
-		memset(events, 0, sizeof(struct epoll_event) * BACKLOG);
-	}
-	// If we get here, epoll_wait returned an error
-	perror("epoll_wait():");
-	exit(1);
-}
-
-/**
- * TODO MASSIVE HAX
- */
-static void *dummy_worker(void *arg)
-{
-	sleep(900000000);
-	return NULL;
-}
-
-static void init_threads(void)
-{
-	pthread_attr_t attrs;
-	pthread_t dummy;
-	cpu_set_t *worker_cpu;
-
-	threads = calloc(nr_cpus, sizeof(struct worker_thread));
-	if (threads == NULL) {
-		perror("calloc():");
-		exit(1);
-	}
-
-	worker_cpu = CPU_ALLOC(nr_cpus);
-
-	if (pthread_attr_init(&attrs)) {
-		perror("Failed to initialize pthread_attrs");
-		exit(1);
-	}
-
-	if (pthread_attr_setdetachstate(&attrs, PTHREAD_CREATE_DETACHED)) {
-		perror("Cannot set detatched state attr");
-		exit(1);
-	}
-
-	pthread_mutex_lock(&worker_hang_lock);
-
-	/*
-	 * TODO MASSIVE HAX
-	 */
-	pthread_create(&dummy, &attrs, dummy_worker, NULL);
-
-	for (int i = 0; i < nr_cpus; i++) {
-		threads[i].event_fd = eventfd(0, EFD_NONBLOCK);
-		if (threads[i].event_fd < 0) {
-			perror("eventfd():");
-			exit(1);
-		}
-
-		threads[i].index = i;
-
-		pthread_mutex_init(&threads[i].incoming.lock, NULL);
-
-		CPU_ZERO_S(CPU_ALLOC_SIZE(nr_cpus), worker_cpu);
-		CPU_SET_S(i, CPU_ALLOC_SIZE(nr_cpus), worker_cpu);
-		if (pthread_attr_setaffinity_np(&attrs, CPU_ALLOC_SIZE(nr_cpus), worker_cpu)) {
-			perror("Cannot set affinity in attr");
-			exit(1);
-		}
-
-		if (pthread_create(&dummy, &attrs, worker_func, &threads[i])) {
-			perror("pthread_create():");
-			exit(1);
-		}
-	}
-
-	CPU_FREE(worker_cpu);
-
-	pthread_mutex_lock(&init_lock);
-	while (init_count < nr_cpus) {
-		pthread_cond_wait(&init_cond, &init_lock);
-	}
-	pthread_mutex_unlock(&init_lock);
-	pthread_mutex_unlock(&worker_hang_lock);
-}
+struct addrinfo *res;
 
 extern int errno;
 extern int optind;
@@ -690,7 +346,7 @@ int main(int argc, char **argv)
 
 	printf("Starting %lu worker threads\n", nr_cpus);
 
-	init_threads();
+	init_threads(nr_cpus);
 
 	if (!inet_ntop(AF_INET, &(((struct sockaddr_in*)res->ai_addr)->sin_addr),
 				addr_str, INET6_ADDRSTRLEN)) {
@@ -713,7 +369,7 @@ int main(int argc, char **argv)
 			epoll_ctl(epoll_fd, EPOLL_CTL_DEL, evt.data.fd, NULL);
 			close(evt.data.fd);
 		} else if (evt.data.fd == stats_fd) {
-			char header[] = "CPU\tCYCLES\tINSTRUCTIONS\tCACHE_READS\tCACHE_MISSES\tICACHE_MISSES\n";
+			char header[] = "CPU\tCYCLES\tINSTRUCTIONS\tCACHE_READS\tCACHE_MISSES\tICACHE_MISSES\tACCEPT_COUNT\tCONNECTION_COUNT\n";
 			uint64_t ev = STATS_EVENT;
 			uint64_t size = 0;
 			size_t cursor = 0;

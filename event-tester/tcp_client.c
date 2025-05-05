@@ -650,9 +650,10 @@ int main(int argc, char **argv)
 	min_io = 1 + (msg_size / 1380);
 
 	/*
-	 * Each transaction will have min_io sends and min_io recvs
+	 * Each transaction will have min_io sends and min_io recvs and each send or
+	 * recv has a start and stop event
 	 */
-	max_events = 2 * min_io * transaction_count;
+	max_events = 4 * min_io * transaction_count;
 
 	/*
 	 * Count the connection events, each has connect start and stop
@@ -666,10 +667,10 @@ int main(int argc, char **argv)
 	 * max_events is per client but we manage event list per thread so scale for
 	 * number of clients per thread
 	 */
-	max_events *= 2 * clients_per_thread;
+	max_events *= clients_per_thread;
 	
 	hdr_size = sizeof(struct TscLog);
-	entry_size = sizeof(struct TscLog) * max_events;
+	entry_size = TscLogEntrySize(4) * max_events;
 
 	srandom(time(NULL));
 

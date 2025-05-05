@@ -44,11 +44,11 @@ tcp_client: tcp_client.c
 tcp_echo: tcp_echo.c tsc_logger.h
 	gcc -o $@ $< -ggdb -Wall -Werror -lpthread
 
-UKL.a: tcp_echo.o tsc_logger.h undefined_sys_hack.o tcp_client
+UKL.a: tcp_echo.o epoll.o tsc_logger.h undefined_sys_hack.o tcp_client
 	rm -f $@ temp.o
 	ld -r -o temp.o -allow-multiple-definition \
 	    $(CRT_STARTS) \
-	    $< \
+	    tcp_echo.o epoll.o \
 	    --start-group \
 	    --whole-archive \
 	    $(MATH_LIB) $(RT_LIB) $(PTHREAD_LIB) $(C_LIB) \
