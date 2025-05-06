@@ -41,9 +41,12 @@ enum concurrency_models {
 };
 
 enum events {
-	READ,
-	WRITE,
-	NREVENTS
+	READ	= 0x00000001,
+	WRITE	= 0x00000002,
+	CLOSE	= 0x00000004,
+	HUP	= 0x00000008,
+	ERROR	= 0x00000010,
+	MAX	= 0x00000020
 };
 
 /**

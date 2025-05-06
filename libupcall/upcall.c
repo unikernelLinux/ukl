@@ -279,7 +279,11 @@ void *do_event_ctl(int fd, void (*work_fn)(void *arg), void *arg);
  */
 int register_event(int fd, enum events event, void (*work_fn)(void *arg), void *arg)
 {
-	if (event < 0 || event >= NREVENTS)
+	/*
+	 * TODO: We need to handle various event subscriptions and maintain a data structure of
+	 * them like epoll does.
+	 */
+	if (event < 0 || event >= MAX)
 		return EINVAL;
 
 	if (!work_fn)
@@ -291,4 +295,8 @@ int register_event(int fd, enum events event, void (*work_fn)(void *arg), void *
 	return 0;
 }
 
-
+int unregister_event(int fd, enum events event)
+{
+	// This needs to be sorted
+	return 0;
+}
