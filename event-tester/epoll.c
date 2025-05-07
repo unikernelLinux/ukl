@@ -11,7 +11,8 @@
 #include <getopt.h>
 #include <sched.h>
 #include <errno.h>
-#include <pthread.h> 
+#include <pthread.h>
+#include <limits.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -25,7 +26,7 @@
 #include "tcp_echo.h"
 
 extern __thread struct worker_thread *me;
-extern struct worker_thread *threads;
+extern struct worker_thread **threads;
 extern struct connection **conns;
 extern size_t init_count;
 extern pthread_mutex_t worker_hang_lock;
@@ -34,13 +35,23 @@ extern pthread_cond_t init_cond;
 
 extern struct addrinfo *res;
 
-void on_accept(int listen_sock)				 
+void on_accept(void *arg)				 
 {
+	uint64_t in = (uint64_t)arg;
+	int listen_sock;
 	int cpu;
 	uint64_t u = CONN_EVENT;
 	struct worker_thread *owner;
 	struct waiting_conn *newbie;
 	socklen_t size = sizeof(cpu);
+
+	if (in > INT_MAX) {
+		// We shouldn't get here
+		printf("Invalid listen_sock\n");
+		exit(1);
+	}
+
+	listen_sock = (int)in;
 
 	while (1) {
 		newbie = malloc(sizeof(struct waiting_conn));
@@ -66,7 +77,7 @@ void on_accept(int listen_sock)
 			exit(1);
 		}
 
-		owner = &(threads[cpu]);
+		owner = threads[cpu];
 		pthread_mutex_lock(&owner->incoming.lock);
 		newbie->next = owner->incoming.list;
 		owner->incoming.list = newbie;
@@ -115,36 +126,53 @@ static void *worker_func(void *arg)
 	struct epoll_event cfg;
 	int epoll_fd;
 	int ret;
-	int listen_sock;
 	int i = 1;
 	struct epoll_event events[BACKLOG];
+	uint64_t my_cpu = (uint64_t)arg;
 
-	me = (struct worker_thread *)arg;
-	memset(events, 0, sizeof(struct epoll_event) * BACKLOG);
+	me = calloc(1, sizeof(struct worker_thread));
+	if (!me) {
+		perror("calloc:");
+		exit(1);
+	}
 
 	// Do our setup
-	listen_sock = socket(res->ai_family, res->ai_socktype | SOCK_NONBLOCK, res->ai_protocol);
-	if (listen_sock < 0) {
+	me->index = my_cpu;
+
+	threads[my_cpu] = me;
+	me->event_fd = eventfd(0, EFD_NONBLOCK);
+	if (me->event_fd < 0) {
+		perror("eventfd():");
+		exit(1);
+	}
+
+	pthread_mutex_init(&me->incoming.lock, NULL);
+
+
+	memset(events, 0, sizeof(struct epoll_event) * BACKLOG);
+
+	me->listen_sock = socket(res->ai_family, res->ai_socktype | SOCK_NONBLOCK, res->ai_protocol);
+	if (me->listen_sock < 0) {
 		perror("socket():");
 		exit(1);
 	}
 
-	if (setsockopt(listen_sock, SOL_SOCKET, SO_REUSEPORT, &i, sizeof(i))) {
+	if (setsockopt(me->listen_sock, SOL_SOCKET, SO_REUSEPORT, &i, sizeof(i))) {
 		perror("setsockopt():");
 		exit(1);
 	}
 
-	if (setsockopt(listen_sock, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i))) {
+	if (setsockopt(me->listen_sock, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i))) {
 		perror("setsockopt():");
 		exit(1);
 	}
 
-	if (bind(listen_sock, res->ai_addr, res->ai_addrlen)) {
+	if (bind(me->listen_sock, res->ai_addr, res->ai_addrlen)) {
 		perror("bind():");
 		exit(1);
 	}
 
-	if (listen(listen_sock, BACKLOG)) {
+	if (listen(me->listen_sock, BACKLOG)) {
 		perror("listen():");
 		exit(1);
 	}
@@ -163,8 +191,8 @@ static void *worker_func(void *arg)
 		exit(1);
 	}
 
-	cfg.data.fd = listen_sock;
-	if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, listen_sock, &cfg)) {
+	cfg.data.fd = me->listen_sock;
+	if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, me->listen_sock, &cfg)) {
 		perror("epoll_ctl listen_sock:");
 		exit(1);
 	}
@@ -185,10 +213,9 @@ static void *worker_func(void *arg)
 	/* Worker Event Loop */
 	while((ret = epoll_wait(epoll_fd, events, BACKLOG, -1)) > 0) {
 		for (i = 0; i < ret; i++) {
-			int closed;
 			if ((events[i].events & EPOLLERR) || (events[i].events & EPOLLHUP)) {
 				// Not much to do but clean up this connection and close the fd
-				if (events[i].data.fd == listen_sock || events[i].data.fd == me->event_fd) {
+				if (events[i].data.fd == me->listen_sock || events[i].data.fd == me->event_fd) {
 					// Yikes
 					printf("Error on listen_sock or event_fd, exitting\n");
 					exit(1);
@@ -196,10 +223,12 @@ static void *worker_func(void *arg)
 				on_close(events[i].data.fd);
 			}
 
-			if (events[i].data.fd == listen_sock) {
-				on_accept(listen_sock);
+			if (events[i].data.fd == me->listen_sock) {
+				// We are passing the value as an address to meet API compatibility, do
+				// not change this to the address of the listen_sock
+				on_accept((void*)me->listen_sock);
 			} else if (events[i].data.fd == me->event_fd) {
-				on_event();
+				on_event(NULL);
 			} else {
 				on_read(conns[events[i].data.fd]);
 			}
@@ -211,7 +240,7 @@ static void *worker_func(void *arg)
 	exit(1);
 }
 
-void on_event(void)
+void on_event(void *arg)
 {
 	uint64_t cause;
 	
@@ -227,7 +256,12 @@ void on_event(void)
 		handle_new_conns();  
 
 	if (cause & STATS_MASK)
-		write_perf_stats();  
+		write_perf_stats(me);  
+}
+
+void *dummy_worker(void *arg)
+{
+	return arg;
 }
 
 void init_threads(uint64_t nr_cpus)
@@ -235,12 +269,6 @@ void init_threads(uint64_t nr_cpus)
 	pthread_attr_t attrs;
 	pthread_t dummy;
 	cpu_set_t *worker_cpu;
-
-	threads = calloc(nr_cpus, sizeof(struct worker_thread));
-	if (threads == NULL) {
-		perror("calloc():");
-		exit(1);
-	}
 
 	worker_cpu = CPU_ALLOC(nr_cpus);
 
@@ -256,17 +284,9 @@ void init_threads(uint64_t nr_cpus)
 
 	pthread_mutex_lock(&worker_hang_lock);
 
-	for (int i = 0; i < nr_cpus; i++) {
-		threads[i].event_fd = eventfd(0, EFD_NONBLOCK);
-		if (threads[i].event_fd < 0) {
-			perror("eventfd():");
-			exit(1);
-		}
+	pthread_create(&dummy, &attrs, dummy_worker, NULL);
 
-		threads[i].index = i;
-
-		pthread_mutex_init(&threads[i].incoming.lock, NULL);
-
+	for (uint64_t i = 0; i < nr_cpus; i++) {
 		CPU_ZERO_S(CPU_ALLOC_SIZE(nr_cpus), worker_cpu);
 		CPU_SET_S(i, CPU_ALLOC_SIZE(nr_cpus), worker_cpu);
 		if (pthread_attr_setaffinity_np(&attrs, CPU_ALLOC_SIZE(nr_cpus), worker_cpu)) {
@@ -274,7 +294,7 @@ void init_threads(uint64_t nr_cpus)
 			exit(1);
 		}
 
-		if (pthread_create(&dummy, &attrs, worker_func, &threads[i])) {
+		if (pthread_create(&dummy, &attrs, worker_func, (void*)i)) {
 			perror("pthread_create():");
 			exit(1);
 		}

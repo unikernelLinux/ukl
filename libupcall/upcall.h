@@ -57,11 +57,11 @@ enum events {
  *     @enum concurrency_models.
  * @unsigned int thrd_cnt The number of threads, per event queue, to be created
  *     and ready for event handling.
- * @void (*setup_fn)(void) An optional setup function that will be run on each
+ * @void (*setup_fn)(void *) An optional setup function that will be run on each
  *     worker thread before they start waiting for events, pass NULL for no setup
  * @return 0 on success ERRNO on error.
  */
-int init_event_handler(enum concurrency_models evqueue_model, unsigned int thrd_cnt, void (*setup_fn)(void));
+int init_event_handler(enum concurrency_models evqueue_model, unsigned int thrd_cnt, void (*setup_fn)(void *), void *setup_arg);
 
 /**
  * Register a handler for an event.

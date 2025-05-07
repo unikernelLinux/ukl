@@ -42,7 +42,8 @@
 struct worker {
 	int dying;
 	pthread_t me;
-	void (*setup_fn)(void);
+	void (*setup_fn)(void *);
+	void * setup_arg;
 };
 
 static unsigned long setup_count;
@@ -73,7 +74,7 @@ static void *park_context(void * my_worker)
 
 	// Run the setup function if present
 	if (me->setup_fn)
-		me->setup_fn();
+		me->setup_fn(me->setup_arg);
 
 	// Register as an event excution context and pause until everyone is ready
 	register_ukl_handler_task();
@@ -165,7 +166,7 @@ int init_upcall_handler(int concurrency_model);
  *     worker thread before they start waiting for events
  * @return 0 on success ERRNO on error.
  */
-int init_event_handler(enum concurrency_models evqueue_model, unsigned int thrd_cnt, void (*setup_fn)(void))
+int init_event_handler(enum concurrency_models evqueue_model, unsigned int thrd_cnt, void (*setup_fn)(void*), void *setup_arg)
 {
 	pthread_attr_t attrs;
 	cpu_set_t *event_cpu;
@@ -238,6 +239,7 @@ int init_event_handler(enum concurrency_models evqueue_model, unsigned int thrd_
 			int index = i * thrd_cnt + j;
 			workers[index].dying = 0;
 			workers[index].setup_fn = setup_fn;
+			workers[index].setup_arg = setup_arg;
 			if (pthread_create(&(workers[index].me), &attrs, park_context, &workers[index])) {
 				perror("Failed to create event thread");
 				free(clusters);

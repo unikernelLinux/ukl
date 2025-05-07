@@ -4,7 +4,7 @@
 #ifdef UKL_USER
 #define L1_CACHE_BYTES 64
 /* This is an ugly hack */
-struct pid_container {
+static struct pid_container {
 	uint32_t pid;
 } my_pid;
 #define current (&my_pid)

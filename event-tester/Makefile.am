@@ -35,23 +35,31 @@ if DEFAULT_PIE
 AM_CFLAGS  += -fno-PIC -no-pie -fno-PIE
 endif
 
+if ENABLE_LIBUPCALL
+UPCALL_LIB = $(abs_top_builddir)/libupcall/libupcall.a
+else
+UPCALL_LIB =
+endif
+
+EV_SYS = @EVENT_SYSTEM@
+
 data.tar.gz:
 	touch data.tar.gz
 
 tcp_client: tcp_client.c
 	gcc -o $@ $< -ggdb -Wall -Werror -lpthread
 
-tcp_echo: tcp_echo.c tsc_logger.h
-	gcc -o $@ $< -ggdb -Wall -Werror -lpthread
+tcp_echo: tcp_echo.c $(EV_SYS).c tsc_logger.h
+	gcc -o $@ tcp_echo.c $(EV_SYS).c -ggdb -Wall -Werror -lpthread
 
-UKL.a: tcp_echo.o epoll.o tsc_logger.h undefined_sys_hack.o tcp_client
+UKL.a: tcp_echo.o $(EV_SYS).o tsc_logger.h undefined_sys_hack.o tcp_client $(UPCALL_LIB)
 	rm -f $@ temp.o
 	ld -r -o temp.o -allow-multiple-definition \
 	    $(CRT_STARTS) \
-	    tcp_echo.o epoll.o \
+	    tcp_echo.o $(EV_SYS).o \
 	    --start-group \
 	    --whole-archive \
-	    $(MATH_LIB) $(RT_LIB) $(PTHREAD_LIB) $(C_LIB) \
+	    $(UPCALL_LIB) $(MATH_LIB) $(RT_LIB) $(PTHREAD_LIB) $(C_LIB) \
 	    --no-whole-archive \
 	    $(GCC_LIBS) \
 	    --end-group \

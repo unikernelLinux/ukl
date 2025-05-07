@@ -38,7 +38,7 @@ static void usage(void)
 	OPTION("--stats-port,-s [port]", "Listen on this port instead of 8383 for stats connections");
 }
 
-struct worker_thread *threads;
+struct worker_thread **threads;
 
 /*
  * Number of worker threads that have finished setting themselves up.
@@ -92,8 +92,9 @@ struct connection *new_conn(int fd)
 	return conn;
 }
 
-void on_read(struct connection *conn)
+void on_read(void *arg)
 {
+	struct connection *conn = (struct connection*)arg;
 	ssize_t ret;
 	size_t cursor;
 
@@ -141,14 +142,14 @@ void on_read(struct connection *conn)
 	} while (cursor < msg_size);
 }
 
-void write_perf_stats(void)
+void write_perf_stats(struct worker_thread *t)
 {
 	uint64_t perf_values[TOTAL_EVENTS] = {0};
 	struct read_format perf_stats;
 
-	ioctl(me->perf_fds[0], PERF_EVENT_IOC_DISABLE, 0);
+	ioctl(t->perf_fds[0], PERF_EVENT_IOC_DISABLE, 0);
 
-	if (read(me->perf_fds[0], &perf_stats, sizeof(struct read_format)) <= 0) {
+	if (read(t->perf_fds[0], &perf_stats, sizeof(struct read_format)) <= 0) {
 		perror("perf event read:");
 		exit(1);
 	}
@@ -163,9 +164,9 @@ void write_perf_stats(void)
 	}
 
 	// We use TOTAL_EVENTS + 2 because we emit two per thread counters here as well (accept and connection count)
-	snprintf(me->perf_line, 23 + 21 * (TOTAL_EVENTS + 2), "%d\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\n",
-			me->index, perf_values[0], perf_values[1], perf_values[2],
-			perf_values[3], perf_values[4], me->accept_count, me->conn_count);
+	snprintf(t->perf_line, 23 + 21 * (TOTAL_EVENTS + 2), "%d\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\n",
+			t->index, perf_values[0], perf_values[1], perf_values[2],
+			perf_values[3], perf_values[4], t->accept_count, t->conn_count);
 
 	pthread_mutex_lock(&init_lock);
 	init_count++;
@@ -346,6 +347,12 @@ int main(int argc, char **argv)
 
 	printf("Starting %lu worker threads\n", nr_cpus);
 
+	threads = calloc(nr_cpus, sizeof(struct worker_thread*));
+	if (!threads) {
+		perror("calloc():");
+		exit(1);
+	}
+
 	init_threads(nr_cpus);
 
 	if (!inet_ntop(AF_INET, &(((struct sockaddr_in*)res->ai_addr)->sin_addr),
@@ -388,7 +395,7 @@ int main(int argc, char **argv)
 			init_count = 0;
 
 			for (int i = 0; i < nr_cpus; i++)
-				write(threads[i].event_fd, &ev, sizeof(ev));
+				write(threads[i]->event_fd, &ev, sizeof(ev));
 
 			pthread_mutex_lock(&init_lock);
 			while (init_count < nr_cpus)
@@ -397,7 +404,7 @@ int main(int argc, char **argv)
 
 			size = strlen(header);
 			for (int i = 0; i < nr_cpus; i++)
-				size += strlen(threads[i].perf_line);
+				size += strlen(threads[i]->perf_line);
 
 			write(out, &size, sizeof(size));
  
@@ -413,10 +420,10 @@ int main(int argc, char **argv)
 			} while (cursor < size);
 
 			for (int i = 0; i < nr_cpus; i++) {
-				size = strlen(threads[i].perf_line);
+				size = strlen(threads[i]->perf_line);
 				cursor = 0;
 				do {
-					index = write(out, &threads[i].perf_line[cursor], size - cursor);
+					index = write(out, &threads[i]->perf_line[cursor], size - cursor);
 					if (index <= 0) {
 						perror("perf write:");
 						close(out);

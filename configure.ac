@@ -149,6 +149,16 @@ AC_ARG_ENABLE([libupcall],
 AM_CONDITIONAL([ENABLE_LIBUPCALL], [test "x$ENABLE_LIBUPCALL" = "xyes"])
 AC_MSG_RESULT([$ENABLE_LIBUPCALL])
 
+dnl Use the selected event system for tcp_echo
+AC_MSG_CHECKING([event system])
+AC_ARG_WITH([event_system],
+    [AS_HELP_STRING([--with-event-system],
+        [use the selected event system @<:@default=epoll@:>@])],
+        [EVENT_SYSTEM="$withval"],
+        [EVENT_SYSTEM="epoll"])
+AC_MSG_RESULT([$EVENT_SYSTEM])
+AC_SUBST([EVENT_SYSTEM])
+
 dnl Produce output files.
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile \

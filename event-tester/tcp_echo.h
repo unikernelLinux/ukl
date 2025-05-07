@@ -71,6 +71,7 @@ struct worker_thread {
 	struct conn_queue incoming;
 	int event_fd;
 	int epoll_fd;
+	int listen_sock;
 	int index;
 	int perf_fds[TOTAL_EVENTS];
 	int perf_ids[TOTAL_EVENTS];
@@ -90,17 +91,17 @@ struct read_format {
 	} values[TOTAL_EVENTS];
 };
 
-void on_accept(int listen_sock);
+void on_accept(void *arg);
 
-void on_read(struct connection *conn);
+void on_read(void *arg);
 
-void on_event(void);
+void on_event(void *arg);
 
 void setup_perf(int *fds, int *ids, int cpu);
 
 void init_threads(uint64_t nr_cpus);
 
-void write_perf_stats(void);
+void write_perf_stats(struct worker_thread *t);
 
 struct connection *new_conn(int fd);
 
