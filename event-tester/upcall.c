@@ -14,7 +14,6 @@
 #include <pthread.h>
 #include <limits.h>
 
-#include <sys/eventfd.h>
 #include <sys/ioctl.h>
 
 #include <linux/perf_event.h>
@@ -65,28 +64,11 @@ void on_accept(void *arg)
 		new_conn->fd = incoming;
 		conns[incoming] = new_conn;
 
-		if (register_event(incoming, READ, on_read, new_conn)) {
+		if (register_event(incoming, EPOLLIN, on_read, new_conn)) {
 			printf("OOM\n");
 			exit(1);
 		}
 	}
-}
-
-void on_event(void *arg)
-{
-	uint64_t cause;
-	struct worker_thread *t = (struct worker_thread*)arg;
-
-	if (read(t->event_fd, &cause, sizeof(cause)) != sizeof(cause)) {
-		if (errno == EAGAIN || errno == EWOULDBLOCK) {
-			return;
-		}
-		perror("read from event fd:");
-		exit(1);
-	}
-
-	if (cause & STATS_MASK)
-		write_perf_stats(t);
 }
 
 static void worker_setup(void *arg)
@@ -106,17 +88,6 @@ static void worker_setup(void *arg)
 	}
 
 	threads[me->index] = me;
-
-	me->event_fd = eventfd(0, EFD_NONBLOCK);
-	if (me->event_fd < 0) {
-		perror("eventfd():");
-		exit(1);
-	}
-
-	if (register_event(me->event_fd, READ, on_event, me)) {
-		printf("Failed to register event_fd\n");
-		exit(1);
-	}
 
 	me->listen_sock = socket(res->ai_family, res->ai_socktype | SOCK_NONBLOCK, res->ai_protocol);
 	if (me->listen_sock < 0) {
@@ -144,7 +115,7 @@ static void worker_setup(void *arg)
 		exit(1);
 	}
 
-	register_event(me->listen_sock, READ, on_accept, (void *)(uint64_t)me->listen_sock);
+	register_event(me->listen_sock, EPOLLIN, on_accept, (void *)(uint64_t)me->listen_sock);
 
 	setup_perf(me->perf_fds, me->perf_ids, me->index);
 
@@ -183,7 +154,8 @@ void on_close(int closed_fd)
 		return;
 	}
 
-	unregister_event(closed_fd, READ);
+	unregister_event(closed_fd, EPOLLIN);
 	close(closed_fd);
 	free(conn);
+	me->conn_count++;
 }

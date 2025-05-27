@@ -65,6 +65,7 @@ static void wait_for_setup()
 void register_ukl_handler_task(void);
 void *workitem_queue_consume_event(void);
 void ukl_worker_sleep(void);
+void event_work_done(struct work_item *work);
 
 static void *park_context(void * my_worker)
 {
@@ -85,6 +86,7 @@ static void *park_context(void * my_worker)
 		if (data) {
 			event = (struct work_item *)data;
 			event->work_fn(event->arg);
+			event_work_done(event);
 		} else {
 			ukl_worker_sleep();
 		}
@@ -150,7 +152,6 @@ static void parse_clusters(size_t num_cpus, int queues, cpu_set_t **clusters)
 		}
 	}
 }
-
 
 int init_upcall_handler(int concurrency_model);
 
@@ -265,7 +266,9 @@ int init_event_handler(enum concurrency_models evqueue_model, unsigned int thrd_
 	return 0;
 }
 
-void *do_event_ctl(int fd, void (*work_fn)(void *arg), void *arg);
+extern struct subscription_manager *ukl_subs;
+extern int register_subscription(struct subscription_manager *mgr, int fd, __poll_t events,
+				void(work_fn)(void*), void *arg);
 /**
  * Register a handler for an event.
  *
@@ -279,26 +282,30 @@ void *do_event_ctl(int fd, void (*work_fn)(void *arg), void *arg);
  *
  * @Returns 0 on success, ERRNO on failure.
  */
-int register_event(int fd, enum events event, void (*work_fn)(void *arg), void *arg)
+int register_event(int fd, __poll_t events, void (*work_fn)(void *arg), void *arg)
 {
 	/*
 	 * TODO: We need to handle various event subscriptions and maintain a data structure of
 	 * them like epoll does.
 	 */
-	if (event < 0 || event >= MAX)
+	if (events & ~(UPCALL_VALID))
 		return EINVAL;
 
 	if (!work_fn)
 		return EINVAL;
 
-	if (!do_event_ctl(fd, work_fn, arg))
-		return ENOMEM;
-
-	return 0;
+	return register_subscription(ukl_subs, fd, events, work_fn, arg);
 }
 
-int unregister_event(int fd, enum events event)
+extern int remove_subscription(struct subscription_manager *mgr, int fd, __poll_t events);
+
+int unregister_event(int fd, __poll_t events)
 {
-	// This needs to be sorted
-	return 0;
+	if (events & ~(UPCALL_VALID))
+		return EINVAL;
+
+	if (fd < 0)
+		return EINVAL;
+
+	return remove_subscription(ukl_subs, fd, events);
 }

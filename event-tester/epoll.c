@@ -228,7 +228,7 @@ static void *worker_func(void *arg)
 				// not change this to the address of the listen_sock
 				on_accept((void*)me->listen_sock);
 			} else if (events[i].data.fd == me->event_fd) {
-				on_event(NULL);
+				on_event();
 			} else {
 				on_read(conns[events[i].data.fd]);
 			}
@@ -240,7 +240,7 @@ static void *worker_func(void *arg)
 	exit(1);
 }
 
-void on_event(void *arg)
+void on_event(void)
 {
 	uint64_t cause;
 	
@@ -252,11 +252,8 @@ void on_event(void *arg)
 		exit(1);
 	}
 			
-	if (cause & CONN_MASK)  
-		handle_new_conns();  
+	handle_new_conns();  
 
-	if (cause & STATS_MASK)
-		write_perf_stats(me);  
 }
 
 void *dummy_worker(void *arg)

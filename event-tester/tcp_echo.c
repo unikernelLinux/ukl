@@ -106,7 +106,7 @@ void on_read(void *arg)
 		}
 	}
 
-		cursor = conn->cursor;
+	cursor = conn->cursor;
 
 	do {
 		if ((ret = read(conn->fd, &(conn->buffer[cursor]), msg_size - cursor)) <= 0) {
@@ -142,36 +142,36 @@ void on_read(void *arg)
 	} while (cursor < msg_size);
 }
 
-void write_perf_stats(struct worker_thread *t)
+void write_perf_stats(void)
 {
 	uint64_t perf_values[TOTAL_EVENTS] = {0};
 	struct read_format perf_stats;
+	struct worker_thread *t;
+	
+	for (size_t i = 0; i < nr_cpus; i++)
+		ioctl(threads[i]->perf_fds[0], PERF_EVENT_IOC_DISABLE, 0);
 
-	ioctl(t->perf_fds[0], PERF_EVENT_IOC_DISABLE, 0);
+	for (size_t i = 0; i < nr_cpus; i++) {
+		t = threads[i];
+		if (read(t->perf_fds[0], &perf_stats, sizeof(struct read_format)) <= 0) {
+			perror("perf event read:");
+			exit(1);
+		}
 
-	if (read(t->perf_fds[0], &perf_stats, sizeof(struct read_format)) <= 0) {
-		perror("perf event read:");
-		exit(1);
-	}
-
-	for (int i = 0; i < perf_stats.nr; i++) {
-		for (int j = 0; j < TOTAL_EVENTS; j++) {
-			if (perf_stats.values[i].id == me->perf_ids[j]) {
-				perf_values[j] = perf_stats.values[i].value;
-				break;
+		for (int i = 0; i < perf_stats.nr; i++) {
+			for (int j = 0; j < TOTAL_EVENTS; j++) {
+				if (perf_stats.values[i].id == t->perf_ids[j]) {
+					perf_values[j] = perf_stats.values[i].value;
+					break;
+				}
 			}
 		}
+
+		// We use TOTAL_EVENTS + 2 because we emit two per thread counters here as well (accept and connection count)
+		snprintf(t->perf_line, 23 + 21 * (TOTAL_EVENTS + 2), "%d\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\n",
+				t->index, perf_values[0], perf_values[1], perf_values[2],
+				perf_values[3], perf_values[4], t->accept_count, t->conn_count);
 	}
-
-	// We use TOTAL_EVENTS + 2 because we emit two per thread counters here as well (accept and connection count)
-	snprintf(t->perf_line, 23 + 21 * (TOTAL_EVENTS + 2), "%d\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\n",
-			t->index, perf_values[0], perf_values[1], perf_values[2],
-			perf_values[3], perf_values[4], t->accept_count, t->conn_count);
-
-	pthread_mutex_lock(&init_lock);
-	init_count++;
-	pthread_cond_signal(&init_cond);
-	pthread_mutex_unlock(&init_lock);
 }
 
 static inline int open_perf(struct perf_event_attr *attr, pid_t pid, int cpu, int group_fd, unsigned long flags)
@@ -377,7 +377,6 @@ int main(int argc, char **argv)
 			close(evt.data.fd);
 		} else if (evt.data.fd == stats_fd) {
 			char header[] = "CPU\tCYCLES\tINSTRUCTIONS\tCACHE_READS\tCACHE_MISSES\tICACHE_MISSES\tACCEPT_COUNT\tCONNECTION_COUNT\n";
-			uint64_t ev = STATS_EVENT;
 			uint64_t size = 0;
 			size_t cursor = 0;
 
@@ -394,13 +393,7 @@ int main(int argc, char **argv)
 
 			init_count = 0;
 
-			for (int i = 0; i < nr_cpus; i++)
-				write(threads[i]->event_fd, &ev, sizeof(ev));
-
-			pthread_mutex_lock(&init_lock);
-			while (init_count < nr_cpus)
-				pthread_cond_wait(&init_cond, &init_lock);
-			pthread_mutex_unlock(&init_lock);
+			write_perf_stats();
 
 			size = strlen(header);
 			for (int i = 0; i < nr_cpus; i++)

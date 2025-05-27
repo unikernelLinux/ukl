@@ -40,14 +40,25 @@ enum concurrency_models {
 	NRMODELS
 };
 
-enum events {
-	READ	= 0x00000001,
-	WRITE	= 0x00000002,
-	CLOSE	= 0x00000004,
-	HUP	= 0x00000008,
-	ERROR	= 0x00000010,
-	MAX	= 0x00000020
-};
+typedef unsigned __poll_t;
+
+/* Epoll event masks */
+#define EPOLLIN         (__poll_t)0x00000001
+#define EPOLLPRI        (__poll_t)0x00000002
+#define EPOLLOUT        (__poll_t)0x00000004
+#define EPOLLERR        (__poll_t)0x00000008
+#define EPOLLHUP        (__poll_t)0x00000010
+#define EPOLLNVAL       (__poll_t)0x00000020
+#define EPOLLRDNORM     (__poll_t)0x00000040
+#define EPOLLRDBAND     (__poll_t)0x00000080
+#define EPOLLWRNORM     (__poll_t)0x00000100
+#define EPOLLWRBAND     (__poll_t)0x00000200
+#define EPOLLMSG        (__poll_t)0x00000400
+#define EPOLLRDHUP      (__poll_t)0x00002000
+
+#define UPCALL_VALID	(EPOLLIN|EPOLLPRI|EPOLLOUT|EPOLLERR|EPOLLHUP|EPOLLNVAL|\
+			EPOLLRDNORM|EPOLLRDBAND|EPOLLWRNORM|EPOLLWRBAND|\
+			EPOLLMSG|EPOLLRDHUP)
 
 /**
  * Setup the event handler for execution
@@ -76,8 +87,8 @@ int init_event_handler(enum concurrency_models evqueue_model, unsigned int thrd_
  *
  * @Returns 0 on success, ERRNO on failure.
  */
-int register_event(int fd, enum events event, void (*work_fn)(void *arg), void *arg);
+int register_event(int fd, __poll_t event, void (*work_fn)(void *arg), void *arg);
 
-int unregister_event(int fd, enum events event);
+int unregister_event(int fd, __poll_t event);
 
 #endif

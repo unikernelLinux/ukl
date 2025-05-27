@@ -38,9 +38,6 @@
 
 #define TOTAL_EVENTS 5
 #define CONN_EVENT (uint64_t)(1)
-#define CONN_MASK (uint64_t)(0xFFFFFFFF)
-#define STATS_EVENT (CONN_EVENT << 32)
-#define STATS_MASK (CONN_MASK << 32)
 
 struct transaction {
 	struct TscLog *accept_log;
@@ -95,13 +92,9 @@ void on_accept(void *arg);
 
 void on_read(void *arg);
 
-void on_event(void *arg);
-
 void setup_perf(int *fds, int *ids, int cpu);
 
 void init_threads(uint64_t nr_cpus);
-
-void write_perf_stats(struct worker_thread *t);
 
 struct connection *new_conn(int fd);
 
