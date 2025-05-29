@@ -45,17 +45,17 @@ struct transaction {
 };
 
 struct connection {
-	int fd;
 	size_t cursor;
 	uint8_t *buffer;
 	struct TscLog *accept_log;
 	struct TscLog *work_log;
+	int fd;
 };
 
 struct waiting_conn {
-	int fd;
 	struct TscLog *accept_log;
 	struct waiting_conn *next;
+	int fd;
 };
 
 struct conn_queue {

@@ -28,12 +28,14 @@ extern struct worker_thread **threads;
 
 extern struct addrinfo *res;
 
+struct connection *new_conn(int fd);
+
 void on_accept(void *arg)
 {
 	uint64_t in = (uint64_t)arg;
 	int listen_sock;
 	int incoming;
-	struct connection *new_conn;
+	struct connection *new;
 
 	if (in > INT_MAX) {
 		// We shouldn't get here
@@ -55,16 +57,14 @@ void on_accept(void *arg)
 
 		me->accept_count++;
 
-		new_conn = calloc(1, sizeof(struct connection));
-		if (!new_conn) {
-			perror("calloc():");
+		new = new_conn(incoming);
+		if (!new)
 			exit(1);
-		}
 
-		new_conn->fd = incoming;
-		conns[incoming] = new_conn;
+		conns[incoming] = new;
+		printf("Made new connection object at %p using fd %d (stored as %d at %p)\n", new, incoming, new->fd, &new->fd);
 
-		if (register_event(incoming, EPOLLIN, on_read, new_conn)) {
+		if (register_event(incoming, EPOLLIN, on_read, new)) {
 			printf("OOM\n");
 			exit(1);
 		}
@@ -147,6 +147,9 @@ void on_close(int closed_fd)
 {
 	struct connection *conn = conns[closed_fd];
 	conns[closed_fd] = NULL;
+	conn->fd = -1;
+
+	printf("Closing conn %p for fd %d\n", conn, conn->fd);
 
 	if (!conn) {
 		// We raced

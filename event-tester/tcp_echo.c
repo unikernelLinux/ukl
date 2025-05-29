@@ -9,6 +9,7 @@
 #include <sched.h>
 #include <errno.h>
 #include <pthread.h> 
+#include <stdbool.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -97,6 +98,10 @@ void on_read(void *arg)
 	struct connection *conn = (struct connection*)arg;
 	ssize_t ret;
 	size_t cursor;
+	bool should_close = false;
+
+	if (conn->fd < 0)
+		return;
 
 	if (!conn->buffer) {
 		conn->buffer = (unsigned char *)malloc(msg_size);
@@ -109,10 +114,11 @@ void on_read(void *arg)
 	cursor = conn->cursor;
 
 	do {
+		printf("Reading from %d (at %p), from conn %p into buffer %p\n", conn->fd, &conn->fd, conn, conn->buffer);
 		if ((ret = read(conn->fd, &(conn->buffer[cursor]), msg_size - cursor)) <= 0) {
 			if (ret == 0) {
-				on_close(conn->fd);
-				return;
+				should_close = true;
+				break;
 			} else if (errno == EAGAIN || errno == EWOULDBLOCK) {
 				// Nothing to do here, just return. We need to wait for thre remainder of the message
 				conn->cursor = cursor;
@@ -125,13 +131,20 @@ void on_read(void *arg)
 		cursor += ret;
 	} while (cursor < msg_size);
 
+	if (!cursor && should_close) {
+		// We read nothing and got a 0 return back, nothing to do here
+		on_close(conn->fd);
+		return;
+	}
+
 	conn->cursor = cursor = 0;
 
 	do {
+		printf("Writing to %d (at %p), from conn %p from buffer %p\n", conn->fd, &conn->fd, conn, conn->buffer);
 		if ((ret = write(conn->fd, &(conn->buffer[cursor]), msg_size - cursor)) <= 0) {
 			if (ret == 0) {
-				on_close(conn->fd);
-				return;
+				should_close = true;
+				break;
 			} else if (errno == EAGAIN || errno == EWOULDBLOCK) {
 				continue;
 			}
@@ -140,6 +153,9 @@ void on_read(void *arg)
 		}
 		cursor += ret;
 	} while (cursor < msg_size);
+
+	if (should_close)
+		on_close(conn->fd);
 }
 
 void write_perf_stats(void)
