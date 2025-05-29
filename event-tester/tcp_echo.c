@@ -114,7 +114,6 @@ void on_read(void *arg)
 	cursor = conn->cursor;
 
 	do {
-		printf("Reading from %d (at %p), from conn %p into buffer %p\n", conn->fd, &conn->fd, conn, conn->buffer);
 		if ((ret = read(conn->fd, &(conn->buffer[cursor]), msg_size - cursor)) <= 0) {
 			if (ret == 0) {
 				should_close = true;
@@ -140,7 +139,6 @@ void on_read(void *arg)
 	conn->cursor = cursor = 0;
 
 	do {
-		printf("Writing to %d (at %p), from conn %p from buffer %p\n", conn->fd, &conn->fd, conn, conn->buffer);
 		if ((ret = write(conn->fd, &(conn->buffer[cursor]), msg_size - cursor)) <= 0) {
 			if (ret == 0) {
 				should_close = true;

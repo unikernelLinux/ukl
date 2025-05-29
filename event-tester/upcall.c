@@ -62,7 +62,6 @@ void on_accept(void *arg)
 			exit(1);
 
 		conns[incoming] = new;
-		printf("Made new connection object at %p using fd %d (stored as %d at %p)\n", new, incoming, new->fd, &new->fd);
 
 		if (register_event(incoming, EPOLLIN, on_read, new)) {
 			printf("OOM\n");
@@ -148,8 +147,6 @@ void on_close(int closed_fd)
 	struct connection *conn = conns[closed_fd];
 	conns[closed_fd] = NULL;
 	conn->fd = -1;
-
-	printf("Closing conn %p for fd %d\n", conn, conn->fd);
 
 	if (!conn) {
 		// We raced
