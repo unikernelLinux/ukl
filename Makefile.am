@@ -275,25 +275,13 @@ ukl-initrd.cpio.xz: $(PROGRAM)/data.tar.gz vmlinuz initrd/perf
 # Boot the unikernel under qemu.
 
 # Non-privileged:
-boot: ukl-initrd.cpio.xz vmlinuz
-	qemu-system-x86_64 \
-	    -cpu host,-smap,-smep -accel kvm -m 4G \
-	    -kernel vmlinuz \
-	    -initrd ./ukl-initrd.cpio.xz \
-	    -nodefaults -nographic -serial stdio \
-	    -append "console=ttyS0 net.ifnames=0 biosdevname=0 clearcpuid=smap,smep mitigations=off mds=off --" \
-	    -net user
+boot: vmlinuz ukl-initrd.cpio.xz
+	./run_ukl_qemu.sh $^
 
 # Privileged (probably required if the kernel is expecting incoming
 # network connections).
-boot-priv: ukl-initrd.cpio.xz vmlinuz
-	sudo qemu-system-x86_64 \
-	    -cpu host,-smap,-smep -accel kvm -m 4G \
-	    -kernel vmlinuz \
-	    -initrd ./ukl-initrd.cpio.xz \
-	    -nodefaults -nographic -serial stdio \
-	    -append "console=ttyS0 net.ifnames=0 biosdevname=0 clearcpuid=smap,smep mitigations=off mds=off -- 192.168.122.128" \
-	    -net nic -net bridge,br=virbr0
+boot-priv: vmlinuz ukl-initrd.cpio.xz
+	sudo run_ukl_net_qemu.sh $^
 
 #----------------------------------------------------------------------
 # Maintainers only!
