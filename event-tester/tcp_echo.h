@@ -90,6 +90,8 @@ struct read_format {
 
 void on_accept(void *arg);
 
+void close_from_io(struct connection *conn);
+
 void on_read(void *arg);
 
 void setup_perf(int *fds, int *ids, int cpu);
@@ -98,7 +100,7 @@ void init_threads(uint64_t nr_cpus);
 
 struct connection *new_conn(int fd);
 
-void on_close(int closed_fd);
+void on_close(void *arg);
 
 #endif
 

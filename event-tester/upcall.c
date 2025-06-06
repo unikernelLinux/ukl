@@ -25,6 +25,7 @@
 extern __thread struct worker_thread *me;
 extern struct connection **conns;
 extern struct worker_thread **threads;
+extern size_t nr_cpus;
 
 extern struct addrinfo *res;
 
@@ -52,6 +53,11 @@ void on_accept(void *arg)
 				return;
 			}
 			perror("accept4:");
+			// It is likely that we exhausted the number of file descriptors here, dump some per thread stats
+			for (size_t i = 0; i < nr_cpus; i++) {
+				printf("Thread %ld accept count %ld close count %ld\n", i, threads[i]->accept_count, threads[i]->conn_count);
+			}
+
 			exit(1);
 		}
 
@@ -63,7 +69,13 @@ void on_accept(void *arg)
 
 		conns[incoming] = new;
 
+		// Register for read events and then hang up
 		if (register_event(incoming, EPOLLIN, on_read, new)) {
+			printf("OOM\n");
+			exit(1);
+		}
+
+		if (register_event(incoming, EPOLLHUP, on_close, new)) {
 			printf("OOM\n");
 			exit(1);
 		}
@@ -142,20 +154,24 @@ void init_threads(uint64_t nr_cpus)
 	}
 }
 
-void on_close(int closed_fd)
+void close_from_io(struct connection *conn)
 {
-	struct connection *conn = conns[closed_fd];
-	conns[closed_fd] = NULL;
+	return;
+}
+
+void on_close(void *arg)
+{
+	struct connection *conn = (struct connection *)arg;
+	int closed_fd = conn->fd;
 	conn->fd = -1;
 
-	if (!conn) {
-		// We raced
-		printf("RACE IN CLOSE!!!\n");
-		return;
+	if (closed_fd >= 0) {
+		conns[closed_fd] = NULL;
+		unregister_event(closed_fd, EPOLLIN);
+		unregister_event(closed_fd, EPOLLHUP);
+		close(closed_fd);
+		free(conn);
+		me->conn_count++;
 	}
 
-	unregister_event(closed_fd, EPOLLIN);
-	close(closed_fd);
-	free(conn);
-	me->conn_count++;
 }

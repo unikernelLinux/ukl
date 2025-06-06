@@ -53,7 +53,7 @@ struct connection **conns;
 
 static size_t msg_size;
 
-static size_t nr_cpus;
+size_t nr_cpus;
 
 __thread struct worker_thread *me;
 
@@ -98,7 +98,6 @@ void on_read(void *arg)
 	struct connection *conn = (struct connection*)arg;
 	ssize_t ret;
 	size_t cursor;
-	bool should_close = false;
 
 	if (conn->fd < 0)
 		return;
@@ -116,44 +115,39 @@ void on_read(void *arg)
 	do {
 		if ((ret = read(conn->fd, &(conn->buffer[cursor]), msg_size - cursor)) <= 0) {
 			if (ret == 0) {
-				should_close = true;
-				break;
-			} else if (errno == EAGAIN || errno == EWOULDBLOCK) {
-				// Nothing to do here, just return. We need to wait for thre remainder of the message
-				conn->cursor = cursor;
+				// Note that this is required because epoll adds EPOLLHUP to any event subscription
+				// so we might be woken up and try to read because of a hang up event. This function
+				// call is a noop for upcalls.
+				close_from_io(conn);
 				return;
 			}
-			// Any other problem is a real one
-			perror("read from client:");
-			exit(1);
+
+			if (cursor && cursor < msg_size) {
+				// Nothing to do here, just return. We need to wait for the remainder of the message
+				conn->cursor = cursor;
+			}
+			return;
+
 		}
 		cursor += ret;
 	} while (cursor < msg_size);
-
-	if (!cursor && should_close) {
-		// We read nothing and got a 0 return back, nothing to do here
-		on_close(conn->fd);
-		return;
-	}
 
 	conn->cursor = cursor = 0;
 
 	do {
 		if ((ret = write(conn->fd, &(conn->buffer[cursor]), msg_size - cursor)) <= 0) {
 			if (ret == 0) {
-				should_close = true;
-				break;
-			} else if (errno == EAGAIN || errno == EWOULDBLOCK) {
+				close_from_io(conn);
+				return;
+			}
+
+			if (errno == EAGAIN || errno == EWOULDBLOCK) {
 				continue;
 			}
-			perror("write to client:");
-			exit(1);
+			return;
 		}
 		cursor += ret;
 	} while (cursor < msg_size);
-
-	if (should_close)
-		on_close(conn->fd);
 }
 
 void write_perf_stats(void)

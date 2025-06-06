@@ -35,6 +35,8 @@ extern pthread_cond_t init_cond;
 
 extern struct addrinfo *res;
 
+void on_event(void);
+
 void on_accept(void *arg)				 
 {
 	uint64_t in = (uint64_t)arg;
@@ -220,7 +222,7 @@ static void *worker_func(void *arg)
 					printf("Error on listen_sock or event_fd, exitting\n");
 					exit(1);
 				}
-				on_close(events[i].data.fd);
+				on_close((void *)conns[events[i].data.fd]);
 			}
 
 			if (events[i].data.fd == me->listen_sock) {
@@ -307,9 +309,10 @@ void init_threads(uint64_t nr_cpus)
 	pthread_mutex_unlock(&worker_hang_lock);
 }
 
-void on_close(int closed_fd)
+void on_close(void *arg)
 {
-	struct connection *conn = conns[closed_fd];
+	struct connection *conn = (struct connection*)arg;
+	int closed_fd = conn->fd;
 				
 	conns[closed_fd] = NULL;
 				
@@ -322,5 +325,10 @@ void on_close(int closed_fd)
 	me->conn_count++;
 	
 	free(conn);
+}
+
+void close_from_io(struct connection *conn)
+{
+	on_close(conn);
 }
 
