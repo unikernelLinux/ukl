@@ -26,9 +26,12 @@
 #include "tcp_echo.h"
 
 extern __thread struct worker_thread *me;
+extern __thread struct buffer_cache *msg_cache;
+extern __thread struct buffer_cache *conn_cache;
 extern struct worker_thread **threads;
 extern struct connection **conns;
 extern size_t init_count;
+extern size_t msg_size;
 extern pthread_mutex_t worker_hang_lock;
 extern pthread_mutex_t init_lock;
 extern pthread_cond_t init_cond;
@@ -150,6 +153,17 @@ static void *worker_func(void *arg)
 
 	pthread_mutex_init(&me->incoming.lock, NULL);
 
+	msg_cache = init_cache(msg_size, 1024, me->index);
+	if (!msg_cache) {
+		perror("OOM");
+		exit(1);
+	}
+
+	conn_cache = init_cache(sizeof(struct connection), 1024, me->index);
+	if (!conn_cache) {
+		perror("OOM");
+		exit(1);
+	}
 
 	memset(events, 0, sizeof(struct epoll_event) * BACKLOG);
 
@@ -228,7 +242,7 @@ static void *worker_func(void *arg)
 			if (events[i].data.fd == me->listen_sock) {
 				// We are passing the value as an address to meet API compatibility, do
 				// not change this to the address of the listen_sock
-				on_accept((void*)me->listen_sock);
+				on_accept((void*)(uint64_t)me->listen_sock);
 			} else if (events[i].data.fd == me->event_fd) {
 				on_event();
 			} else {
@@ -324,7 +338,8 @@ void on_close(void *arg)
 	close(closed_fd);
 	me->conn_count++;
 	
-	free(conn);
+	cache_free(msg_cache, conn->buffer, me->index);
+	cache_free(conn_cache, conn, me->index);
 }
 
 void close_from_io(struct connection *conn)

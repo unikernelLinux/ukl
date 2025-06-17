@@ -23,9 +23,12 @@
 #include "../libupcall/upcall.h"
 
 extern __thread struct worker_thread *me;
+extern __thread struct buffer_cache *msg_cache;
+extern __thread struct buffer_cache *conn_cache;
 extern struct connection **conns;
 extern struct worker_thread **threads;
 extern size_t nr_cpus;
+extern size_t msg_size;
 
 extern struct addrinfo *res;
 
@@ -95,6 +98,18 @@ static void worker_setup(void *arg)
 	me->index = sched_getcpu();
 	if (me->index < 0) {
 		perror("sched_getcpu():");
+		exit(1);
+	}
+
+	msg_cache = init_cache(msg_size, 1024, me->index);
+	if (!msg_cache) {
+		perror("OOM");
+		exit(1);
+	}
+
+	conn_cache = init_cache(sizeof(struct connection), 1024, me->index);
+	if (!conn_cache) {
+		perror("OOM");
 		exit(1);
 	}
 
@@ -170,7 +185,8 @@ void on_close(void *arg)
 		unregister_event(closed_fd, EPOLLIN);
 		unregister_event(closed_fd, EPOLLHUP);
 		close(closed_fd);
-		free(conn);
+		cache_free(msg_cache, conn->buffer, me->index);
+		cache_free(conn_cache, conn, me->index);
 		me->conn_count++;
 	}
 

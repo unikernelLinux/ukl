@@ -80,6 +80,22 @@ struct worker_thread {
 	struct transaction transaction_log[MAX_TRANSACTIONS];
 };
 
+struct buffer_entry {
+	struct buffer_entry *next;
+	int alloc_cpu;
+	uint8_t buffer[];
+};
+
+struct buffer_cache {
+	struct buffer_entry *head;
+	struct buffer_entry *tail;
+	size_t entry_sz;
+};
+
+struct buffer_cache* init_cache(size_t entry_sz, size_t init_count, int cpu);
+void *cache_alloc(struct buffer_cache *cache, int cpu);
+void cache_free(struct buffer_cache *cache, void *buff, int cpu);
+
 struct read_format {
 	uint64_t nr;
 	struct {

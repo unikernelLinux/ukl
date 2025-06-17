@@ -51,11 +51,71 @@ pthread_cond_t init_cond = PTHREAD_COND_INITIALIZER;
 
 struct connection **conns;
 
-static size_t msg_size;
+size_t msg_size;
 
 size_t nr_cpus;
 
 __thread struct worker_thread *me;
+
+/* Per Thread object caches to try and avoid round trips to malloc */
+__thread struct buffer_cache *msg_cache;
+__thread struct buffer_cache *conn_cache;
+
+struct buffer_cache* init_cache(size_t entry_sz, size_t init_count, int cpu)
+{
+	struct buffer_cache *cache;
+	struct buffer_entry *entry;
+	cache = calloc(1, sizeof(struct buffer_cache));
+	if (!cache)
+		return NULL;
+
+	cache->entry_sz = entry_sz;
+
+	for (size_t i = 0; i < init_count; i++) {
+		entry = calloc(1, sizeof(struct buffer_entry) + entry_sz);
+		cache_free(cache, &(entry->buffer[0]), cpu);
+	}
+
+	return cache;
+}
+
+void *cache_alloc(struct buffer_cache *cache, int cpu)
+{
+	struct buffer_entry *entry;
+
+	if (cache->head) {
+		entry = cache->head;
+		cache->head = entry->next;
+		if (!cache->head)
+			cache->tail = NULL;
+		entry->next = NULL;
+	} else {
+		// We've exhausted the cache and need to allocate new
+		entry = calloc(1, sizeof(struct buffer_entry) + cache->entry_sz);
+		entry->alloc_cpu = cpu;
+	}
+
+	memset(entry->buffer, 0, cache->entry_sz);
+	return &(entry->buffer[0]);
+}
+
+void cache_free(struct buffer_cache *cache, void *buff, int cpu)
+{
+	struct buffer_entry *entry;
+
+	entry = (struct buffer_entry *)((unsigned long)buff - sizeof(struct buffer_entry));
+
+	if (entry->alloc_cpu != cpu) {
+		// We should probably do something here, but not sure what
+		//printf("Buffer handed from CPU %d to CPU %d.\n", entry->alloc_cpu, cpu);
+	}
+
+	if (cache->tail)
+		cache->tail->next = entry;
+	else
+		cache->head = entry;
+	cache->tail = entry;
+}
 
 static void init_conns(void)
 {
@@ -83,7 +143,7 @@ static void init_conns(void)
 
 struct connection *new_conn(int fd)
 {
-	struct connection *conn = calloc(1, sizeof(struct connection));
+	struct connection *conn = (struct connection *)cache_alloc(conn_cache, me->index);
 	if (!conn) {
 		perror("calloc()");
 		return conn;
@@ -103,7 +163,7 @@ void on_read(void *arg)
 		return;
 
 	if (!conn->buffer) {
-		conn->buffer = (unsigned char *)malloc(msg_size);
+		conn->buffer = cache_alloc(msg_cache, me->index);
 		if (!conn->buffer) {
 			perror("Malloc on read");
 			exit(1);
