@@ -45,7 +45,7 @@ struct transaction {
 };
 
 struct connection {
-	size_t cursor;
+	uint64_t cursor;
 	uint8_t *buffer;
 	struct TscLog *accept_log;
 	struct TscLog *work_log;
@@ -82,14 +82,14 @@ struct worker_thread {
 
 struct buffer_entry {
 	struct buffer_entry *next;
-	int alloc_cpu;
+	uint64_t alloc_cpu;
 	uint8_t buffer[];
 };
 
 struct buffer_cache {
 	struct buffer_entry *head;
 	struct buffer_entry *tail;
-	size_t entry_sz;
+	uint64_t entry_sz;
 };
 
 struct buffer_cache* init_cache(size_t entry_sz, size_t init_count, int cpu);
