@@ -122,6 +122,7 @@ static void handle_new_conns(void)
 			exit(1);
 		}
 		pthread_mutex_lock(&me->incoming.lock);
+		conn->state = READING;
 	}
 	pthread_mutex_unlock(&me->incoming.lock);
 }

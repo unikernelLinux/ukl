@@ -12,36 +12,16 @@
 #include "tsc_logger.h"
 #undef UKL_USER
 
-#ifndef DEFAULT_PORT
-#define DEFAULT_PORT 7272
-#endif
+#include "echo_defs.h"
 
-#ifndef DEFAULT_STATS
-#define DEFAULT_STATS 8383
-#endif
-
-#ifndef PAYLOAD_SIZE
-#define PAYLOAD_SIZE 32
-#endif
-
-#ifndef BACKLOG
-#define BACKLOG 20
-#endif
-
-#ifndef MAX_CONNS
-#define MAX_CONNS 1024
-#endif
-
-#ifndef MAX_TRANSACTIONS
-#define MAX_TRANSACTIONS 5000
-#endif
-
-#define TOTAL_EVENTS 5
-#define CONN_EVENT (uint64_t)(1)
-
+/*
+ * 
+ */
 struct transaction {
+	struct transaction *next;
 	struct TscLog *accept_log;
 	struct TscLog *work_log;
+	struct TscLog *close_log;
 };
 
 struct connection {
@@ -49,6 +29,7 @@ struct connection {
 	uint8_t *buffer;
 	struct TscLog *accept_log;
 	struct TscLog *work_log;
+	int state;
 	int fd;
 };
 
@@ -74,10 +55,8 @@ struct worker_thread {
 	int perf_ids[TOTAL_EVENTS];
 	size_t accept_count;	// The number of accepts this thread handled
 	size_t conn_count;	// The number of connections this thread handled (post accept)
-	struct TscLog *accept_log;
 	char perf_line[23 + 21 * (TOTAL_EVENTS + 2)]; // We use TOTAL_EVENTS + 2 for the previous counters
-	size_t next_transaction;
-	struct transaction transaction_log[MAX_TRANSACTIONS];
+	struct transaction *log_head;
 };
 
 struct buffer_entry {

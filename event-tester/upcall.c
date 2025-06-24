@@ -71,6 +71,7 @@ void on_accept(void *arg)
 			exit(1);
 
 		conns[incoming] = new;
+		new->state = WAITING;
 
 		// Register for read events and then hang up
 		if (register_event(incoming, EPOLLIN, on_read, new)) {
@@ -171,6 +172,7 @@ void init_threads(uint64_t nr_cpus)
 
 void close_from_io(struct connection *conn)
 {
+	conn->state = CLOSING;
 	return;
 }
 
@@ -184,6 +186,7 @@ void on_close(void *arg)
 		conns[closed_fd] = NULL;
 		unregister_event(closed_fd, EPOLLIN);
 		unregister_event(closed_fd, EPOLLHUP);
+		conn->state = CLOSING;
 		close(closed_fd);
 		cache_free(msg_cache, conn->buffer, me->index);
 		cache_free(conn_cache, conn, me->index);

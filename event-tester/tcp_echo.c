@@ -28,6 +28,14 @@
 #define OPTION(opts, text)	fprintf(stderr, " %-25s  %s\n", opts, text)
 #define CONT(text) 		fprintf(stderr, " %-25s  %s\n", "", text)
 
+static char *err_str[] = {  
+        "CONNECTING",
+        "WAITING",
+        "READING",
+        "WRITING",
+        "CLOSING"
+};
+
 static void usage(void)
 {
 	fprintf(stderr, "Setup a TCP echo server prioritizing data locality. RSS needs to be enabled.\n\n");
@@ -56,6 +64,8 @@ size_t msg_size;
 size_t nr_cpus;
 
 __thread struct worker_thread *me;
+
+int max_fd;
 
 /* Per Thread object caches to try and avoid round trips to malloc */
 __thread struct buffer_cache *msg_cache;
@@ -128,7 +138,7 @@ static void init_conns(void)
 	}
 
 	/* Calculate the biggest possible fd we will see */
-	int max_fd = fd + MAX_CONNS + 10;
+	max_fd = fd + MAX_CONNS + 10;
 	if (getrlimit(RLIMIT_NOFILE, &rl) == 0) {
 		max_fd = rl.rlim_max;
 	}
@@ -193,6 +203,7 @@ void on_read(void *arg)
 	} while (cursor < msg_size);
 
 	conn->cursor = cursor = 0;
+	conn->state = WRITING;
 
 	do {
 		if ((ret = write(conn->fd, &(conn->buffer[cursor]), msg_size - cursor)) <= 0) {
@@ -204,10 +215,12 @@ void on_read(void *arg)
 			if (errno == EAGAIN || errno == EWOULDBLOCK) {
 				continue;
 			}
-			return;
+			perror("write to client");
+			continue;
 		}
 		cursor += ret;
 	} while (cursor < msg_size);
+	conn->state = READING;
 }
 
 void write_perf_stats(void)
@@ -286,6 +299,122 @@ void setup_perf(int *fds, int *ids, int cpu)
 	}
 }
 
+void on_stats(int stats_fd, int epoll_fd)
+{
+	char header[] = "CPU\tCYCLES\tINSTRUCTIONS\tCACHE_READS\tCACHE_MISSES\tICACHE_MISSES\tACCEPT_COUNT\tCONNECTION_COUNT\n";
+	uint64_t size = 0;
+	size_t cursor = 0;
+	struct epoll_event evt;
+	int out;
+	int index;
+
+	out = accept(stats_fd, NULL, NULL);
+	if (out < 0) {
+		perror("stats accept:");
+		exit(1);
+	}
+
+	evt.events = EPOLLERR | EPOLLHUP;
+	evt.data.fd = out;
+	epoll_ctl(epoll_fd, EPOLL_CTL_ADD, out, &evt);
+	shutdown(out, SHUT_RD);
+
+	init_count = 0;
+
+	write_perf_stats();
+
+	size = strlen(header);
+	for (int i = 0; i < nr_cpus; i++)
+		size += strlen(threads[i]->perf_line);
+
+	write(out, &size, sizeof(size));
+
+	size = strlen(header);
+	do {
+		index = write(out, &header[cursor], size - cursor);
+		if (index <= 0) {
+			perror("perf write:");
+			close(out);
+			exit(1);
+		}
+		cursor += index;
+	} while (cursor < size);
+
+	for (int i = 0; i < nr_cpus; i++) {
+		size = strlen(threads[i]->perf_line);
+		cursor = 0;
+		do {
+			index = write(out, &threads[i]->perf_line[cursor], size - cursor);
+			if (index <= 0) {
+				perror("perf write:");
+				close(out);
+				exit(1);
+			}
+			cursor += index;
+		} while (cursor < size);
+	}
+	shutdown(out, SHUT_WR);
+}
+
+#define ERR_BUF_SZ 8192
+void on_error(int error_fd, int epoll_fd)
+{
+	uint64_t size = 0;
+	size_t cursor = 0;
+	struct epoll_event evt;
+	char output[ERR_BUF_SZ] = {0};
+	int ret;
+	int dangling = 0;
+	struct connection *conn;
+	int out;
+
+	out = accept(error_fd, NULL, NULL);
+	if (out < 0) {
+		perror("stats accept:");
+		return;
+	}
+
+	evt.events = EPOLLERR | EPOLLHUP;
+	evt.data.fd = out;
+	shutdown(out, SHUT_RD);
+	
+	for (int i = 3; i < max_fd; i++) {
+		conn = conns[i];
+		if (!conn)
+			continue;
+
+		if (!dangling) {
+			dangling = 1;
+			cursor = snprintf(output, ERR_BUF_SZ, "FD\tSTATE\tCURSOR\n");
+		}
+
+		ret = snprintf(&output[cursor], ERR_BUF_SZ - cursor, "%d\t%s\t%lu\n", i, err_str[conn->state], conn->cursor);
+		cursor += ret;
+		if (cursor > ERR_BUF_SZ - 32)
+			// We're out of buffer space, there is enough info to diagnose some problem
+			break;
+	}
+
+	if (!dangling) {
+		close(out);
+		return;
+	}
+
+	epoll_ctl(epoll_fd, EPOLL_CTL_ADD, out, &evt);
+	size = cursor + 1;
+	cursor = 0;
+	write(out, &size, sizeof(uint64_t));
+	do {
+		ret = write(out, &output[cursor], size - cursor);
+		if (ret <= 0) {
+			printf("Error writing to error_fd connection, exitting\n");
+			exit(1);
+		}
+		cursor += ret;
+	} while (cursor < size);
+	shutdown(out, SHUT_WR);
+}
+
 /*
  * The coordinator thread will fill this information in and then the workers
  * will all use it to setup their local listen sockets.
@@ -302,26 +431,27 @@ int main(int argc, char **argv)
 	struct addrinfo hints;
 	int ret = 0;
 	int index = 0;
-	unsigned int port, stats;
-	int stats_fd;
+	unsigned int port, stats, error;
+	int stats_fd, error_fd;
 	int epoll_fd;
-	int out;
-	char prt_str[6], stats_str[6];
+	char prt_str[6], stats_str[6], error_str[6];
 	char addr_str[INET6_ADDRSTRLEN];
-	struct addrinfo *statsaddr;
+	struct addrinfo *statsaddr, *erroraddr;
 	struct epoll_event evt;
 
-	char opt_str[] = "hp:m:s:";
+	char opt_str[] = "hp:m:s:e:";
 	struct option long_opts[] = {
 		{"help",	no_argument, NULL, 'h'},
 		{"port",	required_argument, NULL, 'p'},
 		{"msg-size",	required_argument, NULL, 'm'},
 		{"stats-port",	required_argument, NULL, 's'},
+		{"error-port",	required_argument, NULL, 'e'},
 		{0}
 	};
 
 	port = DEFAULT_PORT;
 	stats = DEFAULT_STATS;
+	error = DEFAULT_ERROR;
 	msg_size = PAYLOAD_SIZE;
 
 	while ((ret = getopt_long(argc, argv, opt_str, long_opts, &index)) != -1) {
@@ -341,6 +471,10 @@ int main(int argc, char **argv)
 
 		case 's':
 			stats = strtol(optarg, NULL, 10);
+			break;
+
+		case 'e':
+			error = strtol(optarg, NULL, 10);
 			break;
 
 		default:
@@ -365,8 +499,14 @@ int main(int argc, char **argv)
 		goto out_ret;
 	}
 
+	if (error > 65535) {
+		fprintf(stderr, "Invalid error port number\n");
+		goto out_ret;
+	}
+
 	snprintf(prt_str, 6, "%u", port);
 	snprintf(stats_str, 6, "%u", stats);
+	snprintf(error_str, 6, "%u", error);
 
 	if ((status = getaddrinfo(NULL, prt_str, &hints, &res))) {
 		fprintf(stderr, "getaddrinfo failed: %s\n", gai_strerror(status));
@@ -378,9 +518,20 @@ int main(int argc, char **argv)
 		goto out_ret;
 	}
 
+	if ((status = getaddrinfo(NULL, error_str, &hints, &erroraddr))) {
+		fprintf(stderr, "getaddrinfo failed: %s\n", gai_strerror(status));
+		goto out_ret;
+	}
+
 	stats_fd = socket(statsaddr->ai_family, statsaddr->ai_socktype, statsaddr->ai_protocol);
 	if (stats_fd < 0) {
 		perror("stats socket:");
+		goto out_ret;
+	}
+
+	error_fd = socket(erroraddr->ai_family, erroraddr->ai_socktype, erroraddr->ai_protocol);
+	if (error_fd < 0) {
+		perror("error socket:");
 		goto out_ret;
 	}
 
@@ -389,8 +540,18 @@ int main(int argc, char **argv)
 		goto out_ret;
 	}
 
+	if (bind(error_fd, erroraddr->ai_addr, erroraddr->ai_addrlen)) {
+		perror("error bind:");
+		goto out_ret;
+	}
+
 	if (listen(stats_fd, BACKLOG)) {
 		perror("stats listen");
+		goto out_ret;
+	}
+
+	if (listen(error_fd, BACKLOG)) {
+		perror("error listen");
 		goto out_ret;
 	}
 
@@ -404,6 +565,12 @@ int main(int argc, char **argv)
 	evt.data.fd = stats_fd;
 	if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, stats_fd, &evt)) {
 		perror("stats epoll_ctl:");
+		goto out_ret;
+	}
+
+	evt.data.fd = error_fd;
+	if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, error_fd, &evt)) {
+		perror("error epoll_ctl:");
 		goto out_ret;
 	}
 
@@ -440,64 +607,20 @@ int main(int argc, char **argv)
 			if (evt.data.fd == stats_fd) {
 				printf("Epoll error on stats port, exitting.\n");
 				goto out_ret;
+			} else if (evt.data.fd == error_fd) {
+				printf("Epoll error on error port, exitting.\n");
+				goto out_ret;
 			}
 			epoll_ctl(epoll_fd, EPOLL_CTL_DEL, evt.data.fd, NULL);
 			close(evt.data.fd);
 		} else if (evt.data.fd == stats_fd) {
-			char header[] = "CPU\tCYCLES\tINSTRUCTIONS\tCACHE_READS\tCACHE_MISSES\tICACHE_MISSES\tACCEPT_COUNT\tCONNECTION_COUNT\n";
-			uint64_t size = 0;
-			size_t cursor = 0;
-
-			out = accept(stats_fd, NULL, NULL);
-			if (out < 0) {
-				perror("stats accept:");
-				goto out_ret;
-			}
-
-			evt.events = EPOLLERR | EPOLLHUP;
-			evt.data.fd = out;
-			epoll_ctl(epoll_fd, EPOLL_CTL_ADD, out, &evt);
-			shutdown(out, SHUT_RD);
-
-			init_count = 0;
-
-			write_perf_stats();
-
-			size = strlen(header);
-			for (int i = 0; i < nr_cpus; i++)
-				size += strlen(threads[i]->perf_line);
-
-			write(out, &size, sizeof(size));
- 
-			size = strlen(header);
-			do {
-				index = write(out, &header[cursor], size - cursor);
-				if (index <= 0) {
-					perror("perf write:");
-					close(out);
-					exit(1);
-				}
-				cursor += index;
-			} while (cursor < size);
-
-			for (int i = 0; i < nr_cpus; i++) {
-				size = strlen(threads[i]->perf_line);
-				cursor = 0;
-				do {
-					index = write(out, &threads[i]->perf_line[cursor], size - cursor);
-					if (index <= 0) {
-						perror("perf write:");
-						close(out);
-						exit(1);
-					}
-					cursor += index;
-				} while (cursor < size);
-			}
-			shutdown(out, SHUT_WR);
+			on_stats(stats_fd, epoll_fd);
+		} else if (evt.data.fd == error_fd) {
+			on_error(error_fd, epoll_fd);
 		}
 		memset(&evt, 0, sizeof(evt));
 	}
-	perror("stats epoll_wait:");
+	perror("control epoll_wait:");
 
 out_ret:
 	return ret;

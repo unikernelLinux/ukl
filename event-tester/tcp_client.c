@@ -17,6 +17,7 @@
 #include <pthread.h>
 #include <poll.h>
 #include <fcntl.h>
+#include <stdint.h>
 
 #include <arpa/inet.h>
 
@@ -24,17 +25,7 @@
 #include "tsc_logger.h"
 #undef UKL_USER
 
-#ifndef DEFAULT_PORT
-#define DEFAULT_PORT 7272
-#endif
-
-#ifndef DEFAULT_STATS
-#define DEFAULT_STATS 8383
-#endif
-
-#ifndef PAYLOAD_SIZE
-#define PAYLOAD_SIZE 32
-#endif
+#include "echo_defs.h"
 
 #ifndef CLIENTS_PER_THREAD
 #define CLIENTS_PER_THREAD 1
@@ -120,8 +111,8 @@ static void usage(void)
 	fprintf(stderr, "tsc-khz is required and is the TSC frequency for this machine in KHz\n");
         fprintf(stderr, "options:\n");
         OPTION("--help,-h", "Print this message");
-        OPTION("--port,-p [port]", "Use the requested port instead of 7272");
-        OPTION("--stats-port,-s [port]", "Use the requested port to fetch perf stats instead of 8383");
+        OPTION("--port,-p [port]", "Use the requested port instead of 1072");
+        OPTION("--stats-port,-s [port]", "Use the requested port to fetch perf stats instead of 1073");
         OPTION("--msg-size,-m [size]", "Use the requested message size instead of 32");
 	OPTION("--batch-size,-b [size]", "Send [size] transactions before reconnecting. Default is 1");
 	OPTION("--txn-count,-t [count]", "Have each client send [count] requests. Default is 1000");
@@ -520,6 +511,83 @@ out_err:
 	return NULL;
 }
 
+static void do_error_report(char *host)
+{
+	struct addrinfo *err_server;
+	char err_str[6];
+	struct addrinfo hints;
+	int ret, err_fd;
+	uint64_t size, cursor = 0;
+	char *buf;
+	int optval = 1;
+
+	snprintf(err_str, 6, "%d", DEFAULT_ERROR);
+	memset(&hints, 0, sizeof(struct addrinfo));
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_STREAM;
+	getaddrinfo(host, err_str, &hints, &err_server);
+
+	err_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (setsockopt(err_fd, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval)) < 0) {
+		printf("Failing to get error info\n");
+		goto out;
+	}
+
+	if (do_connect(err_fd, err_server->ai_addr, err_server->ai_addrlen) != READY) {
+		printf("Failing to get error info\n");
+		goto out;
+	}
+
+	if (read(err_fd, &size, sizeof(uint64_t)) < sizeof(uint64_t)) {
+		printf("Failing to get error info\n");
+		goto out;
+	}
+
+	buf = calloc(size, 1);
+	do {
+		ret = read(err_fd, &buf[cursor], size - cursor);
+		if (ret <= 0) {
+			printf("Failing to get error info\n");
+			goto out;
+		}
+		cursor += ret;
+	} while (cursor < size);
+
+	printf("THREAD\tCLIENT\tSTATE\tCURSOR\tTXN_REMAIN\tBATCH_REMAIN\n");
+	for (size_t i = 0; i < nr_threads; i++) {
+		for (size_t j = 0; j < clients_per_thread; j++) {
+			if (threads[i].clients[j].state == INIT || threads[i].clients[j].state == DONE ||
+					threads[i].clients[j].txn_remaining == 0)
+				continue;
+
+			printf("%lu\t%lu\t", i, j);
+			switch (threads[i].clients[j].state) {
+			case CONNECTING:
+				printf("CONNECTING\t");
+				break;
+
+			case NEW:
+				printf("NEW\t");
+				break;
+
+			case READY:
+				printf("READY\t");
+				break;
+
+			case SENT:
+				printf("SENT\t");
+				break;
+			default:
+				break;
+			}
+			printf("%lu\t%lu\t%lu\n", threads[i].clients[j].cursor, threads[i].clients[j].txn_remaining,
+					threads[i].clients[j].batch_remaining);
+		}
+	}
+
+out:
+	exit(1);
+}
 
 int main(int argc, char **argv)
 {
@@ -736,6 +804,7 @@ int main(int argc, char **argv)
 	for (i = 0; i < nr_threads; i++) {
 		if (threads[i].dying) {
 			fprintf(stderr, "Worker threads failed, skipping stats output.\n");
+			do_error_report(host);
 			exit(1);
 		}
 	}
