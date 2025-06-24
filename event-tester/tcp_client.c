@@ -500,13 +500,14 @@ static void *worker_func(void *arg)
 		memset(events, 0, sizeof(struct epoll_event) * rdy);
 	}
 
-	cleanup(me);
+	// We want to dump state if we died so only cleanup if we finished successfully.
+	if (!me->dying)
+		cleanup(me);
 
 	// Finished
 	return NULL;
 
 out_err:
-	cleanup(me);
 	set_dying();
 	return NULL;
 }
@@ -529,34 +530,37 @@ static void do_error_report(char *host)
 
 	err_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (setsockopt(err_fd, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval)) < 0) {
-		printf("Failing to get error info\n");
-		goto out;
+		perror("error_report setsockopt");
+		goto local;
 	}
 
 	if (do_connect(err_fd, err_server->ai_addr, err_server->ai_addrlen) != READY) {
-		printf("Failing to get error info\n");
-		goto out;
+		perror("error_report connect");
+		goto local;
 	}
 
 	if (read(err_fd, &size, sizeof(uint64_t)) < sizeof(uint64_t)) {
-		printf("Failing to get error info\n");
-		goto out;
+		perror("error_report read");
+		goto local;
 	}
 
 	buf = calloc(size, 1);
 	do {
 		ret = read(err_fd, &buf[cursor], size - cursor);
 		if (ret <= 0) {
-			printf("Failing to get error info\n");
-			goto out;
+			perror("error_report read");
+			goto local;
 		}
 		cursor += ret;
 	} while (cursor < size);
 
+	printf("%s\n", buf);
+local:
 	printf("THREAD\tCLIENT\tSTATE\tCURSOR\tTXN_REMAIN\tBATCH_REMAIN\n");
 	for (size_t i = 0; i < nr_threads; i++) {
 		for (size_t j = 0; j < clients_per_thread; j++) {
-			if (threads[i].clients[j].state == INIT || threads[i].clients[j].state == DONE ||
+			if (!threads[i].clients || threads[i].clients[j].state == INIT ||
+					threads[i].clients[j].state == DONE ||
 					threads[i].clients[j].txn_remaining == 0)
 				continue;
 
@@ -585,7 +589,6 @@ static void do_error_report(char *host)
 		}
 	}
 
-out:
 	exit(1);
 }
 

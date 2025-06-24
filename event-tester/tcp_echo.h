@@ -29,6 +29,7 @@ struct connection {
 	uint8_t *buffer;
 	struct TscLog *accept_log;
 	struct TscLog *work_log;
+	uint64_t event_count;
 	int state;
 	int fd;
 };

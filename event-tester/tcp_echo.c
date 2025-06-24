@@ -180,6 +180,8 @@ void on_read(void *arg)
 		}
 	}
 
+	conn->event_count++;
+
 	cursor = conn->cursor;
 
 	do {
@@ -192,7 +194,7 @@ void on_read(void *arg)
 				return;
 			}
 
-			if (cursor && cursor < msg_size) {
+			if (cursor) {
 				// Nothing to do here, just return. We need to wait for the remainder of the message
 				conn->cursor = cursor;
 			}
@@ -385,10 +387,11 @@ void on_error(int error_fd, int epoll_fd)
 
 		if (!dangling) {
 			dangling = 1;
-			cursor = snprintf(output, ERR_BUF_SZ, "FD\tSTATE\tCURSOR\n");
+			cursor = snprintf(output, ERR_BUF_SZ, "FD\tSTATE\tCURSOR\tEVENT_COUNT\n");
 		}
 
-		ret = snprintf(&output[cursor], ERR_BUF_SZ - cursor, "%d\t%s\t%lu\n", i, err_str[conn->state], conn->cursor);
+		ret = snprintf(&output[cursor], ERR_BUF_SZ - cursor, "%d\t%s\t%lu\t%lu\n",
+				i, err_str[conn->state], conn->cursor, conn->event_count);
 		cursor += ret;
 		if (cursor > ERR_BUF_SZ - 32)
 			// We're out of buffer space, there is enough info to diagnose some problem
