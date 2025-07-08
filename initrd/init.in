@@ -49,6 +49,7 @@ if [ -n "${1}" ]; then
 	fi
 	/usr/sbin/ip address flush dev $INF
 	/usr/sbin/ip address add $IP/24 brd + dev $INF
+	#/usr/sbin/ip link set dev $INF mtu 9000
 	/usr/sbin/ip link set $INF up
 
 	if [ -n "${4}" ]; then

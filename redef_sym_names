@@ -41,3 +41,4 @@ ukl_event_work_done event_work_done
 ukl_register_subscription register_subscription
 ukl_remove_subscription remove_subscription
 ukl_ukl_subs ukl_subs
+ukl_dump_stack dump_stack

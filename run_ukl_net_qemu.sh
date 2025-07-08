@@ -19,6 +19,6 @@ qemu-system-x86_64 \
     -append "console=ttyS0 net.ifnames=0 biosdevname=0 clearcpuid=smap,smep mitigations=off mds=off -- 192.168.122.128 52:54:00:12:34:56 ${4}" \
     -netdev tap,ifname=${TAPDEV},id=eth0,script=no,downscript=no,queues=${SMP} \
     -device virtio-net-pci,netdev=eth0,mq=on,vectors=$((2*$SMP+2)) \
-    -smp $SMP -s -S
+    -smp $SMP
 
 ip tuntap del dev $TAPDEV mode tap multi_queue
