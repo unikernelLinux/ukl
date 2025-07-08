@@ -7,6 +7,7 @@
 #define _TCP_ECHO_H_
 
 #include <stdint.h>
+#include <pthread.h>
 
 #define UKL_USER
 #include "tsc_logger.h"
@@ -30,8 +31,10 @@ struct connection {
 	struct TscLog *accept_log;
 	struct TscLog *work_log;
 	uint64_t event_count;
+	uint64_t port;
 	int state;
 	int fd;
+	pthread_mutex_t lock;
 };
 
 struct waiting_conn {
@@ -86,7 +89,7 @@ struct read_format {
 
 void on_accept(void *arg);
 
-void close_from_io(struct connection *conn);
+int close_from_io(struct connection *conn);
 
 void on_read(void *arg);
 

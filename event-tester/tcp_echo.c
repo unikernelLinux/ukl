@@ -1,4 +1,5 @@
 
+
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,6 +21,7 @@
 #include <sys/epoll.h>
 
 #include <arpa/inet.h>
+#include <netinet/in.h>
 
 #include <linux/perf_event.h>
 
@@ -160,69 +162,8 @@ struct connection *new_conn(int fd)
 	}
 
 	conn->fd = fd;
+	pthread_mutex_init(&conn->lock, NULL);
 	return conn;
-}
-
-void on_read(void *arg)
-{
-	struct connection *conn = (struct connection*)arg;
-	ssize_t ret;
-	size_t cursor;
-
-	if (conn->fd < 0)
-		return;
-
-	if (!conn->buffer) {
-		conn->buffer = cache_alloc(msg_cache, me->index);
-		if (!conn->buffer) {
-			perror("Malloc on read");
-			exit(1);
-		}
-	}
-
-	conn->event_count++;
-
-	cursor = conn->cursor;
-
-	do {
-		if ((ret = read(conn->fd, &(conn->buffer[cursor]), msg_size - cursor)) <= 0) {
-			if (ret == 0) {
-				// Note that this is required because epoll adds EPOLLHUP to any event subscription
-				// so we might be woken up and try to read because of a hang up event. This function
-				// call is a noop for upcalls.
-				close_from_io(conn);
-				return;
-			}
-
-			if (cursor) {
-				// Nothing to do here, just return. We need to wait for the remainder of the message
-				conn->cursor = cursor;
-			}
-			return;
-
-		}
-		cursor += ret;
-	} while (cursor < msg_size);
-
-	conn->cursor = cursor = 0;
-	conn->state = WRITING;
-
-	do {
-		if ((ret = write(conn->fd, &(conn->buffer[cursor]), msg_size - cursor)) <= 0) {
-			if (ret == 0) {
-				close_from_io(conn);
-				return;
-			}
-
-			if (errno == EAGAIN || errno == EWOULDBLOCK) {
-				continue;
-			}
-			perror("write to client");
-			continue;
-		}
-		cursor += ret;
-	} while (cursor < msg_size);
-	conn->state = READING;
 }
 
 void write_perf_stats(void)
@@ -269,6 +210,11 @@ static void config_event(struct perf_event_attr *pe, uint32_t type, uint64_t con
 	pe->config = config;
 	pe->disabled = !!(disabled);
 	pe->read_format = PERF_FORMAT_GROUP | PERF_FORMAT_ID;
+	// The man page for perf_event_open says that PERF_FORMAT_GROUP cannot be used with inherit = 1,
+	// however according to
+	// https://stackoverflow.com/questions/50322471/perf-event-open-including-the-execution-of-child-process-in-case-of-sampling
+	// the google benchmark suite is using this combination successfully.
+	pe->inherit = 1;
 }
 
 void setup_perf(int *fds, int *ids, int cpu)
@@ -387,11 +333,11 @@ void on_error(int error_fd, int epoll_fd)
 
 		if (!dangling) {
 			dangling = 1;
-			cursor = snprintf(output, ERR_BUF_SZ, "FD\tSTATE\tCURSOR\tEVENT_COUNT\n");
+			cursor = snprintf(output, ERR_BUF_SZ, "FD\tPORT\tSTATE\tCURSOR\tEVENT_COUNT\n");
 		}
 
-		ret = snprintf(&output[cursor], ERR_BUF_SZ - cursor, "%d\t%s\t%lu\t%lu\n",
-				i, err_str[conn->state], conn->cursor, conn->event_count);
+		ret = snprintf(&output[cursor], ERR_BUF_SZ - cursor, "%d\t%lu\t%s\t%lu\t%lu\n",
+				i, conn->port, err_str[conn->state], conn->cursor, conn->event_count);
 		cursor += ret;
 		if (cursor > ERR_BUF_SZ - 32)
 			// We're out of buffer space, there is enough info to diagnose some problem

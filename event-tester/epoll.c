@@ -8,7 +8,6 @@
 #include <string.h>
 #include <netdb.h>
 #include <unistd.h>
-#include <getopt.h>
 #include <sched.h>
 #include <errno.h>
 #include <pthread.h>
@@ -94,6 +93,71 @@ void on_accept(void *arg)
 		}
 	}
 }
+
+void on_read(void *arg)
+{
+	struct connection *conn = (struct connection*)arg;
+	ssize_t ret;
+	size_t cursor;
+
+	if (conn->fd < 0)
+		return;
+
+	if (!conn->buffer) {
+		conn->buffer = cache_alloc(msg_cache, me->index);
+		if (!conn->buffer) {
+			perror("Malloc on read");
+			exit(1);
+		}
+	}
+
+	conn->event_count++;
+
+	cursor = conn->cursor;
+
+	do {
+		if ((ret = read(conn->fd, &(conn->buffer[cursor]), msg_size - cursor)) <= 0) {
+			if (ret == 0) {
+				// Note that this is required because epoll adds EPOLLHUP to any event subscription
+				// so we might be woken up and try to read because of a hang up event. This function
+				// call is a noop for upcalls. Epoll should return a true value if the connection was
+				// freed (meaning the unlock at the end of the function will produce undefined behavior.
+				if (close_from_io(conn))
+					return;
+			} else if (errno != EWOULDBLOCK && errno != EAGAIN) {
+				perror("read from client socket failed");
+			}
+
+			if (cursor > conn->cursor) {
+				// Nothing to do here, just return. We need to wait for the remainder of the message
+				conn->cursor = cursor;
+			}
+			return;
+		}
+		cursor += ret;
+	} while (cursor < msg_size);
+
+	conn->cursor = cursor = 0;
+	conn->state = WRITING;
+
+	do {
+		if ((ret = write(conn->fd, &(conn->buffer[cursor]), msg_size - cursor)) <= 0) {
+			if (ret == 0) {
+				close_from_io(conn);
+				return;
+			}
+
+			if (errno == EAGAIN || errno == EWOULDBLOCK) {
+				continue;
+			}
+			perror("write to client");
+			continue;
+		}
+		cursor += ret;
+	} while (cursor < msg_size);
+	conn->state = READING;
+}
+
 
 static void handle_new_conns(void)
 {
@@ -327,7 +391,9 @@ void init_threads(uint64_t nr_cpus)
 void on_close(void *arg)
 {
 	struct connection *conn = (struct connection*)arg;
-	int closed_fd = conn->fd;
+	int closed_fd;
+
+	closed_fd = conn->fd;
 				
 	conns[closed_fd] = NULL;
 				
@@ -335,16 +401,19 @@ void on_close(void *arg)
 		perror("epoll_ctl remove closed:");
 		exit(1);
 	}
-		 
+
 	close(closed_fd);
+	pthread_mutex_unlock(&conn->lock);
+	pthread_mutex_destroy(&conn->lock);
 	me->conn_count++;
 	
 	cache_free(msg_cache, conn->buffer, me->index);
 	cache_free(conn_cache, conn, me->index);
 }
 
-void close_from_io(struct connection *conn)
+int close_from_io(struct connection *conn)
 {
 	on_close(conn);
+	return 1;
 }
 

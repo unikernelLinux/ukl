@@ -17,6 +17,9 @@
 #include <sys/ioctl.h>
 
 #include <linux/perf_event.h>
+#include <arpa/inet.h>
+
+#include <netinet/in.h>
 
 #include "tcp_echo.h"
 
@@ -86,6 +89,68 @@ void on_accept(void *arg)
 	}
 }
 
+void on_read(void *arg)
+{
+	struct connection *conn = (struct connection*)arg;
+	ssize_t ret;
+	size_t cursor;
+	 
+	if (conn->fd < 0)
+		return; 
+		
+	pthread_mutex_lock(&conn->lock);
+		
+	if (!conn->buffer) {
+		conn->buffer = cache_alloc(msg_cache, me->index);
+		if (!conn->buffer) {
+			perror("Malloc on read");
+			exit(1);
+		}
+	}
+	
+	conn->event_count++;
+		
+	cursor = conn->cursor;
+	 
+	do {
+		if ((ret = read(conn->fd, &(conn->buffer[cursor]), msg_size - cursor)) <= 0) {
+			if (errno != EWOULDBLOCK && errno != EAGAIN) {
+				perror("read from client socket failed");
+			}
+
+			if (cursor > conn->cursor) {
+				// Nothing to do here, just return. We need to wait for the remainder of the message
+				conn->cursor = cursor;
+			}
+			goto out_unlock;
+
+		}
+		cursor += ret;
+	} while (cursor < msg_size);
+
+	conn->cursor = cursor = 0;
+	conn->state = WRITING;
+
+	do {
+		if ((ret = write(conn->fd, &(conn->buffer[cursor]), msg_size - cursor)) <= 0) {
+			if (ret == 0) {
+				goto out_unlock;
+			}
+
+			if (errno == EAGAIN || errno == EWOULDBLOCK) {
+				continue;
+			}
+			perror("write to client");
+			continue;
+		}
+		cursor += ret;
+	} while (cursor < msg_size);
+	conn->state = READING;
+out_unlock:
+	pthread_mutex_unlock(&conn->lock);
+}
+
+
 static void worker_setup(void *arg)
 {
 	int i = 1;
@@ -152,7 +217,7 @@ static void worker_setup(void *arg)
 
 void *dummy_worker(void *arg)
 {
-        return arg;
+	return arg;
 }
 
 void init_threads(uint64_t nr_cpus)
@@ -170,16 +235,16 @@ void init_threads(uint64_t nr_cpus)
 	}
 }
 
-void close_from_io(struct connection *conn)
-{
-	conn->state = CLOSING;
-	return;
-}
-
 void on_close(void *arg)
 {
+	int closed_fd;
+	int failed_lock = 0;
 	struct connection *conn = (struct connection *)arg;
-	int closed_fd = conn->fd;
+
+	if (pthread_mutex_lock(&conn->lock))
+		failed_lock = 1;
+
+	closed_fd = conn->fd;
 	conn->fd = -1;
 
 	if (closed_fd >= 0) {
@@ -188,9 +253,19 @@ void on_close(void *arg)
 		unregister_event(closed_fd, EPOLLHUP);
 		conn->state = CLOSING;
 		close(closed_fd);
+
+		if (!failed_lock)
+			pthread_mutex_unlock(&conn->lock);
+
+		// In case the lock was acquired here, we need to make sure we can destroy it
+		while (!failed_lock && pthread_mutex_destroy(&conn->lock))
+			continue;
+
 		cache_free(msg_cache, conn->buffer, me->index);
 		cache_free(conn_cache, conn, me->index);
 		me->conn_count++;
+	} else if (!failed_lock) {
+		pthread_mutex_unlock(&conn->lock);
 	}
 
 }

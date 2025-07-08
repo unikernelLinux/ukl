@@ -521,6 +521,8 @@ static void do_error_report(char *host)
 	uint64_t size, cursor = 0;
 	char *buf;
 	int optval = 1;
+	struct sockaddr_in sock_addr;
+	socklen_t len;
 
 	snprintf(err_str, 6, "%d", DEFAULT_ERROR);
 	memset(&hints, 0, sizeof(struct addrinfo));
@@ -554,9 +556,9 @@ static void do_error_report(char *host)
 		cursor += ret;
 	} while (cursor < size);
 
-	printf("%s\n", buf);
+	printf("%s\n\n", buf);
 local:
-	printf("THREAD\tCLIENT\tSTATE\tCURSOR\tTXN_REMAIN\tBATCH_REMAIN\n");
+	printf("THREAD\tCLIENT\tPORT\tSTATE\tCURSOR\tTXN_REMAIN\tBATCH_REMAIN\n");
 	for (size_t i = 0; i < nr_threads; i++) {
 		for (size_t j = 0; j < clients_per_thread; j++) {
 			if (!threads[i].clients || threads[i].clients[j].state == INIT ||
@@ -564,7 +566,11 @@ local:
 					threads[i].clients[j].txn_remaining == 0)
 				continue;
 
-			printf("%lu\t%lu\t", i, j);
+
+			len = sizeof(sock_addr);
+			memset(&sock_addr, 0, len);
+			getsockname(threads[i].clients[j].sock, &sock_addr, &len);
+			printf("%lu\t%lu\t%d\t", i, j, ntohs(sock_addr.sin_port));
 			switch (threads[i].clients[j].state) {
 			case CONNECTING:
 				printf("CONNECTING\t");
