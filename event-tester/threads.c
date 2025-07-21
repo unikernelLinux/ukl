@@ -86,14 +86,9 @@ static void* worker_func(void *arg)
 {
 	uint64_t my_cpu = (uint64_t)arg;
 	int i = 1;
-	int cpu;
 	struct connection *incoming;
 	pthread_attr_t attrs;
 	pthread_t dummy;
-	cpu_set_t *worker_cpu;
-	socklen_t size = sizeof(cpu);
-
-	worker_cpu = CPU_ALLOC(nr_cpus);
 
 	me = calloc(1, sizeof(struct worker_thread));
 	if (!me) {
@@ -159,7 +154,6 @@ static void* worker_func(void *arg)
 	 * will be created in a detachted state and we won't care about their return values.
 	 */
 	while (1) {
-		CPU_ZERO_S(CPU_ALLOC_SIZE(nr_cpus), worker_cpu);
 		incoming = calloc(1, sizeof(struct connection));
 		if (!incoming) {
 			perror("OOM");
@@ -174,18 +168,6 @@ static void* worker_func(void *arg)
 
 		me->accept_count++;
 
-		if (getsockopt(incoming->fd, SOL_SOCKET, SO_INCOMING_CPU, &cpu, &size) < 0) {
-			perror("getsockopt:");
-			exit(1);
-		}
-
-		CPU_SET_S(cpu, CPU_ALLOC_SIZE(nr_cpus), worker_cpu);
-
-		if (pthread_attr_setaffinity_np(&attrs, CPU_ALLOC_SIZE(nr_cpus), worker_cpu)) {
-			perror("Cannot set affinity in attr");
-			exit(1);
-		}
-		
 		if (pthread_create(&dummy, &attrs, conn_handler, incoming)) {
 			perror("pthread_create():");
 			exit(1);
