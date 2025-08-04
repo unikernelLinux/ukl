@@ -227,6 +227,8 @@ static void *worker_func(void *arg)
 					add_write_request(owner->event_fd, u, sizeof(*u), EV_WRITE, 1);
 				} else {
 					conns[newbie->fd] = conn = new_conn(newbie->fd);
+					if (!conn->buffer)
+						conn->buffer = cache_alloc(msg_cache, me->index);
 					free(newbie);
 					add_read_request(conn->fd, conn->buffer, msg_size, SOCK_READ);
 				}
@@ -267,6 +269,8 @@ static void *worker_func(void *arg)
 					}
 
 					free(newbie);
+					if (!conn->buffer)
+						conn->buffer = cache_alloc(msg_cache, me->index);
 
 					add_read_request(conn->fd, conn->buffer, msg_size, SOCK_READ);
 					pthread_mutex_lock(&me->incoming.lock);
