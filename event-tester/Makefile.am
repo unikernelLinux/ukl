@@ -43,8 +43,30 @@ endif
 
 EV_SYS = @EVENT_SYSTEM@
 
+if EV_IS_URING
+SYS_LIB = liburing.a
+AM_CFLAGS += -Iliburing/src/include
+else
+SYS_LIB =
+endif
+
 data.tar.gz:
 	touch data.tar.gz
+
+# Get a local copy of liburing
+stamp-liburing-dir:
+	rm -f $@
+	if ! test -d liburing; then \
+		git clone https://github.com/axboe/liburing.git; \
+	fi
+	touch $@
+
+liburing.a: stamp-liburing-dir
+	rm -f $@
+	cd liburing && \
+	./configure && \
+	CFLAGS='-O3 -Wall -Wextra -fno-stack-protector $(AM_CFLAGS)' ENABLE_SHARED=0 make -j`nproc`
+	mv liburing/src/liburing.a $@
 
 tcp_client: tcp_client.c
 	gcc -o $@ $< -ggdb -Wall -Werror -lpthread
@@ -52,14 +74,14 @@ tcp_client: tcp_client.c
 tcp_echo: tcp_echo.c $(EV_SYS).c tsc_logger.h
 	gcc -o $@ tcp_echo.c $(EV_SYS).c -ggdb -Wall -Werror -lpthread
 
-UKL.a: tcp_echo.o $(EV_SYS).o tsc_logger.h undefined_sys_hack.o tcp_client $(UPCALL_LIB)
+UKL.a: tcp_echo.o $(EV_SYS).o tsc_logger.h undefined_sys_hack.o tcp_client $(UPCALL_LIB) $(SYS_LIB)
 	rm -f $@ temp.o
 	ld -r -o temp.o -allow-multiple-definition \
 	    $(CRT_STARTS) \
 	    tcp_echo.o $(EV_SYS).o \
 	    --start-group \
 	    --whole-archive \
-	    $(UPCALL_LIB) $(MATH_LIB) $(RT_LIB) $(PTHREAD_LIB) $(C_LIB) \
+	    $(SYS_LIB) $(UPCALL_LIB) $(MATH_LIB) $(RT_LIB) $(PTHREAD_LIB) $(C_LIB) \
 	    --no-whole-archive \
 	    $(GCC_LIBS) \
 	    --end-group \

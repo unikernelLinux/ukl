@@ -28,6 +28,8 @@
 #define TOTAL_EVENTS 5
 #define CONN_EVENT (uint64_t)(1)
 
+#define QUEUE_DEPTH 256
+
 #define CONNECT 0
 #define WAITING 1
 #define READING 2

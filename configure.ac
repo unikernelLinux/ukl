@@ -159,6 +159,8 @@ AC_ARG_WITH([event_system],
 AC_MSG_RESULT([$EVENT_SYSTEM])
 AC_SUBST([EVENT_SYSTEM])
 
+AM_CONDITIONAL(EV_IS_URING, [test x"$EVENT_SYSTEM" = xiouring])
+
 dnl Produce output files.
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile \

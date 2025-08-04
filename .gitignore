@@ -44,6 +44,8 @@ Makefile.in
 /event-tester/data.tar.gz
 /event-tester/tcp_client
 /event-tester/tcp_echo
+/event-tester/stamp-liburing-dir
+/event-tester/liburing
 /event-tester/undefined_sys_hack.c
 initrd/perf
 
