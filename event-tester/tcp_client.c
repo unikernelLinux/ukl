@@ -818,28 +818,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	fd = open(out_file, O_WRONLY | O_CREAT | O_TRUNC,
-			S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-	if (fd < 0) {
-		perror("open():");
-		exit(1);
-	}
-
-	dprintf(fd, "WORKER\tCLIENT\tTRANSACTION ID\tEVENT ID\tTSC\tTSC_KHZ\n");
-
-	for (i = 0; i < nr_threads; i++) {
-		cursor = (struct TscLogEntry *)&(threads[i].log->entries[0]);
-		end = threads[i].log->hdr.info.cur;
-		while (cursor != end) {
-			dprintf(fd, "%lu\t%lu\t%lu\t%lu\t%lu\t%lu\n",
-					cursor->values[0], cursor->values[1], cursor->values[2],
-					cursor->values[3], cursor->tsc, tsc_khz);
-			cursor = (struct TscLogEntry *)((uint8_t*)cursor + TscLogEntrySize(4));
-		}
-	}
-
-	close(fd);
-
+	// Collect perf stats from server and write to disk
 	fd = open(stat_file, O_WRONLY | O_CREAT | O_TRUNC,
 			S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 	if (fd < 0) {
@@ -895,10 +874,41 @@ int main(int argc, char **argv)
 	} while (optval > 0 && index < perf_sz);
 
 	shutdown(stat_sock, SHUT_WR);
-
-	dprintf(fd, "%s", perf_buf);
-
 	close(stat_sock);
+
+	index = 0;
+	do {
+		optval = write(fd, &(perf_buf[index]), perf_sz - index);
+		if (optval < 0) {
+			perror("perf stat write:");
+			close(fd);
+			exit(1);
+		}
+		index += optval;
+	} while (optval > 0 && index < perf_sz);
+
+	close(fd);
+
+	// Write our transaction log to disk
+	fd = open(out_file, O_WRONLY | O_CREAT | O_TRUNC,
+			S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+	if (fd < 0) {
+		perror("open():");
+		exit(1);
+	}
+
+	dprintf(fd, "WORKER\tCLIENT\tTRANSACTION ID\tEVENT ID\tTSC\tTSC_KHZ\n");
+
+	for (i = 0; i < nr_threads; i++) {
+		cursor = (struct TscLogEntry *)&(threads[i].log->entries[0]);
+		end = threads[i].log->hdr.info.cur;
+		while (cursor != end) {
+			dprintf(fd, "%lu\t%lu\t%lu\t%lu\t%lu\t%lu\n",
+					cursor->values[0], cursor->values[1], cursor->values[2],
+					cursor->values[3], cursor->tsc, tsc_khz);
+			cursor = (struct TscLogEntry *)((uint8_t*)cursor + TscLogEntrySize(4));
+		}
+	}
 
 	close(fd);
 
