@@ -175,8 +175,8 @@ void write_perf_stats(void)
 	for (size_t i = 0; i < nr_cpus; i++)
 		ioctl(threads[i]->perf_fds[0], PERF_EVENT_IOC_DISABLE, 0);
 
-	for (size_t i = 0; i < nr_cpus; i++) {
-		t = threads[i];
+	for (size_t idx = 0; idx < nr_cpus; idx++) {
+		t = threads[idx];
 		if (read(t->perf_fds[0], &perf_stats, sizeof(struct read_format)) <= 0) {
 			perror("perf event read:");
 			exit(1);
