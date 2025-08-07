@@ -195,7 +195,7 @@ static void *worker_func(void *arg)
 			case ACCEPT:
 				int cpu;
 				socklen_t size = sizeof(cpu);
-				uint64_t *u = malloc(sizeof(uint64_t));
+				uint64_t *u;
 				struct worker_thread *owner;
 				newbie = malloc(sizeof(struct waiting_conn));
 
@@ -204,7 +204,6 @@ static void *worker_func(void *arg)
 					exit(1);
 				}
 
-				*u = CONN_EVENT;
 				me->accept_count++;
 				newbie->fd = cqe->res;
 				if (newbie->fd < 0) {
@@ -219,6 +218,8 @@ static void *worker_func(void *arg)
 
 				owner = threads[cpu];
 				if (owner != me) {
+					u = malloc(sizeof(uint64_t));
+					*u = CONN_EVENT;
 					pthread_mutex_lock(&owner->incoming.lock);
 					newbie->next = owner->incoming.list;
 					owner->incoming.list = newbie;
@@ -291,6 +292,7 @@ static void *worker_func(void *arg)
 				if (conn->cursor + ret == msg_size) {
 					conn->cursor = 0;
 					add_read_request(conn->fd, conn->buffer, msg_size, SOCK_READ);
+					me->conn_count++;
 				} else {
 					conn->cursor += ret;
 					add_write_request(conn->fd, &(conn->buffer[conn->cursor]), msg_size - conn->cursor, SOCK_WRITE, 0);
