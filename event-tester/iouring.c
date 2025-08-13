@@ -172,7 +172,11 @@ static void *worker_func(void *arg)
 	uring_params.sq_entries = QUEUE_DEPTH;
 	uring_params.cq_entries = 8 * QUEUE_DEPTH;
 	uring_params.flags = IORING_SETUP_SINGLE_ISSUER;
-	io_uring_queue_init_params(QUEUE_DEPTH, &ring, &uring_params);
+	ret = io_uring_queue_init_params(QUEUE_DEPTH, &ring, &uring_params);
+	if (ret < 0) {
+		printf("io_uring_init_params failed with %d\n", ret);
+		exit(1);
+	}
 
 	add_accept_request(me->listen_sock, &client_addr, &client_addr_len);
 	add_read_request(me->event_fd, &ev_cause, cause_size, EV_READ);
@@ -192,7 +196,11 @@ static void *worker_func(void *arg)
 		struct io_uring_cqe *cqe;
 		unsigned head;
 		unsigned count = 0;
-		io_uring_submit_and_wait(&ring, 1);
+		ret = io_uring_submit_and_wait(&ring, 1);
+		if (ret < 0) {
+			printf("io_uring_submit_and_wait failed with %d\n", ret);
+			exit(1);
+		}
 
 		io_uring_for_each_cqe(&ring, head, cqe) {
 			struct req_info info;
