@@ -177,6 +177,17 @@ static void *worker_func(void *arg)
 	add_accept_request(me->listen_sock, &client_addr, &client_addr_len);
 	add_read_request(me->event_fd, &ev_cause, cause_size, EV_READ);
 
+	// Notify that setup is done
+	pthread_mutex_lock(&init_lock);
+	init_count++;
+	pthread_cond_signal(&init_cond);
+	pthread_mutex_unlock(&init_lock);
+	pthread_mutex_lock(&worker_hang_lock);
+	pthread_mutex_unlock(&worker_hang_lock);
+
+	ioctl(me->perf_fds[0], PERF_EVENT_IOC_RESET, 0);
+	ioctl(me->perf_fds[0], PERF_EVENT_IOC_ENABLE, 0);
+
 	while (1) {
 		struct io_uring_cqe *cqe;
 		unsigned head;
@@ -358,6 +369,5 @@ void init_threads(uint64_t nr_cpus)
 	}
 	pthread_mutex_unlock(&init_lock);
 	pthread_mutex_unlock(&worker_hang_lock);
-
 }
 
