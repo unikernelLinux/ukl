@@ -15,8 +15,8 @@ copy()
   if [ -n "$file" ] ; then
     cp $file $WDIR/$file
   else
-    echo "Missing required file: $1 for directory $2"
-    rm -rf $WDIR
+    echo "ERROR: required binary '$1' not found in the build container (for '$2')." >&2
+    echo "       Add it to initrd/ukl-base/Dockerfile, or remove it from the file list in buildinitrd.sh." >&2
     exit 1
   fi
 }
